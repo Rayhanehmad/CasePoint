@@ -379,7 +379,7 @@ def home():
           msgBox.appendChild(messageDiv);
           
           // Smooth scroll to bottom
-          setTimeout(() => {
+          setTimeout(function() {
             msgBox.scrollTop = msgBox.scrollHeight;
           }, 50);
           
@@ -494,7 +494,7 @@ def home():
             selectBtn.classList.add('active');
             selectBtn.innerHTML = '☑️ Selecting...';
             bulkActions.classList.add('active');
-            messages.forEach(msg => {
+            messages.forEach(function(msg) {
               msg.classList.add('selecting');
               const checkbox = msg.querySelector('input[type="checkbox"]');
               if (checkbox) checkbox.checked = false;
@@ -503,7 +503,7 @@ def home():
             selectBtn.classList.remove('active');
             selectBtn.innerHTML = '☑️ Select';
             bulkActions.classList.remove('active');
-            messages.forEach(msg => {
+            messages.forEach(function(msg) {
               msg.classList.remove('selecting', 'selected');
               const checkbox = msg.querySelector('input[type="checkbox"]');
               if (checkbox) checkbox.checked = false;
@@ -518,7 +518,7 @@ def home():
           document.getElementById('selectedCount').textContent = selectedCount + ' selected';
           
           // Update visual selection
-          document.querySelectorAll('.msg').forEach(msg => {
+          document.querySelectorAll('.msg').forEach(function(msg) {
             const checkbox = msg.querySelector('input[type="checkbox"]');
             if (checkbox && checkbox.checked) {
               msg.classList.add('selected');
@@ -536,7 +536,7 @@ def home():
           }
           
           if (confirm('Delete ' + selectedMessages.length + ' selected message(s)?')) {
-            selectedMessages.forEach(checkbox => {
+            selectedMessages.forEach(function(checkbox) {
               const msgElement = checkbox.closest('.msg');
               msgElement.remove();
             });
@@ -552,7 +552,7 @@ def home():
           }
           
           let forwardText = 'Forwarded Messages:\n\n';
-          selectedMessages.forEach(checkbox => {
+          selectedMessages.forEach(function(checkbox) {
             const msgElement = checkbox.closest('.msg');
             const msgContent = msgElement.textContent.replace(/☑️|Online|\d{1,2}:\d{2}/g, '').trim();
             const isUser = msgElement.classList.contains('user');
@@ -560,9 +560,9 @@ def home():
           });
           
           // Copy to clipboard
-          navigator.clipboard.writeText(forwardText).then(() => {
+          navigator.clipboard.writeText(forwardText).then(function() {
             alert(selectedMessages.length + ' message(s) copied to clipboard!');
-          }).catch(() => {
+          }).catch(function() {
             // Fallback: show in alert
             prompt('Copy this text to forward:', forwardText);
           });
@@ -615,7 +615,6 @@ def home():
           }
         }
         
-        // Check if user is admin (simple demo - in production use proper auth)
         // Check if user is admin and update UI
         function checkAdminStatus() {
           const userName = localStorage.getItem('userName') || 'Legal User';
@@ -659,7 +658,7 @@ def home():
           (selectedOnly ? 
             Array.from(msgElements).map(cb => cb.closest('.msg')) :
             Array.from(msgElements)
-          ).forEach(msg => {
+          ).forEach(function(msg) {
             const isUser = msg.classList.contains('user');
             const isBot = msg.classList.contains('bot');
             const timeElement = msg.querySelector('.message-time');
