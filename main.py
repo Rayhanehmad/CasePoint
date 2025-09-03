@@ -344,15 +344,19 @@ def home():
       </div>
 
       <script>
+        // Global variables
         let lastAnswer = "";
         let lastCitations = [];
         let isSelectMode = false;
         let messageIdCounter = 0;
         
+        // Utility functions
         function getCurrentTime() {
           const now = new Date();
           return now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }
+        
+        // Main messaging functions
 
         function addMessage(content, isUser = false, isTyping = false) {
           const msgBox = document.getElementById("messages");
@@ -614,15 +618,25 @@ def home():
         }
         
         // Check if user is admin (simple demo - in production use proper auth)
+        // Check if user is admin and update UI
         function checkAdminStatus() {
           const userName = localStorage.getItem('userName') || 'Legal User';
           const isAdmin = localStorage.getItem('isAdmin') === 'true';
           
-          document.getElementById('userName').textContent = userName;
-          document.getElementById('userAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=4dd0b7&color=fff&size=35`;
+          const userNameEl = document.getElementById('userName');
+          const userAvatarEl = document.getElementById('userAvatar');
+          
+          if (userNameEl) {
+            userNameEl.textContent = userName;
+          }
+          if (userAvatarEl) {
+            userAvatarEl.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userName) + '&background=4dd0b7&color=fff&size=35';
+          }
           
           if (isAdmin) {
             document.body.classList.add('admin-user');
+          } else {
+            document.body.classList.remove('admin-user');
           }
         }
         
@@ -795,20 +809,23 @@ def home():
           }
         }
         
-        // Initialize on page load
+        // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
           checkAdminStatus();
           
-          // Demo: Allow users to set their name and admin status
-          document.getElementById('userName').addEventListener('click', function() {
-            const newName = prompt('Enter your name:', this.textContent);
-            if (newName && newName.trim()) {
-              localStorage.setItem('userName', newName.trim());
-              const makeAdmin = confirm('Are you an admin user?');
-              localStorage.setItem('isAdmin', makeAdmin.toString());
-              checkAdminStatus();
-            }
-          });
+          // Click name to customize user profile
+          const userNameEl = document.getElementById('userName');
+          if (userNameEl) {
+            userNameEl.addEventListener('click', function() {
+              const newName = prompt('Enter your name:', this.textContent);
+              if (newName && newName.trim()) {
+                localStorage.setItem('userName', newName.trim());
+                const makeAdmin = confirm('Are you an admin user?');
+                localStorage.setItem('isAdmin', makeAdmin.toString());
+                checkAdminStatus();
+              }
+            });
+          }
         });
       </script>
     </body>
