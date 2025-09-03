@@ -1199,13 +1199,13 @@ def chat():
         # Build where clause for filtering
         where_clause = {}
         if filters.get("citation"):
-            where_clause["citation"] = {"$contains": filters["citation"]}
+            where_clause["citation"] = {"$eq": filters["citation"]}
         if filters.get("year"):
-            where_clause["year"] = {"$contains": filters["year"]}
+            where_clause["year"] = {"$eq": filters["year"]}
         if filters.get("page"):
-            where_clause["page"] = {"$contains": filters["page"]}
+            where_clause["page"] = {"$eq": filters["page"]}
         if filters.get("court"):
-            where_clause["court"] = {"$contains": filters["court"]}
+            where_clause["court"] = {"$eq": filters["court"]}
         
         # Database-only search with filters
         try:
@@ -1221,8 +1221,10 @@ def chat():
         # Process database results
         context = ""
         sources = []
+        database_found = False
         
         if results["documents"] and results["documents"][0]:
+            database_found = True
             print(f"✅ Found {len(results['documents'][0])} results in KanoonPK database")
             for i, doc in enumerate(results["documents"][0]):
                 context += f"Document {i+1}: {doc}\\n\\n"
@@ -1237,29 +1239,121 @@ def chat():
                 
                 if source_info not in sources:
                     sources.append(source_info)
-            
-            # Database-only response (no ChatGPT for filtered searches)
-            if context:
-                filtered_response = f"📊 **[Database Search Results]**\\n\\n**Query:** {user_input}\\n\\n**Applied Filters:** {', '.join([f'{k}: {v}' for k, v in filters.items() if v])}\\n\\n**Results:**\\n\\n{context}\\n\\n**Sources:** {', '.join(sources) if sources else 'Database documents'}"
-                
-                # Add search method indicator to response
-                final_reply = filtered_response
-                
-                print(f"📤 Sending database-only response: {len(final_reply)} characters")
-                
-                return jsonify({
-                    "reply": final_reply,
-                    "sources": sources
-                })
-            else:
-                return jsonify({
-                    "reply": f"📊 **[Database Search Results]**\\n\\nNo documents found in KanoonPK database matching your search criteria:\\n\\n**Query:** {user_input}\\n**Filters:** {', '.join([f'{k}: {v}' for k, v in filters.items() if v])}\\n\\nPlease try different search terms or upload relevant documents to the database.",
-                    "sources": []
-                })
         else:
+            print("❌ No results found in KanoonPK database")
+        
+        # Prepare system prompt for ChatGPT analysis
+        if database_found:
+            # Database found results - use ChatGPT to analyze and enhance
+            print(f"🤖 Step 2: Using ChatGPT to analyze filtered database results")
+            system_prompt = f"""You are KanoonPK, an AI Legal Research Assistant specialized in Pakistan law.
+
+I found relevant information in our KanoonPK database using advanced search filters. Analyze this information and provide a comprehensive legal answer.
+
+**Search Query:** {user_input}
+**Applied Filters:** {', '.join([f'{k}: {v}' for k, v in filters.items() if v])}
+
+**Database Results:**
+{context}
+
+Provide a detailed legal analysis that:
+1. Summarizes the key findings from the database
+2. Explains the legal significance 
+3. Provides context within Pakistan law
+4. Cites the database sources properly"""
+        else:
+            # No database results with filters - still use ChatGPT for general guidance
+            print(f"🤖 Step 2: Using ChatGPT for general legal knowledge (no database matches)")
+            system_prompt = f"""You are KanoonPK, an AI Legal Research Assistant specialized in Pakistan law.
+
+No specific documents were found in our database matching the search criteria, but I can still provide general legal guidance.
+
+**Search Query:** {user_input}
+**Applied Filters:** {', '.join([f'{k}: {v}' for k, v in filters.items() if v])}
+
+Provide a comprehensive answer about this legal topic focusing on Pakistan law, including:
+- Constitution of Pakistan 1973
+- Pakistan Penal Code
+- Civil and Criminal Procedure Codes
+- Other relevant legal statutes
+
+Also suggest uploading specific documents related to these search criteria for more detailed analysis."""
+        
+        # Now call ChatGPT for advanced search analysis
+        try:
+            print(f"💬 Calling ChatGPT for advanced search analysis: {user_input}")
+            
+            # Try with gpt-4o model first as fallback
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": system_prompt[:1000]},  # Limit system prompt length
+                        {"role": "user", "content": user_input}
+                    ],
+                    max_tokens=500,
+                    temperature=0.7
+                )
+            except Exception as e:
+                print(f"gpt-4o failed: {e}, trying gpt-5...")
+                response = client.chat.completions.create(
+                    model="gpt-5",
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_input}
+                    ],
+                    max_completion_tokens=800
+                )
+            
+            ai_reply = response.choices[0].message.content
+            if not ai_reply:
+                ai_reply = "I apologize, but I received an empty response from the AI model. Please try rephrasing your question."
+            print(f"✅ ChatGPT response received: {len(ai_reply)} characters")
+            print(f"📝 Response content: {ai_reply[:200]}...")
+            
+            # Save to history
+            timestamp = datetime.datetime.now().isoformat()
+            history_entry = {
+                "timestamp": timestamp,
+                "question": user_input,
+                "reply": ai_reply,
+                "sources": sources,
+                "citations": sources
+            }
+            
+            # Save to file
+            os.makedirs("logs", exist_ok=True)
+            history_file = "logs/history.json"
+            
+            try:
+                with open(history_file, "r") as f:
+                    history = json.load(f)
+            except:
+                history = []
+            
+            history.append(history_entry)
+            
+            with open(history_file, "w") as f:
+                json.dump(history, f, indent=2)
+            
+            # Add search method indicator to response
+            if database_found:
+                final_reply = f"📊 **[Advanced Search: Database + AI Analysis]**\\n\\n{ai_reply}"
+            else:
+                final_reply = f"🔍 **[Advanced Search: AI Knowledge]**\\n\\n{ai_reply}"
+            
+            print(f"📤 Sending advanced search response: {len(final_reply)} characters")
+            
             return jsonify({
-                "reply": f"📊 **[Database Search Results]**\\n\\nNo documents found in KanoonPK database matching your search criteria:\\n\\n**Query:** {user_input}\\n**Filters:** {', '.join([f'{k}: {v}' for k, v in filters.items() if v])}\\n\\nPlease try different search terms or upload relevant documents to the database.",
-                "sources": []
+                "reply": final_reply,
+                "sources": sources
+            })
+            
+        except Exception as e:
+            print(f"❌ ChatGPT Error in advanced search: {str(e)}")
+            return jsonify({
+                "reply": f"I apologize, but I encountered an error while processing your advanced search request: {str(e)}",
+                "sources": sources
             })
     
     else:
