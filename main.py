@@ -1344,7 +1344,7 @@ Also suggest uploading specific documents related to these search criteria for m
             
             # Include both AI response and source text from database
             if database_found and source_texts:
-                citations_text = "\\n\\n---\\n\\n**📚 Sources from Database:**\\n\\n"
+                citations_text = "\\n\\n<hr style='border: 1px solid #ccc; margin: 20px 0;'>\\n\\n**📚 Sources from Database:**\\n\\n"
                 for i, text in enumerate(source_texts):
                     citations_text += f"**Source {i+1}:**\\n{text}\\n\\n"
                 final_reply = ai_reply + citations_text
@@ -1355,7 +1355,7 @@ Also suggest uploading specific documents related to these search criteria for m
             
             return jsonify({
                 "reply": final_reply,
-                "sources": sources
+                "sources": []
             })
             
         except Exception as e:
@@ -1492,7 +1492,7 @@ Always mention that this answer is based on general legal knowledge and suggest 
         
         # Include both AI response and source text from database
         if database_found and source_texts:
-            citations_text = "\\n\\n---\\n\\n**📚 Sources from Database:**\\n\\n"
+            citations_text = "\\n\\n<hr style='border: 1px solid #ccc; margin: 20px 0;'>\\n\\n**📚 Sources from Database:**\\n\\n"
             for i, text in enumerate(source_texts):
                 citations_text += f"**Source {i+1}:**\\n{text}\\n\\n"
             final_reply = ai_reply + citations_text
@@ -1503,7 +1503,7 @@ Always mention that this answer is based on general legal knowledge and suggest 
         
         return jsonify({
             "reply": final_reply,
-            "sources": sources
+            "sources": []
         })
         
     except Exception as e:
