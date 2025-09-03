@@ -169,6 +169,11 @@ def home():
         .header-text .tagline { color: #666; font-size: 11px; margin: 0; }
         .admin-link { color: #4dd0b7; text-decoration: none; font-size: 11px; font-weight: 600; padding: 5px 10px; border: 1px solid #4dd0b7; border-radius: 15px; transition: all 0.3s; }
         .admin-link:hover { background: #4dd0b7; color: white; }
+        .user-profile { display: flex; align-items: center; gap: 8px; }
+        .user-avatar { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #4dd0b7; }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-size: 12px; font-weight: 600; color: #2bc77a; margin: 0; }
+        .user-status { font-size: 10px; color: #666; margin: 0; }
         .chat-actions { display: flex; gap: 8px; margin-bottom: 10px; }
         .chat-action-btn { padding: 6px 12px; border: none; border-radius: 15px; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.3s; }
         .delete-chat-btn { background: #ff6b6b; color: white; }
@@ -210,6 +215,11 @@ def home():
         .search-actions { text-align: center; margin-top: 8px; }
         .input-section { display: flex; gap: 5px; background: white; padding: 10px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .input-section input { flex: 1; padding: 10px 12px; border: none; border-radius: 15px; outline: none; background: #f8f9fa; font-size: 13px; }
+        .file-upload-btn { background: #6c5ce7; color: white; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; transition: all 0.3s; }
+        .file-upload-btn:hover { background: #5a4fcf; transform: scale(1.1); }
+        .file-input { display: none; }
+        .admin-protected { display: none; }
+        .admin-user .admin-protected { display: block; }
         .input-section button { padding: 10px 15px; border: none; border-radius: 15px; cursor: pointer; font-weight: 600; transition: all 0.3s; font-size: 12px; }
         .send-btn { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; }
         .send-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(45, 199, 122, 0.4); }
@@ -241,7 +251,16 @@ def home():
               <p class="tagline">Your trusted partner for Pakistan law research and legal insights</p>
             </div>
           </div>
-          <a href="/admin" class="admin-link">🔧 Admin Panel</a>
+          <div class="header-right" style="display: flex; align-items: center; gap: 15px;">
+            <div class="user-profile">
+              <img src="https://ui-avatars.com/api/?name=Legal+User&background=4dd0b7&color=fff&size=35" alt="User Avatar" class="user-avatar" id="userAvatar">
+              <div class="user-info">
+                <p class="user-name" id="userName">Legal User</p>
+                <p class="user-status">Subscriber</p>
+              </div>
+            </div>
+            <a href="/admin" class="admin-link admin-protected">🔧 Admin Panel</a>
+          </div>
         </div>
         
         <div class="chat-actions">
@@ -295,6 +314,8 @@ def home():
         </div>
         
         <div class="input-section">
+          <input type="file" id="documentInput" class="file-input" accept=".pdf,.docx,.txt" onchange="handleFileUpload()">
+          <button onclick="document.getElementById('documentInput').click()" class="file-upload-btn" title="Upload Document for Analysis">📁</button>
           <input id="userInput" placeholder="Ask about Pakistan law..." onkeydown="if(event.key==='Enter')sendMessage()">
           <button onclick="sendMessage()" class="send-btn">💬 Send</button>
           <button onclick="downloadPDF()" class="pdf-btn">📄 PDF</button>
@@ -529,6 +550,76 @@ def home():
             toggleSelectMode();
           }
         }
+        
+        async function handleFileUpload() {
+          const fileInput = document.getElementById('documentInput');
+          const file = fileInput.files[0];
+          
+          if (!file) return;
+          
+          // Show upload progress
+          const uploadMsg = addMessage(`📁 Uploading and analyzing: ${file.name}...`, false, true);
+          
+          const formData = new FormData();
+          formData.append('file', file);
+          
+          try {
+            const response = await fetch('/upload-and-analyze', {
+              method: 'POST',
+              body: formData
+            });
+            
+            if (!response.ok) {
+              throw new Error('Upload failed');
+            }
+            
+            const result = await response.json();
+            
+            // Remove upload progress
+            uploadMsg.remove();
+            
+            // Add analysis result
+            addMessage(`📄 Document uploaded and indexed successfully!<br><strong>File:</strong> ${file.name}<br><strong>Analysis:</strong> ${result.summary || 'Document processed and ready for queries.'}`);
+            
+            // Clear file input
+            fileInput.value = '';
+            
+          } catch (error) {
+            console.error('Upload error:', error);
+            uploadMsg.remove();
+            addMessage('❌ Error uploading document. Please try again.', false);
+            fileInput.value = '';
+          }
+        }
+        
+        // Check if user is admin (simple demo - in production use proper auth)
+        function checkAdminStatus() {
+          const userName = localStorage.getItem('userName') || 'Legal User';
+          const isAdmin = localStorage.getItem('isAdmin') === 'true';
+          
+          document.getElementById('userName').textContent = userName;
+          document.getElementById('userAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=4dd0b7&color=fff&size=35`;
+          
+          if (isAdmin) {
+            document.body.classList.add('admin-user');
+          }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+          checkAdminStatus();
+          
+          // Demo: Allow users to set their name and admin status
+          document.getElementById('userName').addEventListener('click', function() {
+            const newName = prompt('Enter your name:', this.textContent);
+            if (newName && newName.trim()) {
+              localStorage.setItem('userName', newName.trim());
+              const makeAdmin = confirm('Are you an admin user?');
+              localStorage.setItem('isAdmin', makeAdmin.toString());
+              checkAdminStatus();
+            }
+          });
+        });
 
         async function downloadPDF() {
           if (!lastAnswer) {
@@ -567,6 +658,8 @@ def home():
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
+    # Simple admin check - in production, implement proper authentication
+    # For demo purposes, we'll assume access is controlled client-side
     if request.method == "POST":
         file = request.files["file"]
         if file and file.filename:
@@ -866,6 +959,44 @@ def export_csv():
             writer.writerow([h["timestamp"], h["question"], h["reply"], "; ".join(h["citations"])])
 
     return send_file(filename, as_attachment=True)
+
+@app.route("/upload-and-analyze", methods=["POST"])
+def upload_and_analyze():
+    """Handle file upload from chat interface"""
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'No file provided'}), 400
+    
+    file = request.files['file']
+    if not file or not file.filename:
+        return jsonify({'success': False, 'message': 'No file selected'}), 400
+    
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    
+    try:
+        file.save(file_path)
+        
+        # Process and add to collection
+        save_to_collection(file_path, filename)
+        
+        # Generate summary
+        if filename.lower().endswith('.pdf'):
+            text_preview = extract_text_from_pdf(file_path)[:500] + "..."
+        elif filename.lower().endswith('.docx'):
+            text_preview = extract_text_from_docx(file_path)[:500] + "..."
+        else:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                text_preview = f.read()[:500] + "..."
+        
+        return jsonify({
+            'success': True, 
+            'message': 'File uploaded and indexed successfully',
+            'filename': filename,
+            'summary': f'Document contains legal text and has been indexed for search. Preview: {text_preview}'
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Upload failed: {str(e)}'}), 500
 
 @app.route("/admin/delete", methods=["POST"])
 def admin_delete():
