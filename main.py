@@ -426,7 +426,7 @@ def home():
             lastCitations = data.sources;
 
             // Build bot response with proper formatting
-            let content = data.reply.replace(/\\n/g,"<br>");
+            let content = data.reply.replace(/\n/g,"<br>");
             
             if (data.sources.length) {
               content += '<div class=\"sources\"><strong>📑 Legal Sources:</strong> ' + data.sources.join(", ") + '</div>';
@@ -665,10 +665,10 @@ def home():
             const time = timeElement ? timeElement.textContent : getCurrentTime();
             
             // Extract message content (excluding checkboxes and timestamps)
-            let content = msg.textContent.replace(/\\s*✅\\s*/, '').replace(time, '').trim();
+            let content = msg.textContent.replace(/\s*✅\s*/, '').replace(time, '').trim();
             
             // Remove checkbox artifacts
-            content = content.replace(/^\\s*/, '');
+            content = content.replace(/^\s*/, '');
             
             if (content && !msg.classList.contains('typing')) {
               messages.push({
