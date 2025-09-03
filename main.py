@@ -1223,6 +1223,7 @@ def chat():
         # Process database results
         context = ""
         sources = []
+        source_texts = []  # Store actual text from database
         database_found = False
         
         if results["documents"] and results["documents"][0]:
@@ -1230,6 +1231,9 @@ def chat():
             print(f"✅ Found {len(results['documents'][0])} results in KanoonPK database")
             for i, doc in enumerate(results["documents"][0]):
                 context += f"Document {i+1}: {doc}\\n\\n"
+                
+                # Store the actual document text
+                source_texts.append(doc)
                 
                 # Get source info
                 metadata = results["metadatas"][0][i] if results["metadatas"] and results["metadatas"][0] else {}
@@ -1338,8 +1342,14 @@ Also suggest uploading specific documents related to these search criteria for m
             with open(history_file, "w") as f:
                 json.dump(history, f, indent=2)
             
-            # Clean response without indicators
-            final_reply = ai_reply
+            # Include both AI response and source text from database
+            if database_found and source_texts:
+                citations_text = "\\n\\n---\\n\\n**📚 Sources from Database:**\\n\\n"
+                for i, text in enumerate(source_texts):
+                    citations_text += f"**Source {i+1}:**\\n{text}\\n\\n"
+                final_reply = ai_reply + citations_text
+            else:
+                final_reply = ai_reply
             
             print(f"📤 Sending advanced search response: {len(final_reply)} characters")
             
@@ -1369,6 +1379,7 @@ Also suggest uploading specific documents related to these search criteria for m
         # Process database results
         context = ""
         sources = []
+        source_texts = []  # Store actual text from database
         database_found = False
         
         if results["documents"] and results["documents"][0]:
@@ -1376,6 +1387,9 @@ Also suggest uploading specific documents related to these search criteria for m
             print(f"✅ Found {len(results['documents'][0])} results in KanoonPK database")
             for i, doc in enumerate(results["documents"][0]):
                 context += f"Document {i+1}: {doc}\\n\\n"
+                
+                # Store the actual document text
+                source_texts.append(doc)
                 
                 # Get source info
                 metadata = results["metadatas"][0][i] if results["metadatas"] and results["metadatas"][0] else {}
@@ -1476,8 +1490,14 @@ Always mention that this answer is based on general legal knowledge and suggest 
         with open(history_file, "w") as f:
             json.dump(history, f, indent=2)
         
-        # Clean response without indicators
-        final_reply = ai_reply
+        # Include both AI response and source text from database
+        if database_found and source_texts:
+            citations_text = "\\n\\n---\\n\\n**📚 Sources from Database:**\\n\\n"
+            for i, text in enumerate(source_texts):
+                citations_text += f"**Source {i+1}:**\\n{text}\\n\\n"
+            final_reply = ai_reply + citations_text
+        else:
+            final_reply = ai_reply
         
         print(f"📤 Sending final response: {len(final_reply)} characters")
         
