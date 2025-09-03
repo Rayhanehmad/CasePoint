@@ -1,7 +1,1 @@
-flask
-openai
-chromadb
-pypdf2
-python-docx
-reportlab
-werkzeug
+from app import app  # noqa: F401

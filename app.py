@@ -148,7 +148,7 @@ def admin():
             flash('No file selected', 'error')
             return redirect(request.url)
         
-        if file and allowed_file(file.filename):
+        if file and file.filename and allowed_file(file.filename):
             try:
                 filename = secure_filename(file.filename)
                 # Add timestamp to prevent conflicts
@@ -174,7 +174,7 @@ def admin():
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
-        user_input = request.json.get("message", "").strip()
+        user_input = (request.json or {}).get("message", "").strip()
         if not user_input:
             return jsonify({"error": "No message provided"}), 400
 
@@ -274,7 +274,7 @@ def history():
 @app.route("/export_pdf", methods=["POST"])
 def export_pdf():
     try:
-        data = request.json
+        data = request.json or {}
         text = data.get("text", "")
         citations = data.get("citations", [])
         question = data.get("question", "Legal Research Query")
