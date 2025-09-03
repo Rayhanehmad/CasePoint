@@ -94,42 +94,54 @@ def home():
     <head>
       <title>KanoonPK - AI Legal Research</title>
       <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f8f9fa; }
-        .chat-container { max-width: 900px; margin: auto; padding: 20px; }
-        .header { text-align: center; margin-bottom: 20px; color: #333; }
-        .admin-link { float: right; color: #007BFF; text-decoration: none; font-size: 14px; }
-        .msg { padding: 12px; margin: 10px 0; border-radius: 10px; }
-        .user { background: #007BFF; color: white; text-align: right; margin-left: 20%; }
-        .bot { background: #ffffff; color: #333; text-align: left; margin-right: 20%; border: 1px solid #e0e0e0; }
-        #messages { height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; background: white; border-radius: 10px; margin-bottom: 20px; }
-        .search-panel { background: white; border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
-        .search-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
-        .search-field { flex: 1; min-width: 150px; }
-        .search-field label { display: block; font-size: 12px; color: #666; margin-bottom: 3px; }
-        .search-field input, .search-field select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        .input-section { display: flex; gap: 10px; }
-        .input-section input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
-        .input-section button { padding: 12px 20px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
-        .send-btn { background: #007BFF; color: white; }
-        .send-btn:hover { background: #0056b3; }
-        .pdf-btn { background: #28a745; color: white; }
-        .pdf-btn:hover { background: #1e7e34; }
-        .clear-btn { background: #6c757d; color: white; font-size: 12px; padding: 6px 12px; }
-        .clear-btn:hover { background: #545b62; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; }
+        .chat-container { max-width: 1000px; margin: auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); position: relative; }
+        .logo { max-width: 200px; height: auto; margin-bottom: 10px; }
+        .admin-link { position: absolute; top: 15px; right: 20px; color: #4dd0b7; text-decoration: none; font-size: 14px; font-weight: 600; padding: 8px 15px; border: 2px solid #4dd0b7; border-radius: 20px; transition: all 0.3s; }
+        .admin-link:hover { background: #4dd0b7; color: white; }
+        .tagline { color: #666; font-size: 16px; margin-top: 10px; }
+        .msg { padding: 15px; margin: 15px 0; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .user { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; text-align: right; margin-left: 20%; position: relative; }
+        .user::before { content: ''; position: absolute; right: -10px; top: 20px; width: 0; height: 0; border: 10px solid transparent; border-left-color: #2bc77a; }
+        .bot { background: white; color: #333; text-align: left; margin-right: 20%; border: 1px solid #e0e0e0; position: relative; }
+        .bot::before { content: ''; position: absolute; left: -10px; top: 20px; width: 0; height: 0; border: 10px solid transparent; border-right-color: white; }
+        #messages { height: 450px; overflow-y: auto; padding: 20px; background: rgba(255,255,255,0.3); border-radius: 15px; margin-bottom: 20px; backdrop-filter: blur(10px); }
+        .search-panel { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .search-title { color: #2bc77a; font-size: 18px; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; }
+        .search-title::before { content: '🔍'; margin-right: 10px; }
+        .search-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+        .search-field { flex: 1; min-width: 180px; }
+        .search-field label { display: block; font-size: 13px; color: #555; margin-bottom: 5px; font-weight: 600; }
+        .search-field input { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; transition: border-color 0.3s; }
+        .search-field input:focus { border-color: #4dd0b7; outline: none; }
+        .input-section { display: flex; gap: 10px; background: white; padding: 15px; border-radius: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .input-section input { flex: 1; padding: 15px; border: none; border-radius: 20px; outline: none; background: #f8f9fa; }
+        .input-section button { padding: 15px 25px; border: none; border-radius: 20px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .send-btn { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; }
+        .send-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(45, 199, 122, 0.4); }
+        .pdf-btn { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); color: white; }
+        .pdf-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); }
+        .clear-btn { background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%); color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; }
+        .clear-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4); }
+        .typing { opacity: 0.7; }
+        .sources { background: #f8f9fa; padding: 10px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #4dd0b7; }
       </style>
     </head>
     <body>
       <div class="chat-container">
         <div class="header">
           <a href="/admin" class="admin-link">🔧 Admin Panel</a>
-          <h1>⚖️ KanoonPK AI Legal Research</h1>
-          <p style="color: #666; margin: 0;">Ask questions about Pakistan law with advanced search filters</p>
+          <img src="/static/images/kanoonpk-logo.jpg" alt="KanoonPK Logo" class="logo">
+          <h1 style="color: #2bc77a; font-size: 28px; font-weight: 700; margin: 10px 0;">AI Legal Research Assistant</h1>
+          <p class="tagline">Your trusted partner for Pakistan law research and legal insights</p>
         </div>
         
         <div id="messages"></div>
         
         <div class="search-panel">
-          <h4 style="margin: 0 0 15px 0; color: #333;">🔍 Advanced Search Filters</h4>
+          <div class="search-title">Advanced Search Filters</div>
           <div class="search-row">
             <div class="search-field">
               <label for="citationFilter">📑 Citations:</label>
@@ -202,11 +214,11 @@ def home():
             lastAnswer = data.reply;
             lastCitations = data.sources;
 
-            let citationText = data.sources.length ? `<br><small>📑 <strong>Sources:</strong> ${data.sources.join(", ")}</small>` : "";
+            let citationText = data.sources.length ? `<div class='sources'><strong>📑 Sources:</strong> ${data.sources.join(", ")}</div>` : "";
             let filterInfo = "";
             if (Object.values(filters).some(f => f)) {
               const activeFilters = Object.entries(filters).filter(([k, v]) => v).map(([k, v]) => `${k}: ${v}`).join(", ");
-              filterInfo = `<br><small>🔍 <strong>Filters applied:</strong> ${activeFilters}</small>`;
+              filterInfo = `<div class='sources'><strong>🔍 Filters applied:</strong> ${activeFilters}</div>`;
             }
             
             msgBox.innerHTML += `<div class='msg bot'>${data.reply.replace(/\\n/g,"<br>")} ${citationText} ${filterInfo}</div>`;
@@ -277,7 +289,7 @@ def admin():
             court = request.form.get("court", "")
             
             save_to_collection(path, filename, citation, year, page, court)
-            return f"<div style='color: green; font-weight: bold; margin: 20px;'>✅ {filename} uploaded & indexed successfully!</div><a href='/admin'>Upload Another</a>"
+            return f"<div class='success'>✅ {filename} uploaded & indexed successfully!</div><a href='/admin' style='color: #4dd0b7; text-decoration: none; font-weight: 600;'>Upload Another Document</a>"
     
     return render_template_string("""
     <!DOCTYPE html>
@@ -285,21 +297,32 @@ def admin():
     <head>
         <title>KanoonPK Admin Panel</title>
         <style>
-            body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
-            .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-            .form-group { margin-bottom: 20px; }
-            label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
-            input[type="text"], input[type="file"], select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-            input[type="submit"] { background: #007BFF; color: white; padding: 12px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-            input[type="submit"]:hover { background: #0056b3; }
-            .file-types { font-size: 12px; color: #666; margin-top: 5px; }
-            h1 { color: #333; text-align: center; margin-bottom: 30px; }
-            .back-link { display: block; text-align: center; margin-top: 20px; color: #007BFF; text-decoration: none; }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 20px; }
+            .container { max-width: 700px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+            .header { text-align: center; margin-bottom: 40px; }
+            .logo { max-width: 150px; height: auto; margin-bottom: 15px; }
+            .form-group { margin-bottom: 25px; }
+            label { display: block; margin-bottom: 8px; font-weight: 600; color: #2bc77a; font-size: 14px; }
+            input[type="text"], input[type="file"] { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; transition: border-color 0.3s; }
+            input[type="text"]:focus, input[type="file"]:focus { border-color: #4dd0b7; outline: none; }
+            input[type="submit"] { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; padding: 15px 40px; border: none; border-radius: 25px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.3s; width: 100%; }
+            input[type="submit"]:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(45, 199, 122, 0.4); }
+            .file-types { font-size: 12px; color: #666; margin-top: 8px; padding: 8px; background: #f8f9fa; border-radius: 5px; }
+            .title { color: #2bc77a; font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+            .subtitle { color: #666; margin-bottom: 30px; }
+            .back-link { display: inline-block; margin-top: 30px; color: #4dd0b7; text-decoration: none; font-weight: 600; padding: 10px 25px; border: 2px solid #4dd0b7; border-radius: 20px; transition: all 0.3s; }
+            .back-link:hover { background: #4dd0b7; color: white; }
+            .success { color: #2bc77a; font-weight: bold; margin: 20px 0; padding: 15px; background: #d4edda; border-radius: 10px; border-left: 4px solid #2bc77a; }
         </style>
     </head>
     <body>
         <div class="container">
-            <h1>⚖️ KanoonPK Admin Panel</h1>
+            <div class="header">
+                <img src="/static/images/kanoonpk-logo.jpg" alt="KanoonPK Logo" class="logo">
+                <div class="title">Admin Panel</div>
+                <div class="subtitle">Upload and manage legal documents</div>
+            </div>
             <form method='POST' enctype='multipart/form-data'>
                 <div class="form-group">
                     <label for="file">📁 Select Document:</label>
