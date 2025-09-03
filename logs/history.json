@@ -99,5 +99,19 @@
     "citations": [
       "General Legal Knowledge"
     ]
+  },
+  {
+    "timestamp": "2025-09-03T21:46:55.248182",
+    "question": "test",
+    "reply": "Hi! You\u2019ve reached KanoonPK, your Pakistan law research assistant.\n\nLet me know what you\u2019d like to do\u2014for example:\n- Explain a point under the Constitution, PPC, CrPC, CPC, Contract Act 1872, or Companies Act 2017\n- Check limitation periods and maintainability\n- Draft or review a plaint, written statement, bail application, or appeal grounds\n- Summarize a judgment or compare case law across High Courts\n- Outline procedure (civil or criminal) step-by-step\n\nThis response is based on general legal knowledge. For precise guidance, please upload or describe any specific order, FIR, agreement, pleading, or judgment you want analyzed.",
+    "sources": [],
+    "citations": []
+  },
+  {
+    "timestamp": "2025-09-03T21:47:05.783343",
+    "question": "test",
+    "reply": "Hi! I\u2019m KanoonPK, your AI Legal Research Assistant for Pakistan law. How can I help you today?\n\nI can assist with:\n- Constitutional questions (e.g., Article 199 writs, fundamental rights)\n- Criminal law and procedure (PPC, CrPC: bail, FIR, quashment, compounding)\n- Civil procedure (CPC: injunctions, execution, appeals, limitation)\n- Contracts and commercial law (Contract Act 1872, Companies Act 2017)\n- Family law, tenancy, property, service matters, taxation basics\n\nIf you share your specific issue or upload relevant documents (FIR, court order, agreement, notice), I can give more precise guidance. This answer is based on general legal knowledge; uploading documents will allow a more detailed, tailored analysis.",
+    "sources": [],
+    "citations": []
   }
 ]

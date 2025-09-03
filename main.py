@@ -1125,8 +1125,7 @@ def chat():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_input}
             ],
-            max_tokens=1500,
-            temperature=0.7
+            max_completion_tokens=1500
         )
         
         ai_reply = response.choices[0].message.content
