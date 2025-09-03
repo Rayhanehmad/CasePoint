@@ -554,7 +554,10 @@ def home():
           let forwardText = 'Forwarded Messages:\n\n';
           selectedMessages.forEach(function(checkbox) {
             const msgElement = checkbox.closest('.msg');
-            const msgContent = msgElement.textContent.replace(/\u2611|Online|\d{1,2}:\d{2}/g, '').trim();
+            let msgContent = msgElement.textContent;
+            msgContent = msgContent.replace(/Online/g, '');
+            msgContent = msgContent.replace(/\d{1,2}:\d{2}/g, '');
+            msgContent = msgContent.replace(/[\u2600-\u26FF]/g, '').trim();
             const isUser = msgElement.classList.contains('user');
             forwardText += (isUser ? 'You' : 'KanoonPK') + ': ' + msgContent + '\n\n';
           });
@@ -665,10 +668,11 @@ def home():
             const time = timeElement ? timeElement.textContent : getCurrentTime();
             
             // Extract message content (excluding checkboxes and timestamps)
-            let content = msg.textContent.replace(/\s*\u2705\s*/, '').replace(time, '').trim();
+            let content = msg.textContent.replace(time, '').trim();
+            content = content.replace(/[\u2600-\u26FF]/g, '');
             
             // Remove checkbox artifacts
-            content = content.replace(/^\s*/, '');
+            content = content.replace(/^\s+/, '');
             
             if (content && !msg.classList.contains('typing')) {
               messages.push({
