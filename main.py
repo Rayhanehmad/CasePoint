@@ -48,6 +48,56 @@ Always provide citations if available.
 # ----------------------------
 # File processing
 # ----------------------------
+def get_uploaded_documents():
+    """Get list of uploaded documents from ChromaDB"""
+    try:
+        # Get all documents from collection
+        all_docs = collection.get()
+        
+        # Group by source file to avoid duplicates from chunks
+        documents = {}
+        for i, metadata in enumerate(all_docs['metadatas']):
+            source = metadata.get('source', 'Unknown')
+            if source not in documents:
+                documents[source] = {
+                    'filename': source,
+                    'citation': metadata.get('citation', ''),
+                    'year': metadata.get('year', ''),
+                    'page': metadata.get('page', ''),
+                    'court': metadata.get('court', ''),
+                    'chunks': 1
+                }
+            else:
+                documents[source]['chunks'] += 1
+        
+        return list(documents.values())
+    except Exception as e:
+        print(f"Error getting documents: {e}")
+        return []
+
+def delete_document(filename):
+    """Delete document from both filesystem and ChromaDB"""
+    try:
+        # Delete from ChromaDB
+        all_docs = collection.get()
+        ids_to_delete = []
+        
+        for i, metadata in enumerate(all_docs['metadatas']):
+            if metadata.get('source') == filename:
+                ids_to_delete.append(all_docs['ids'][i])
+        
+        if ids_to_delete:
+            collection.delete(ids=ids_to_delete)
+        
+        # Delete from filesystem
+        file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        
+        return True
+    except Exception as e:
+        print(f"Error deleting document {filename}: {e}")
+        return False
 def extract_text_from_pdf(path):
     reader = PdfReader(path)
     return "\n".join([page.extract_text() or "" for page in reader.pages])
@@ -291,6 +341,40 @@ def admin():
             save_to_collection(path, filename, citation, year, page, court)
             return f"<div class='success'>✅ {filename} uploaded & indexed successfully!</div><a href='/admin' style='color: #4dd0b7; text-decoration: none; font-weight: 600;'>Upload Another Document</a>"
     
+    # Get existing documents for display
+    documents = get_uploaded_documents()
+    
+    # Build documents HTML
+    documents_html = ""
+    if documents:
+        documents_html = "<div class='documents-grid'>"
+        for doc in documents:
+            doc_details = ""
+            if doc['citation']:
+                doc_details += f"<p><strong>Citation:</strong> {doc['citation']}</p>"
+            if doc['year']:
+                doc_details += f"<p><strong>Year:</strong> {doc['year']}</p>"
+            if doc['page']:
+                doc_details += f"<p><strong>Page:</strong> {doc['page']}</p>"
+            if doc['court']:
+                doc_details += f"<p><strong>Court:</strong> {doc['court']}</p>"
+            doc_details += f"<p><strong>Chunks:</strong> {doc['chunks']}</p>"
+            
+            documents_html += f"""
+            <div class="document-card">
+                <div class="doc-header">
+                    <h4>{doc['filename']}</h4>
+                    <button onclick="deleteDocument('{doc['filename']}')" class="delete-btn" title="Delete Document">🗑️</button>
+                </div>
+                <div class="doc-details">
+                    {doc_details}
+                </div>
+            </div>
+            """
+        documents_html += "</div>"
+    else:
+        documents_html = "<div class='no-documents'><p>No documents uploaded yet. Upload your first document below!</p></div>"
+    
     return render_template_string("""
     <!DOCTYPE html>
     <html>
@@ -314,6 +398,15 @@ def admin():
             .back-link { display: inline-block; margin-top: 30px; color: #4dd0b7; text-decoration: none; font-weight: 600; padding: 10px 25px; border: 2px solid #4dd0b7; border-radius: 20px; transition: all 0.3s; }
             .back-link:hover { background: #4dd0b7; color: white; }
             .success { color: #2bc77a; font-weight: bold; margin: 20px 0; padding: 15px; background: #d4edda; border-radius: 10px; border-left: 4px solid #2bc77a; }
+            .documents-section { margin-bottom: 30px; }
+            .documents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-bottom: 20px; }
+            .document-card { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 10px; padding: 15px; }
+            .doc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+            .doc-header h4 { color: #2bc77a; margin: 0; font-size: 16px; }
+            .delete-btn { background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 14px; transition: all 0.3s; }
+            .delete-btn:hover { background: #ee5a24; transform: scale(1.1); }
+            .doc-details p { margin: 5px 0; font-size: 13px; color: #666; }
+            .no-documents { text-align: center; color: #666; padding: 40px 20px; background: #f8f9fa; border-radius: 10px; }
         </style>
     </head>
     <body>
@@ -323,6 +416,17 @@ def admin():
                 <div class="title">Admin Panel</div>
                 <div class="subtitle">Upload and manage legal documents</div>
             </div>
+            
+            <!-- Existing Documents Section -->
+            <div class="documents-section">
+                <h3 style="color: #2bc77a; margin-bottom: 20px; font-size: 20px;">📚 Uploaded Documents</h3>
+""" + documents_html + """
+            </div>
+            
+            <hr style="margin: 40px 0; border: none; height: 1px; background: #e0e0e0;">
+            
+            <!-- Upload Form Section -->
+            <h3 style="color: #2bc77a; margin-bottom: 20px; font-size: 20px;">📤 Upload New Document</h3>
             <form method='POST' enctype='multipart/form-data'>
                 <div class="form-group">
                     <label for="file">📁 Select Document:</label>
@@ -354,6 +458,33 @@ def admin():
             </form>
             <a href='/' class="back-link">← Back to Chat</a>
         </div>
+        
+        <script>
+            async function deleteDocument(filename) {
+                if (!confirm('Are you sure you want to delete "' + filename + '"? This action cannot be undone.')) {
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/admin/delete', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ filename: filename })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert('Document deleted successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error deleting document: ' + result.message);
+                    }
+                } catch (error) {
+                    alert('Error deleting document: ' + error.message);
+                }
+            }
+        </script>
     </body>
     </html>
     """)
@@ -485,6 +616,19 @@ def export_csv():
             writer.writerow([h["timestamp"], h["question"], h["reply"], "; ".join(h["citations"])])
 
     return send_file(filename, as_attachment=True)
+
+@app.route("/admin/delete", methods=["POST"])
+def admin_delete():
+    data = request.json if request.json else {}
+    filename = data.get('filename')
+    
+    if not filename:
+        return jsonify({'success': False, 'message': 'No filename provided'})
+    
+    if delete_document(filename):
+        return jsonify({'success': True, 'message': 'Document deleted successfully'})
+    else:
+        return jsonify({'success': False, 'message': 'Failed to delete document'})
 
 @app.route("/export_pdf", methods=["POST"])
 def export_pdf():
