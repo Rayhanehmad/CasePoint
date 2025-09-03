@@ -5,3 +5,5 @@ pypdf2
 python-docx
 reportlab
 werkzeug
+docx
+openai
