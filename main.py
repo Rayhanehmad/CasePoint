@@ -41,8 +41,23 @@ except:
 
 LEGAL_SYSTEM_PROMPT = """
 You are KanoonPK, an AI Legal Research Assistant specialized in Pakistan law.
-Answer only from Pakistan's laws, case references, and uploaded documents.
-Always provide citations if available.
+Answer based on the provided documents and Pakistan's laws, case references.
+Always provide citations if available from the documents.
+"""
+
+GENERAL_LEGAL_PROMPT = """
+You are KanoonPK, an AI Legal Research Assistant specialized in Pakistan law.
+Since no specific documents were found for this query, use your knowledge of Pakistan law to provide accurate information.
+Focus on:
+- Constitution of Pakistan 1973
+- Pakistan Penal Code
+- Civil Procedure Code
+- Criminal Procedure Code
+- Contract Act 1872
+- Companies Act 2017
+- Other relevant Pakistan legal statutes
+
+Always mention that this answer is based on general legal knowledge and suggest uploading specific documents for more detailed analysis.
 """
 
 # ----------------------------
@@ -583,21 +598,29 @@ def chat():
             citations_used.append(citation_display)
             context += f"\n\n[Citation: {citation_display}] {doc[:800]}..."
     
-    if not context:
-        return jsonify({
-            "reply": "No relevant documents found matching your query and filters. Try adjusting your search terms or filters.",
-            "sources": []
-        })
-
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": LEGAL_SYSTEM_PROMPT},
-            {"role": "user", "content": user_input},
-            {"role": "assistant", "content": "Relevant documents:\n" + context}
-        ]
-    )
-    reply = response.choices[0].message.content
+    # Use OpenAI with different prompts based on whether documents were found
+    if context:
+        # Documents found - use document-based response
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": LEGAL_SYSTEM_PROMPT},
+                {"role": "user", "content": user_input},
+                {"role": "assistant", "content": "Relevant documents:\n" + context}
+            ]
+        )
+        reply = response.choices[0].message.content
+    else:
+        # No documents found - use general legal knowledge
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": GENERAL_LEGAL_PROMPT},
+                {"role": "user", "content": user_input}
+            ]
+        )
+        reply = response.choices[0].message.content + "\n\n📝 *Note: This answer is based on general knowledge of Pakistan law. For more specific information, please upload relevant legal documents.*"
+        citations_used = ["General Legal Knowledge"]
 
     # Log history
     log_entry = {
