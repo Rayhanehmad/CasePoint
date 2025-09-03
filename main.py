@@ -426,7 +426,7 @@ def home():
             lastCitations = data.sources;
 
             // Build bot response with proper formatting
-            let content = data.reply.replace(/\\n/g,"<br>");
+            let content = data.reply.replace(/\n/g,"<br>");
             
             if (data.sources.length) {
               content += '<div class=\"sources\"><strong>📑 Legal Sources:</strong> ' + data.sources.join(", ") + '</div>';
