@@ -56,18 +56,30 @@ def extract_text_from_docx(path):
     doc = Document(path)
     return "\n".join([p.text for p in doc.paragraphs])
 
-def save_to_collection(file_path, filename):
-    if filename.endswith(".pdf"):
+def save_to_collection(file_path, filename, citation="", year="", page="", court=""):
+    if filename.lower().endswith(".pdf"):
         text = extract_text_from_pdf(file_path)
-    elif filename.endswith(".docx"):
+    elif filename.lower().endswith(".docx"):
         text = extract_text_from_docx(file_path)
+    elif filename.lower().endswith((".txt", ".text")):
+        with open(file_path, "r", encoding="utf-8") as f:
+            text = f.read()
+    elif filename.lower().endswith((".jpg", ".jpeg", ".png")):
+        # For image files, we'll store the filename as text
+        text = f"Image file: {filename}"
     else:
         with open(file_path, "r", encoding="utf-8") as f:
             text = f.read()
 
     chunks = [text[i:i+1000] for i in range(0, len(text), 1000)]
     ids = [str(uuid.uuid4()) for _ in chunks]
-    metas = [{"source": filename, "citation": filename}] * len(chunks)
+    metas = [{
+        "source": filename, 
+        "citation": citation or filename,
+        "year": year,
+        "page": page,
+        "court": court
+    }] * len(chunks)
     collection.add(documents=chunks, metadatas=metas, ids=ids)
 
 # ----------------------------
@@ -77,27 +89,73 @@ def save_to_collection(file_path, filename):
 @app.route("/")
 def home():
     return render_template_string("""
+    <!DOCTYPE html>
     <html>
     <head>
       <title>KanoonPK - AI Legal Research</title>
       <style>
-        body { font-family: Arial; margin: 0; padding: 0; }
-        .chat-container { max-width: 800px; margin: auto; padding: 20px; }
-        .msg { padding: 10px; margin: 10px; border-radius: 10px; }
-        .user { background: #007BFF; color: white; text-align: right; }
-        .bot { background: #f1f1f1; color: black; text-align: left; }
-        #messages { height: 500px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; }
-        input { width: 80%; padding: 10px; }
-        button { padding: 10px; margin: 5px; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f8f9fa; }
+        .chat-container { max-width: 900px; margin: auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 20px; color: #333; }
+        .admin-link { float: right; color: #007BFF; text-decoration: none; font-size: 14px; }
+        .msg { padding: 12px; margin: 10px 0; border-radius: 10px; }
+        .user { background: #007BFF; color: white; text-align: right; margin-left: 20%; }
+        .bot { background: #ffffff; color: #333; text-align: left; margin-right: 20%; border: 1px solid #e0e0e0; }
+        #messages { height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; background: white; border-radius: 10px; margin-bottom: 20px; }
+        .search-panel { background: white; border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+        .search-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+        .search-field { flex: 1; min-width: 150px; }
+        .search-field label { display: block; font-size: 12px; color: #666; margin-bottom: 3px; }
+        .search-field input, .search-field select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .input-section { display: flex; gap: 10px; }
+        .input-section input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
+        .input-section button { padding: 12px 20px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
+        .send-btn { background: #007BFF; color: white; }
+        .send-btn:hover { background: #0056b3; }
+        .pdf-btn { background: #28a745; color: white; }
+        .pdf-btn:hover { background: #1e7e34; }
+        .clear-btn { background: #6c757d; color: white; font-size: 12px; padding: 6px 12px; }
+        .clear-btn:hover { background: #545b62; }
       </style>
     </head>
     <body>
       <div class="chat-container">
-        <h1>⚖️ KanoonPK AI Legal Research</h1>
+        <div class="header">
+          <a href="/admin" class="admin-link">🔧 Admin Panel</a>
+          <h1>⚖️ KanoonPK AI Legal Research</h1>
+          <p style="color: #666; margin: 0;">Ask questions about Pakistan law with advanced search filters</p>
+        </div>
+        
         <div id="messages"></div>
-        <input id="userInput" placeholder="Ask about Pakistan law..." onkeydown="if(event.key==='Enter')sendMessage()">
-        <button onclick="sendMessage()">Send</button>
-        <button onclick="downloadPDF()">📄 Download Last Answer as PDF</button>
+        
+        <div class="search-panel">
+          <h4 style="margin: 0 0 15px 0; color: #333;">🔍 Advanced Search Filters</h4>
+          <div class="search-row">
+            <div class="search-field">
+              <label for="citationFilter">📑 Citations:</label>
+              <input type="text" id="citationFilter" placeholder="e.g., PLD 2020 SC">
+            </div>
+            <div class="search-field">
+              <label for="yearFilter">📅 Year:</label>
+              <input type="text" id="yearFilter" placeholder="e.g., 2020">
+            </div>
+            <div class="search-field">
+              <label for="pageFilter">📄 Page:</label>
+              <input type="text" id="pageFilter" placeholder="e.g., 123">
+            </div>
+            <div class="search-field">
+              <label for="courtFilter">🏛️ Court:</label>
+              <input type="text" id="courtFilter" placeholder="e.g., Supreme Court">
+            </div>
+          </div>
+          <button onclick="clearFilters()" class="clear-btn">🗑️ Clear Filters</button>
+        </div>
+        
+        <div class="input-section">
+          <input id="userInput" placeholder="Ask about Pakistan law..." onkeydown="if(event.key==='Enter')sendMessage()">
+          <button onclick="sendMessage()" class="send-btn">💬 Send</button>
+          <button onclick="downloadPDF()" class="pdf-btn">📄 PDF</button>
+        </div>
       </div>
 
       <script>
@@ -110,22 +168,62 @@ def home():
           const userText = input.value.trim();
           if (!userText) return;
 
+          // Get filter values
+          const filters = {
+            citation: document.getElementById("citationFilter").value.trim(),
+            year: document.getElementById("yearFilter").value.trim(),
+            page: document.getElementById("pageFilter").value.trim(),
+            court: document.getElementById("courtFilter").value.trim()
+          };
+
           msgBox.innerHTML += `<div class='msg user'>${userText}</div>`;
           input.value = "";
-
-          const res = await fetch("/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: userText })
-          });
-          const data = await res.json();
-
-          lastAnswer = data.reply;
-          lastCitations = data.sources;
-
-          let citationText = data.sources.length ? `<br><small>📑 Citations: ${data.sources.join(", ")}</small>` : "";
-          msgBox.innerHTML += `<div class='msg bot'>${data.reply.replace(/\\n/g,"<br>")} ${citationText}</div>`;
+          
+          // Show typing indicator
+          msgBox.innerHTML += `<div class='msg bot' id='typing'>💭 Thinking...</div>`;
           msgBox.scrollTop = msgBox.scrollHeight;
+
+          try {
+            const res = await fetch("/chat", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ message: userText, filters: filters })
+            });
+            
+            if (!res.ok) {
+              throw new Error('Network response was not ok');
+            }
+            
+            const data = await res.json();
+            
+            // Remove typing indicator
+            document.getElementById('typing').remove();
+
+            lastAnswer = data.reply;
+            lastCitations = data.sources;
+
+            let citationText = data.sources.length ? `<br><small>📑 <strong>Sources:</strong> ${data.sources.join(", ")}</small>` : "";
+            let filterInfo = "";
+            if (Object.values(filters).some(f => f)) {
+              const activeFilters = Object.entries(filters).filter(([k, v]) => v).map(([k, v]) => `${k}: ${v}`).join(", ");
+              filterInfo = `<br><small>🔍 <strong>Filters applied:</strong> ${activeFilters}</small>`;
+            }
+            
+            msgBox.innerHTML += `<div class='msg bot'>${data.reply.replace(/\\n/g,"<br>")} ${citationText} ${filterInfo}</div>`;
+            msgBox.scrollTop = msgBox.scrollHeight;
+          } catch (error) {
+            console.error('Chat error:', error);
+            document.getElementById('typing').remove();
+            msgBox.innerHTML += `<div class='msg bot' style='color: red;'>⚠️ Sorry, there was an error processing your request. Please try again.</div>`;
+            msgBox.scrollTop = msgBox.scrollHeight;
+          }
+        }
+
+        function clearFilters() {
+          document.getElementById("citationFilter").value = "";
+          document.getElementById("yearFilter").value = "";
+          document.getElementById("pageFilter").value = "";
+          document.getElementById("courtFilter").value = "";
         }
 
         async function downloadPDF() {
@@ -133,19 +231,30 @@ def home():
             alert("⚠️ No answer to download yet.");
             return;
           }
-          const res = await fetch("/export_pdf", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: lastAnswer, citations: lastCitations })
-          });
-          const blob = await res.blob();
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = "KanoonPk_Answer.pdf";
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
+          try {
+            const res = await fetch("/export_pdf", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text: lastAnswer, citations: lastCitations })
+            });
+            
+            if (!res.ok) {
+              throw new Error('Failed to generate PDF');
+            }
+            
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "KanoonPK_Answer.pdf";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+          } catch (error) {
+            console.error('PDF download error:', error);
+            alert('⚠️ Error generating PDF. Please try again.');
+          }
         }
       </script>
     </body>
@@ -160,27 +269,129 @@ def admin():
             filename = secure_filename(file.filename)
             path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
             file.save(path)
-            save_to_collection(path, filename)
-            return "Uploaded & indexed!"
-    return """
-    <h1>Admin - Upload Legal Docs</h1>
-    <form method='POST' enctype='multipart/form-data'>
-      <input type='file' name='file'>
-      <input type='submit' value='Upload'>
-    </form>
-    """
+            
+            # Get additional metadata from form
+            citation = request.form.get("citation", "")
+            year = request.form.get("year", "")
+            page = request.form.get("page", "")
+            court = request.form.get("court", "")
+            
+            save_to_collection(path, filename, citation, year, page, court)
+            return f"<div style='color: green; font-weight: bold; margin: 20px;'>✅ {filename} uploaded & indexed successfully!</div><a href='/admin'>Upload Another</a>"
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>KanoonPK Admin Panel</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+            .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            .form-group { margin-bottom: 20px; }
+            label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+            input[type="text"], input[type="file"], select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+            input[type="submit"] { background: #007BFF; color: white; padding: 12px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+            input[type="submit"]:hover { background: #0056b3; }
+            .file-types { font-size: 12px; color: #666; margin-top: 5px; }
+            h1 { color: #333; text-align: center; margin-bottom: 30px; }
+            .back-link { display: block; text-align: center; margin-top: 20px; color: #007BFF; text-decoration: none; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>⚖️ KanoonPK Admin Panel</h1>
+            <form method='POST' enctype='multipart/form-data'>
+                <div class="form-group">
+                    <label for="file">📁 Select Document:</label>
+                    <input type='file' name='file' id='file' accept=".pdf,.docx,.txt,.jpg,.jpeg,.png" required>
+                    <div class="file-types">Supported: PDF, DOCX, TXT, JPG, JPEG, PNG</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="citation">📑 Citation/Case Name:</label>
+                    <input type='text' name='citation' id='citation' placeholder="e.g., PLD 2020 SC 123">
+                </div>
+                
+                <div class="form-group">
+                    <label for="year">📅 Year:</label>
+                    <input type='text' name='year' id='year' placeholder="e.g., 2020">
+                </div>
+                
+                <div class="form-group">
+                    <label for="page">📄 Page Number:</label>
+                    <input type='text' name='page' id='page' placeholder="e.g., 123">
+                </div>
+                
+                <div class="form-group">
+                    <label for="court">🏛️ Court:</label>
+                    <input type='text' name='court' id='court' placeholder="e.g., Supreme Court of Pakistan">
+                </div>
+                
+                <input type='submit' value='📤 Upload & Index Document'>
+            </form>
+            <a href='/' class="back-link">← Back to Chat</a>
+        </div>
+    </body>
+    </html>
+    """)
 
 @app.route("/chat", methods=["POST"])
 def chat():
     user_input = request.json.get("message") if request.json else None
-
-    results = collection.query(query_texts=[user_input], n_results=3)
+    filters = request.json.get("filters", {}) if request.json else {}
+    
+    if not user_input:
+        return jsonify({"reply": "Please provide a message.", "sources": []})
+    
+    # Build where clause for filtering
+    where_clause = {}
+    if filters.get("citation"):
+        where_clause["citation"] = {"$contains": filters["citation"]}
+    if filters.get("year"):
+        where_clause["year"] = {"$contains": filters["year"]}
+    if filters.get("page"):
+        where_clause["page"] = {"$contains": filters["page"]}
+    if filters.get("court"):
+        where_clause["court"] = {"$contains": filters["court"]}
+    
+    # Query with or without filters
+    if where_clause:
+        results = collection.query(
+            query_texts=[user_input], 
+            n_results=5,
+            where=where_clause
+        )
+    else:
+        results = collection.query(query_texts=[user_input], n_results=3)
+    
     context = ""
     citations_used = []
-    for i, doc in enumerate(results["documents"][0]):
-        citation = results["metadatas"][0][i]["citation"]
-        citations_used.append(citation)
-        context += f"\n\n[Citation: {citation}] {doc[:800]}..."
+    
+    if results["documents"] and results["documents"][0]:
+        for i, doc in enumerate(results["documents"][0]):
+            metadata = results["metadatas"][0][i]
+            citation = metadata.get("citation", metadata.get("source", "Unknown"))
+            year = metadata.get("year", "")
+            page = metadata.get("page", "")
+            court = metadata.get("court", "")
+            
+            # Build citation display
+            citation_display = citation
+            if year or page or court:
+                details = []
+                if year: details.append(f"Year: {year}")
+                if page: details.append(f"Page: {page}")
+                if court: details.append(f"Court: {court}")
+                citation_display += f" ({', '.join(details)})"
+            
+            citations_used.append(citation_display)
+            context += f"\n\n[Citation: {citation_display}] {doc[:800]}..."
+    
+    if not context:
+        return jsonify({
+            "reply": "No relevant documents found matching your query and filters. Try adjusting your search terms or filters.",
+            "sources": []
+        })
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
