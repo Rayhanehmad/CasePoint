@@ -704,9 +704,10 @@ def index():
                 // Build bot response
                 let content = data.reply.split('\\n').join('<br>');
                 
-                if (data.sources.length) {
-                    content += '<div class="sources"><strong>📑 Legal Sources:</strong> ' + data.sources.join(", ") + '</div>';
-                }
+                // Legal sources removed per user request
+                // if (data.sources.length) {
+                //     content += '<div class="sources"><strong>📑 Legal Sources:</strong> ' + data.sources.join(", ") + '</div>';
+                // }
                 
                 if (Object.values(filters).some(f => f)) {
                     const activeFilters = Object.entries(filters).filter(([k, v]) => v).map(([k, v]) => k + ': ' + v).join(", ");
@@ -790,9 +791,10 @@ def index():
                 // Build bot response
                 let content = data.reply.split('\\n').join('<br>');
                 
-                if (data.sources.length) {
-                    content += '<div class="sources"><strong>📑 Legal Sources:</strong> ' + data.sources.join(", ") + '</div>';
-                }
+                // Legal sources removed per user request
+                // if (data.sources.length) {
+                //     content += '<div class="sources"><strong>📑 Legal Sources:</strong> ' + data.sources.join(", ") + '</div>';
+                // }
                 
                 addMessage(content);
             })
