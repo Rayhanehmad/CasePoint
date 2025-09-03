@@ -90,260 +90,506 @@ def get_uploaded_documents():
         print(f"Error getting documents: {e}")
         return []
 
-def delete_document(filename):
-    """Delete document from both filesystem and ChromaDB"""
+def process_pdf(path):
     try:
-        # Delete from ChromaDB
-        all_docs = collection.get()
-        ids_to_delete = []
-        
-        for i, metadata in enumerate(all_docs['metadatas']):
-            if metadata.get('source') == filename:
-                ids_to_delete.append(all_docs['ids'][i])
-        
-        if ids_to_delete:
-            collection.delete(ids=ids_to_delete)
-        
-        # Delete from filesystem
-        file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-        if os.path.exists(file_path):
-            os.remove(file_path)
-        
-        return True
+        reader = PdfReader(path)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text() + "\n"
+        return text
     except Exception as e:
-        print(f"Error deleting document {filename}: {e}")
-        return False
-def extract_text_from_pdf(path):
-    reader = PdfReader(path)
-    return "\n".join([page.extract_text() or "" for page in reader.pages])
+        return f"Error processing PDF: {e}"
 
-def extract_text_from_docx(path):
-    doc = Document(path)
-    return "\n".join([p.text for p in doc.paragraphs])
+def process_docx(path):
+    try:
+        doc = Document(path)
+        text = ""
+        for paragraph in doc.paragraphs:
+            text += paragraph.text + "\n"
+        return text
+    except Exception as e:
+        return f"Error processing DOCX: {e}"
+
+def extract_text(file_path):
+    """Extract text from uploaded file"""
+    ext = file_path.lower().split('.')[-1]
+    if ext == 'pdf':
+        return process_pdf(file_path)
+    elif ext == 'docx':
+        return process_docx(file_path)
+    elif ext == 'txt':
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            return f.read()
+    else:
+        return "Unsupported file format"
 
 def save_to_collection(file_path, filename, citation="", year="", page="", court=""):
-    if filename.lower().endswith(".pdf"):
-        text = extract_text_from_pdf(file_path)
-    elif filename.lower().endswith(".docx"):
-        text = extract_text_from_docx(file_path)
-    elif filename.lower().endswith((".txt", ".text")):
-        with open(file_path, "r", encoding="utf-8") as f:
-            text = f.read()
-    elif filename.lower().endswith((".jpg", ".jpeg", ".png")):
-        # For image files, we'll store the filename as text
-        text = f"Image file: {filename}"
-    else:
-        with open(file_path, "r", encoding="utf-8") as f:
-            text = f.read()
-
-    chunks = [text[i:i+1000] for i in range(0, len(text), 1000)]
-    ids = [str(uuid.uuid4()) for _ in chunks]
-    metas = [{
-        "source": filename, 
-        "citation": citation or filename,
-        "year": year,
-        "page": page,
-        "court": court
-    }] * len(chunks)
-    collection.add(documents=chunks, metadatas=metas, ids=ids)
+    """Save document chunks to ChromaDB"""
+    text = extract_text(file_path)
+    
+    # Split into chunks (1000 characters each with 200 char overlap)
+    chunk_size = 1000
+    overlap = 200
+    chunks = []
+    
+    for i in range(0, len(text), chunk_size - overlap):
+        chunk = text[i:i + chunk_size]
+        if chunk.strip():
+            chunks.append({
+                "text": chunk,
+                "metadata": {
+                    "source": filename,
+                    "citation": citation,
+                    "year": year,
+                    "page": page,
+                    "court": court,
+                    "chunk_id": len(chunks)
+                }
+            })
+    
+    # Add to collection
+    try:
+        collection.add(
+            documents=[chunk["text"] for chunk in chunks],
+            metadatas=[chunk["metadata"] for chunk in chunks],
+            ids=[f"{filename}_chunk_{i}" for i in range(len(chunks))]
+        )
+        return f"Successfully added {len(chunks)} chunks from {filename}"
+    except Exception as e:
+        return f"Error saving to database: {e}"
 
 # ----------------------------
 # Routes
 # ----------------------------
-
 @app.route("/")
-def home():
+def index():
     return render_template_string("""
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>KanoonPK - AI Legal Research</title>
-      <style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KanoonPK - AI Legal Research Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; font-size: 14px; }
-        .chat-container { max-width: 100%; margin: 0; padding: 10px; }
-        .header { background: white; padding: 8px 12px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-        .header-left { display: flex; align-items: center; }
-        .logo { width: 50px; height: auto; margin-right: 10px; }
-        .header-text h1 { color: #2bc77a; font-size: 16px; font-weight: 700; margin: 0; }
-        .header-text .tagline { color: #666; font-size: 11px; margin: 0; }
-        .admin-link { color: #4dd0b7; text-decoration: none; font-size: 11px; font-weight: 600; padding: 5px 10px; border: 1px solid #4dd0b7; border-radius: 15px; transition: all 0.3s; }
-        .admin-link:hover { background: #4dd0b7; color: white; }
-        .user-profile { display: flex; align-items: center; gap: 8px; }
-        .user-avatar { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #4dd0b7; }
-        .user-info { display: flex; flex-direction: column; }
-        .user-name { font-size: 12px; font-weight: 600; color: #2bc77a; margin: 0; }
-        .user-status { font-size: 10px; color: #666; margin: 0; }
-        .chat-actions { display: flex; gap: 8px; margin-bottom: 10px; }
-        .chat-action-btn { padding: 6px 12px; border: none; border-radius: 15px; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.3s; }
-        .delete-chat-btn { background: #ff6b6b; color: white; }
-        .delete-chat-btn:hover { background: #ee5a24; }
-        .select-mode-btn { background: #6c5ce7; color: white; }
-        .select-mode-btn:hover { background: #5a4fcf; }
-        .select-mode-btn.active { background: #5a4fcf; }
-        .bulk-actions { display: none; gap: 5px; padding: 8px; background: white; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .bulk-actions.active { display: flex; }
-        .bulk-action-btn { padding: 6px 12px; border: none; border-radius: 10px; cursor: pointer; font-size: 11px; font-weight: 600; }
-        .delete-selected-btn { background: #ff6b6b; color: white; }
-        .forward-selected-btn { background: #4dd0b7; color: white; }
-        .cancel-selection-btn { background: #6c757d; color: white; }
-        .export-actions { display: flex; gap: 8px; margin-bottom: 10px; }
-        .export-btn { padding: 6px 12px; border: none; border-radius: 15px; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.3s; }
-        .export-txt-btn { background: #28a745; color: white; }
-        .export-pdf-btn { background: #ff6b6b; color: white; }
-        .export-json-btn { background: #6f42c1; color: white; }
-        .export-dropdown { position: relative; display: inline-block; }
-        .export-menu { display: none; position: absolute; background: white; min-width: 160px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border-radius: 10px; z-index: 1000; top: 100%; left: 0; }
-        .export-menu.show { display: block; }
-        .export-option { padding: 10px 15px; cursor: pointer; font-size: 12px; border-bottom: 1px solid #f0f0f0; }
-        .export-option:hover { background: #f8f9fa; }
-        .export-option:last-child { border-bottom: none; }
-        .msg { padding: 10px; margin: 5px 0; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.1); max-width: 85%; word-wrap: break-word; animation: slideIn 0.3s ease-out; font-size: 13px; position: relative; cursor: pointer; }
-        .msg.selecting { padding-left: 35px; }
-        .msg.selected { background-color: rgba(77, 208, 183, 0.2) !important; border: 2px solid #4dd0b7; }
-        .msg-checkbox { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); display: none; }
-        .selecting .msg-checkbox { display: block; }
-        .msg-checkbox input { width: 16px; height: 16px; }
-        .user { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; align-self: flex-end; margin-left: auto; position: relative; }
-        .user::after { content: ''; position: absolute; right: -6px; bottom: 6px; width: 0; height: 0; border: 6px solid transparent; border-left: 6px solid #2bc77a; }
-        .bot { background: white; color: #333; align-self: flex-start; margin-right: auto; border: 1px solid #e0e0e0; position: relative; }
-        .bot::after { content: ''; position: absolute; left: -6px; bottom: 6px; width: 0; height: 0; border: 6px solid transparent; border-right: 6px solid white; }
-        #messages { height: 300px; overflow-y: auto; padding: 10px; background: rgba(255,255,255,0.3); border-radius: 10px; margin-bottom: 10px; backdrop-filter: blur(10px); display: flex; flex-direction: column; }
-        .search-panel { background: white; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
-        .search-banner { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; padding: 10px 15px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s; }
-        .search-banner:hover { background: linear-gradient(135deg, #2bc77a 0%, #4dd0b7 100%); }
-        .search-banner-title { font-size: 13px; font-weight: 600; display: flex; align-items: center; }
-        .search-banner-title::before { content: '🔍'; margin-right: 8px; font-size: 14px; }
-        .search-toggle { font-size: 16px; transition: transform 0.3s; }
-        .search-toggle.open { transform: rotate(180deg); }
-        .search-content { padding: 0; max-height: 0; overflow: hidden; transition: all 0.3s ease-out; }
-        .search-content.open { padding: 15px; max-height: 250px; }
-        .search-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-        .search-field { flex: 1; min-width: 120px; }
-        .search-field label { display: block; font-size: 10px; color: #555; margin-bottom: 3px; font-weight: 600; }
-        .search-field input { width: 100%; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 6px; transition: border-color 0.3s; font-size: 12px; }
-        .search-field input:focus { border-color: #4dd0b7; outline: none; }
-        .search-actions { text-align: center; margin-top: 8px; }
-        .input-section { display: flex; gap: 5px; background: white; padding: 10px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .input-section input { flex: 1; padding: 10px 12px; border: none; border-radius: 15px; outline: none; background: #f8f9fa; font-size: 13px; }
-        .file-upload-btn { background: #6c5ce7; color: white; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; transition: all 0.3s; }
-        .file-upload-btn:hover { background: #5a4fcf; transform: scale(1.1); }
-        .file-input { display: none; }
-        .admin-protected { display: none; }
-        .admin-user .admin-protected { display: block; }
-        .input-section button { padding: 10px 15px; border: none; border-radius: 15px; cursor: pointer; font-weight: 600; transition: all 0.3s; font-size: 12px; }
-        .send-btn { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; }
-        .send-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(45, 199, 122, 0.4); }
-        .pdf-btn { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); color: white; }
-        .pdf-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4); }
-        .clear-btn { background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%); color: white; padding: 6px 12px; border-radius: 15px; font-size: 10px; }
-        .clear-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(108, 92, 231, 0.4); }
-        .typing { opacity: 0.7; }
-        .sources { background: #f8f9fa; padding: 6px 8px; border-radius: 6px; margin-top: 6px; border-left: 3px solid #4dd0b7; font-size: 11px; }
-        .typing { opacity: 0.8; font-style: italic; }
-        .message-time { font-size: 9px; color: #888; margin-top: 3px; }
-        @media (max-width: 768px) {
-          .chat-container { padding: 5px; }
-          .search-row { flex-direction: column; gap: 5px; }
-          .search-field { min-width: 100%; }
-          .input-section { gap: 3px; padding: 8px; }
-          .msg { max-width: 95%; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            font-size: 13px;
         }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-      </style>
-    </head>
-    <body>
-      <div class="chat-container">
+        
+        .container {
+            max-width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4dd0b7, #36a085);
+            color: white;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header .logo {
+            height: 30px;
+            width: auto;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 20px;
+            transition: background 0.3s;
+        }
+        
+        .user-profile:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .user-avatar {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+        }
+        
+        .user-name {
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .admin-link {
+            color: white;
+            text-decoration: none;
+            font-size: 11px;
+            margin-left: 10px;
+        }
+        
+        .search-banner {
+            background: linear-gradient(45deg, #ff9a56, #ffad56);
+            color: white;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            text-align: center;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        
+        .search-banner:hover {
+            background: linear-gradient(45deg, #ff8a46, #ff9d46);
+        }
+        
+        .search-content {
+            background: #f8f9fa;
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .search-content.open {
+            max-height: 200px;
+            padding: 10px 15px;
+        }
+        
+        .search-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .search-field label {
+            display: block;
+            font-size: 10px;
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: #666;
+        }
+        
+        .search-field input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+        
+        .search-actions {
+            margin-top: 8px;
+            text-align: center;
+        }
+        
+        .clear-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+        
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .msg {
+            max-width: 85%;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            line-height: 1.4;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .msg.user {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .msg.bot {
+            background: #f1f3f4;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border-left: 3px solid #4dd0b7;
+        }
+        
+        .msg.selecting {
+            margin-left: 25px;
+        }
+        
+        .msg-checkbox {
+            position: absolute;
+            left: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+        }
+        
+        .msg.selecting .msg-checkbox {
+            display: block;
+        }
+        
+        .message-time {
+            font-size: 9px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+        
+        .sources {
+            margin-top: 6px;
+            padding: 6px 8px;
+            background: rgba(77, 208, 183, 0.1);
+            border-radius: 6px;
+            font-size: 10px;
+            color: #666;
+        }
+        
+        .controls {
+            padding: 8px 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .control-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .control-btn:hover {
+            background: #5a6268;
+        }
+        
+        .control-btn.active {
+            background: #4dd0b7;
+        }
+        
+        .bulk-actions {
+            display: none;
+            gap: 4px;
+        }
+        
+        .bulk-actions.active {
+            display: flex;
+        }
+        
+        .input-section {
+            padding: 10px 15px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .file-upload-btn {
+            background: #ffc107;
+            color: #333;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        #userInput {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 12px;
+            outline: none;
+        }
+        
+        .send-btn {
+            background: linear-gradient(135deg, #4dd0b7, #36a085);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .pdf-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        
+        .export-dropdown {
+            position: relative;
+        }
+        
+        .export-menu {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 120px;
+            display: none;
+        }
+        
+        .export-menu.show {
+            display: block;
+        }
+        
+        .export-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 11px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .export-option:hover {
+            background: #f8f9fa;
+        }
+        
+        .export-option:last-child {
+            border-bottom: none;
+        }
+        
+        .typing {
+            opacity: 0.7;
+        }
+        
+        .admin-protected {
+            display: none;
+        }
+        
+        body.admin-user .admin-protected {
+            display: inline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
         <div class="header">
-          <div class="header-left">
             <img src="/static/images/kanoonpk-logo.jpg" alt="KanoonPK Logo" class="logo">
-            <div class="header-text">
-              <h1>AI Legal Research Assistant</h1>
-              <p class="tagline">Your trusted partner for Pakistan law research and legal insights</p>
+            <div class="user-profile" id="userProfile">
+                <img src="https://ui-avatars.com/api/?name=Legal+User&background=4dd0b7&color=fff&size=25" alt="User Avatar" class="user-avatar" id="userAvatar">
+                <span class="user-name" id="userName">Legal User</span>
+                <a href="/admin" class="admin-link admin-protected">🔧 Admin Panel</a>
             </div>
-          </div>
-          <div class="header-right" style="display: flex; align-items: center; gap: 15px;">
-            <div class="user-profile">
-              <img src="https://ui-avatars.com/api/?name=Legal+User&background=4dd0b7&color=fff&size=35" alt="User Avatar" class="user-avatar" id="userAvatar">
-              <div class="user-info">
-                <p class="user-name" id="userName">Legal User</p>
-                <p class="user-status">Subscriber</p>
-              </div>
-            </div>
-            <a href="/admin" class="admin-link admin-protected">🔧 Admin Panel</a>
-          </div>
         </div>
         
-        <div class="chat-actions">
-          <button class="chat-action-btn delete-chat-btn" onclick="clearChat()">🗑️ Clear Chat</button>
-          <button class="chat-action-btn select-mode-btn" id="selectModeBtn" onclick="toggleSelectMode()">☑️ Select</button>
-          
-          <div class="export-dropdown">
-            <button class="chat-action-btn" onclick="toggleExportMenu()" style="background: #17a2b8; color: white;">📤 Export</button>
-            <div class="export-menu" id="exportMenu">
-              <div class="export-option" onclick="exportChat('txt')">📄 Export as TXT</div>
-              <div class="export-option" onclick="exportChat('pdf')">📁 Export as PDF</div>
-              <div class="export-option" onclick="exportChat('json')">📊 Export as JSON</div>
-              <div class="export-option" onclick="exportSelectedMessages()">☑️ Export Selected</div>
-            </div>
-          </div>
+        <div class="search-banner" onclick="toggleSearch()">
+            🔍 Advanced Search Filters - Click to Expand
         </div>
         
-        <div class="bulk-actions" id="bulkActions">
-          <button class="bulk-action-btn delete-selected-btn" onclick="deleteSelected()">🗑️ Delete</button>
-          <button class="bulk-action-btn forward-selected-btn" onclick="forwardSelected()">➤ Forward</button>
-          <button class="bulk-action-btn cancel-selection-btn" onclick="cancelSelection()">✕ Cancel</button>
-          <span id="selectedCount" style="font-size: 11px; color: #666; margin-left: 10px;">0 selected</span>
-        </div>
-        
-        <div id="messages">
-          <div class='msg bot' data-msg-id="welcome">
-            <div class="msg-checkbox"><input type="checkbox" onchange="updateSelection()"></div>
-            🙏 Welcome to KanoonPK! I am your AI legal research assistant for Pakistan law. Ask me about legal cases, statutes, or upload documents for analysis.
-            <div class="message-time">Online</div>
-          </div>
-        </div>
-        
-        <div class="search-panel">
-          <div class="search-banner" onclick="toggleSearch()">
-            <div class="search-banner-title">Advanced Search Filters</div>
-            <div class="search-toggle" id="searchToggle">▼</div>
-          </div>
-          <div class="search-content" id="searchContent">
-            <div class="search-row">
-              <div class="search-field">
-                <label for="citationFilter">📑 Citations:</label>
-                <input type="text" id="citationFilter" placeholder="e.g., PLD 2020 SC">
-              </div>
-              <div class="search-field">
-                <label for="yearFilter">📅 Year:</label>
-                <input type="text" id="yearFilter" placeholder="e.g., 2020">
-              </div>
-              <div class="search-field">
-                <label for="pageFilter">📄 Page:</label>
-                <input type="text" id="pageFilter" placeholder="e.g., 123">
-              </div>
-              <div class="search-field">
-                <label for="courtFilter">🏛️ Court:</label>
-                <input type="text" id="courtFilter" placeholder="e.g., Supreme Court">
-              </div>
+        <div class="search-content" id="searchContent">
+            <div class="search-fields">
+                <div class="search-field">
+                    <label for="citationFilter">📑 Citation:</label>
+                    <input type="text" id="citationFilter" placeholder="e.g., PLD 2020 SC 123">
+                </div>
+                <div class="search-field">
+                    <label for="yearFilter">📅 Year:</label>
+                    <input type="text" id="yearFilter" placeholder="e.g., 2020">
+                </div>
+                <div class="search-field">
+                    <label for="pageFilter">📄 Page:</label>
+                    <input type="text" id="pageFilter" placeholder="e.g., 123">
+                </div>
+                <div class="search-field">
+                    <label for="courtFilter">🏛️ Court:</label>
+                    <input type="text" id="courtFilter" placeholder="e.g., Supreme Court">
+                </div>
             </div>
             <div class="search-actions">
-              <button onclick="clearFilters()" class="clear-btn">🗑️ Clear Filters</button>
+                <button onclick="clearFilters()" class="clear-btn">🗑️ Clear Filters</button>
             </div>
-          </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <button onclick="toggleSelectMode()" class="control-btn" id="selectModeBtn">☑️ Select</button>
+                <button onclick="clearChat()" class="control-btn">🗑️ Clear</button>
+                <div class="export-dropdown">
+                    <button onclick="toggleExportMenu()" class="control-btn">📤 Export</button>
+                    <div class="export-menu" id="exportMenu">
+                        <div class="export-option" onclick="exportChat('txt')">📄 Export as TXT</div>
+                        <div class="export-option" onclick="exportChat('pdf')">📁 Export as PDF</div>
+                        <div class="export-option" onclick="exportChat('json')">📊 Export as JSON</div>
+                        <div class="export-option" onclick="exportSelectedMessages()">☑️ Export Selected</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bulk-actions" id="bulkActions">
+                <button onclick="deleteSelected()" class="control-btn">🗑️ Delete Selected</button>
+                <button onclick="forwardSelected()" class="control-btn">📧 Forward Selected</button>
+                <button onclick="cancelSelection()" class="control-btn">❌ Cancel</button>
+            </div>
+        </div>
+        
+        <div class="messages" id="messages">
+            <div class="msg bot">
+                <div class="msg-checkbox"><input type="checkbox" onchange="updateSelection()"></div>
+                🙏 Welcome to KanoonPK! I am your AI legal research assistant for Pakistan law. Ask me about legal cases, statutes, or upload documents for analysis.
+                <div class="message-time">Online</div>
+            </div>
         </div>
         
         <div class="input-section">
-          <input type="file" id="documentInput" class="file-input" accept=".pdf,.docx,.txt" onchange="handleFileUpload()">
-          <button onclick="document.getElementById('documentInput').click()" class="file-upload-btn" title="Upload Document for Analysis">📁</button>
-          <input id="userInput" placeholder="Ask about Pakistan law..." onkeydown="if(event.key==='Enter')sendMessage()">
-          <button onclick="sendMessage()" class="send-btn">💬 Send</button>
-          <button onclick="downloadPDF()" class="pdf-btn">📄 PDF</button>
+            <input type="file" id="documentInput" class="file-input" accept=".pdf,.docx,.txt" onchange="handleFileUpload()">
+            <button onclick="document.getElementById('documentInput').click()" class="file-upload-btn" title="Upload Document for Analysis">📁</button>
+            <input id="userInput" placeholder="Ask about Pakistan law..." onkeydown="handleKeyPress(event)">
+            <button onclick="sendMessage()" class="send-btn">💬 Send</button>
+            <button onclick="downloadPDF()" class="pdf-btn">📄 PDF</button>
         </div>
-      </div>
+    </div>
 
-      <script>
+    <script>
         // Global variables
         let lastAnswer = "";
         let lastCitations = [];
@@ -352,488 +598,749 @@ def home():
         
         // Utility functions
         function getCurrentTime() {
-          const now = new Date();
-          return now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const now = new Date();
+            return now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }
         
-        // Main messaging functions
-
         function addMessage(content, isUser = false, isTyping = false) {
-          const msgBox = document.getElementById("messages");
-          const messageDiv = document.createElement('div');
-          const time = getCurrentTime();
-          const msgId = 'msg_' + (++messageIdCounter);
-          
-          messageDiv.className = 'msg ' + (isUser ? 'user' : 'bot') + (isTyping ? ' typing' : '') + (isSelectMode ? ' selecting' : '');
-          messageDiv.setAttribute('data-msg-id', msgId);
-          
-          const checkboxHtml = '<div class="msg-checkbox"><input type="checkbox" onchange="updateSelection()"></div>';
-          
-          if (isTyping) {
-            messageDiv.id = 'typing';
-            messageDiv.innerHTML = checkboxHtml + content;
-          } else {
-            messageDiv.innerHTML = checkboxHtml + content + '<div class="message-time">' + time + '</div>';
-          }
-          
-          msgBox.appendChild(messageDiv);
-          
-          // Smooth scroll to bottom
-          setTimeout(function() {
-            msgBox.scrollTop = msgBox.scrollHeight;
-          }, 50);
-          
-          return messageDiv;
+            const msgBox = document.getElementById("messages");
+            const messageDiv = document.createElement('div');
+            const time = getCurrentTime();
+            const msgId = 'msg_' + (++messageIdCounter);
+            
+            messageDiv.className = 'msg ' + (isUser ? 'user' : 'bot') + (isTyping ? ' typing' : '') + (isSelectMode ? ' selecting' : '');
+            messageDiv.setAttribute('data-msg-id', msgId);
+            
+            const checkboxHtml = '<div class="msg-checkbox"><input type="checkbox" onchange="updateSelection()"></div>';
+            
+            if (isTyping) {
+                messageDiv.id = 'typing';
+                messageDiv.innerHTML = checkboxHtml + content;
+            } else {
+                messageDiv.innerHTML = checkboxHtml + content + '<div class="message-time">' + time + '</div>';
+            }
+            
+            msgBox.appendChild(messageDiv);
+            
+            // Smooth scroll to bottom
+            setTimeout(function() {
+                msgBox.scrollTop = msgBox.scrollHeight;
+            }, 50);
+            
+            return messageDiv;
         }
-
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
         async function sendMessage() {
-          const input = document.getElementById("userInput");
-          const userText = input.value.trim();
-          if (!userText) return;
+            const input = document.getElementById("userInput");
+            const userText = input.value.trim();
+            if (!userText) return;
 
-          // Get filter values
-          const filters = {
-            citation: document.getElementById("citationFilter").value.trim(),
-            year: document.getElementById("yearFilter").value.trim(),
-            page: document.getElementById("pageFilter").value.trim(),
-            court: document.getElementById("courtFilter").value.trim()
-          };
+            // Get filter values
+            const filters = {
+                citation: document.getElementById("citationFilter").value.trim(),
+                year: document.getElementById("yearFilter").value.trim(),
+                page: document.getElementById("pageFilter").value.trim(),
+                court: document.getElementById("courtFilter").value.trim()
+            };
 
-          // Add user message with animation
-          addMessage(userText, true);
-          input.value = "";
-          
-          // Show typing indicator
-          const typingMsg = addMessage('💭 KanoonPK is analyzing your query...', false, true);
-
-          try {
-            const res = await fetch("/chat", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ message: userText, filters: filters })
-            });
+            // Add user message
+            addMessage(userText, true);
+            input.value = "";
             
-            if (!res.ok) {
-              throw new Error('Network response was not ok');
+            // Show typing indicator
+            const typingMsg = addMessage('💭 KanoonPK is analyzing your query...', false, true);
+
+            try {
+                const res = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: userText, filters: filters })
+                });
+                
+                if (!res.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const data = await res.json();
+                
+                // Remove typing indicator
+                typingMsg.remove();
+
+                lastAnswer = data.reply;
+                lastCitations = data.sources;
+
+                // Build bot response
+                let content = data.reply.split('\\n').join('<br>');
+                
+                if (data.sources.length) {
+                    content += '<div class="sources"><strong>📑 Legal Sources:</strong> ' + data.sources.join(", ") + '</div>';
+                }
+                
+                if (Object.values(filters).some(f => f)) {
+                    const activeFilters = Object.entries(filters).filter(([k, v]) => v).map(([k, v]) => k + ': ' + v).join(", ");
+                    content += '<div class="sources"><strong>🔍 Search Filters:</strong> ' + activeFilters + '</div>';
+                }
+                
+                addMessage(content);
+                
+            } catch (error) {
+                console.error('Chat error:', error);
+                if (typingMsg && typingMsg.parentNode) {
+                    typingMsg.remove();
+                }
+                addMessage('⚠️ Sorry, there was an error processing your request. Please try again.', false);
             }
-            
-            const data = await res.json();
-            
-            // Remove typing indicator
-            typingMsg.remove();
-
-            lastAnswer = data.reply;
-            lastCitations = data.sources;
-
-            // Build bot response with proper formatting
-            let content = data.reply.split('\n').join('<br>');
-            
-            if (data.sources.length) {
-              content += '<div class=\"sources\"><strong>📑 Legal Sources:</strong> ' + data.sources.join(", ") + '</div>';
-            }
-            
-            if (Object.values(filters).some(f => f)) {
-              const activeFilters = Object.entries(filters).filter(([k, v]) => v).map(([k, v]) => k + ': ' + v).join(", ");
-              content += '<div class=\"sources\"><strong>🔍 Search Filters:</strong> ' + activeFilters + '</div>';
-            }
-            
-            addMessage(content);
-            
-          } catch (error) {
-            console.error('Chat error:', error);
-            if (typingMsg && typingMsg.parentNode) {
-              typingMsg.remove();
-            }
-            addMessage('⚠️ Sorry, there was an error processing your request. Please try again.', false);
-          }
         }
 
         function toggleSearch() {
-          const searchContent = document.getElementById('searchContent');
-          const searchToggle = document.getElementById('searchToggle');
-          
-          if (searchContent.classList.contains('open')) {
-            searchContent.classList.remove('open');
-            searchToggle.classList.remove('open');
-          } else {
-            searchContent.classList.add('open');
-            searchToggle.classList.add('open');
-          }
+            const searchContent = document.getElementById('searchContent');
+            searchContent.classList.toggle('open');
         }
 
         function clearFilters() {
-          document.getElementById("citationFilter").value = "";
-          document.getElementById("yearFilter").value = "";
-          document.getElementById("pageFilter").value = "";
-          document.getElementById("courtFilter").value = "";
+            document.getElementById("citationFilter").value = "";
+            document.getElementById("yearFilter").value = "";
+            document.getElementById("pageFilter").value = "";
+            document.getElementById("courtFilter").value = "";
         }
         
         function clearChat() {
-          if (confirm('Are you sure you want to clear all messages? This action cannot be undone.')) {
-            const msgBox = document.getElementById('messages');
-            msgBox.innerHTML = '<div class="msg bot" data-msg-id="welcome">' +
-              '<div class="msg-checkbox"><input type="checkbox" onchange="updateSelection()"></div>' +
-              '🙏 Welcome to KanoonPK! I am your AI legal research assistant for Pakistan law. Ask me about legal cases, statutes, or upload documents for analysis.' +
-              '<div class="message-time">Online</div>' +
-              '</div>';
-            messageIdCounter = 0;
-            if (isSelectMode) {
-              toggleSelectMode();
+            if (confirm('Are you sure you want to clear all messages? This action cannot be undone.')) {
+                const msgBox = document.getElementById('messages');
+                msgBox.innerHTML = '<div class="msg bot">' +
+                    '<div class="msg-checkbox"><input type="checkbox" onchange="updateSelection()"></div>' +
+                    '🙏 Welcome to KanoonPK! I am your AI legal research assistant for Pakistan law. Ask me about legal cases, statutes, or upload documents for analysis.' +
+                    '<div class="message-time">Online</div>' +
+                    '</div>';
+                messageIdCounter = 0;
+                if (isSelectMode) {
+                    toggleSelectMode();
+                }
             }
-          }
         }
         
         function toggleSelectMode() {
-          const selectBtn = document.getElementById('selectModeBtn');
-          const bulkActions = document.getElementById('bulkActions');
-          const messages = document.querySelectorAll('.msg');
-          
-          isSelectMode = !isSelectMode;
-          
-          if (isSelectMode) {
-            selectBtn.classList.add('active');
-            selectBtn.innerHTML = '☑️ Selecting...';
-            bulkActions.classList.add('active');
-            messages.forEach(function(msg) {
-              msg.classList.add('selecting');
-              const checkbox = msg.querySelector('input[type="checkbox"]');
-              if (checkbox) checkbox.checked = false;
-            });
-          } else {
-            selectBtn.classList.remove('active');
-            selectBtn.innerHTML = '☑️ Select';
-            bulkActions.classList.remove('active');
-            messages.forEach(function(msg) {
-              msg.classList.remove('selecting', 'selected');
-              const checkbox = msg.querySelector('input[type="checkbox"]');
-              if (checkbox) checkbox.checked = false;
-            });
-          }
-          
-          updateSelection();
+            const selectBtn = document.getElementById('selectModeBtn');
+            const bulkActions = document.getElementById('bulkActions');
+            const messages = document.querySelectorAll('.msg');
+            
+            isSelectMode = !isSelectMode;
+            
+            if (isSelectMode) {
+                selectBtn.classList.add('active');
+                selectBtn.innerHTML = '☑️ Selecting...';
+                bulkActions.classList.add('active');
+                messages.forEach(function(msg) {
+                    msg.classList.add('selecting');
+                    const checkbox = msg.querySelector('input[type="checkbox"]');
+                    if (checkbox) checkbox.checked = false;
+                });
+            } else {
+                selectBtn.classList.remove('active');
+                selectBtn.innerHTML = '☑️ Select';
+                bulkActions.classList.remove('active');
+                messages.forEach(function(msg) {
+                    msg.classList.remove('selecting', 'selected');
+                    const checkbox = msg.querySelector('input[type="checkbox"]');
+                    if (checkbox) checkbox.checked = false;
+                });
+            }
         }
         
         function updateSelection() {
-          const selectedCount = document.querySelectorAll('.msg input[type="checkbox"]:checked').length;
-          document.getElementById('selectedCount').textContent = selectedCount + ' selected';
-          
-          // Update visual selection
-          document.querySelectorAll('.msg').forEach(function(msg) {
-            const checkbox = msg.querySelector('input[type="checkbox"]');
-            if (checkbox && checkbox.checked) {
-              msg.classList.add('selected');
-            } else {
-              msg.classList.remove('selected');
-            }
-          });
+            const messages = document.querySelectorAll('.msg');
+            messages.forEach(function(msg) {
+                const checkbox = msg.querySelector('input[type="checkbox"]');
+                if (checkbox && checkbox.checked) {
+                    msg.classList.add('selected');
+                } else {
+                    msg.classList.remove('selected');
+                }
+            });
         }
         
         function deleteSelected() {
-          const selectedMessages = document.querySelectorAll('.msg input[type="checkbox"]:checked');
-          if (selectedMessages.length === 0) {
-            alert('Please select messages to delete.');
-            return;
-          }
-          
-          if (confirm('Delete ' + selectedMessages.length + ' selected message(s)?')) {
-            selectedMessages.forEach(function(checkbox) {
-              const msgElement = checkbox.closest('.msg');
-              msgElement.remove();
-            });
-            updateSelection();
-          }
+            const selectedMessages = document.querySelectorAll('.msg input[type="checkbox"]:checked');
+            if (selectedMessages.length === 0) {
+                alert('Please select messages to delete.');
+                return;
+            }
+            
+            if (confirm('Delete ' + selectedMessages.length + ' selected message(s)?')) {
+                selectedMessages.forEach(function(checkbox) {
+                    const msgElement = checkbox.closest('.msg');
+                    msgElement.remove();
+                });
+                updateSelection();
+            }
         }
         
         function forwardSelected() {
-          const selectedMessages = document.querySelectorAll('.msg input[type="checkbox"]:checked');
-          if (selectedMessages.length === 0) {
-            alert('Please select messages to forward.');
-            return;
-          }
-          
-          let forwardText = 'Forwarded Messages:\n\n';
-          selectedMessages.forEach(function(checkbox) {
-            const msgElement = checkbox.closest('.msg');
-            let msgContent = msgElement.textContent;
-            msgContent = msgContent.split('Online').join('');
-            // Clean up content
-            msgContent = msgContent.split(':').join(' ');
-            msgContent = msgContent.trim();
-            const isUser = msgElement.classList.contains('user');
-            forwardText += (isUser ? 'You' : 'KanoonPK') + ': ' + msgContent + '\n\n';
-          });
-          
-          // Copy to clipboard
-          navigator.clipboard.writeText(forwardText).then(function() {
-            alert(selectedMessages.length + ' message(s) copied to clipboard!');
-          }).catch(function() {
-            // Fallback: show in alert
-            prompt('Copy this text to forward:', forwardText);
-          });
+            const selectedMessages = document.querySelectorAll('.msg input[type="checkbox"]:checked');
+            if (selectedMessages.length === 0) {
+                alert('Please select messages to forward.');
+                return;
+            }
+            
+            let forwardText = 'Forwarded Messages:\\n\\n';
+            selectedMessages.forEach(function(checkbox) {
+                const msgElement = checkbox.closest('.msg');
+                let msgContent = msgElement.textContent;
+                msgContent = msgContent.split('Online').join('');
+                msgContent = msgContent.trim();
+                const isUser = msgElement.classList.contains('user');
+                forwardText += (isUser ? 'You' : 'KanoonPK') + ': ' + msgContent + '\\n\\n';
+            });
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(forwardText).then(function() {
+                alert(selectedMessages.length + ' message(s) copied to clipboard!');
+            }).catch(function() {
+                // Fallback: show in alert
+                prompt('Copy this text to forward:', forwardText);
+            });
         }
         
         function cancelSelection() {
-          if (isSelectMode) {
-            toggleSelectMode();
-          }
+            if (isSelectMode) {
+                toggleSelectMode();
+            }
         }
         
         async function handleFileUpload() {
-          const fileInput = document.getElementById('documentInput');
-          const file = fileInput.files[0];
-          
-          if (!file) return;
-          
-          // Show upload progress
-          const uploadMsg = addMessage('📁 Uploading and analyzing: ' + file.name + '...', false, true);
-          
-          const formData = new FormData();
-          formData.append('file', file);
-          
-          try {
-            const response = await fetch('/upload-and-analyze', {
-              method: 'POST',
-              body: formData
-            });
+            const fileInput = document.getElementById('documentInput');
+            const file = fileInput.files[0];
             
-            if (!response.ok) {
-              throw new Error('Upload failed');
+            if (!file) return;
+            
+            // Show upload progress
+            const uploadMsg = addMessage('📁 Uploading and analyzing: ' + file.name + '...', false, true);
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/upload-and-analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+                
+                const result = await response.json();
+                
+                // Remove upload progress
+                uploadMsg.remove();
+                
+                // Add analysis result
+                addMessage('📄 Document uploaded and indexed successfully!<br><strong>File:</strong> ' + file.name + '<br><strong>Analysis:</strong> ' + (result.summary || 'Document processed and ready for queries.'));
+                
+                // Clear file input
+                fileInput.value = '';
+                
+            } catch (error) {
+                console.error('Upload error:', error);
+                uploadMsg.remove();
+                addMessage('❌ Error uploading document. Please try again.', false);
             }
-            
-            const result = await response.json();
-            
-            // Remove upload progress
-            uploadMsg.remove();
-            
-            // Add analysis result
-            addMessage('📄 Document uploaded and indexed successfully!<br><strong>File:</strong> ' + file.name + '<br><strong>Analysis:</strong> ' + (result.summary || 'Document processed and ready for queries.'));
-            
-            // Clear file input
-            fileInput.value = '';
-            
-          } catch (error) {
-            console.error('Upload error:', error);
-            uploadMsg.remove();
-            addMessage('❌ Error uploading document. Please try again.', false);
-            fileInput.value = '';
-          }
         }
         
         // Check if user is admin and update UI
         function checkAdminStatus() {
-          const userName = localStorage.getItem('userName') || 'Legal User';
-          const isAdmin = localStorage.getItem('isAdmin') === 'true';
-          
-          const userNameEl = document.getElementById('userName');
-          const userAvatarEl = document.getElementById('userAvatar');
-          
-          if (userNameEl) {
-            userNameEl.textContent = userName;
-          }
-          if (userAvatarEl) {
-            userAvatarEl.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userName) + '&background=4dd0b7&color=fff&size=35';
-          }
-          
-          if (isAdmin) {
-            document.body.classList.add('admin-user');
-          } else {
-            document.body.classList.remove('admin-user');
-          }
+            const userName = localStorage.getItem('userName') || 'Legal User';
+            const isAdmin = localStorage.getItem('isAdmin') === 'true';
+            
+            const userNameEl = document.getElementById('userName');
+            const userAvatarEl = document.getElementById('userAvatar');
+            
+            if (userNameEl) {
+                userNameEl.textContent = userName;
+            }
+            if (userAvatarEl) {
+                userAvatarEl.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userName) + '&background=4dd0b7&color=fff&size=25';
+            }
+            
+            if (isAdmin) {
+                document.body.classList.add('admin-user');
+            } else {
+                document.body.classList.remove('admin-user');
+            }
         }
         
         function toggleExportMenu() {
-          const menu = document.getElementById('exportMenu');
-          menu.classList.toggle('show');
-          
-          // Close menu when clicking outside
-          document.addEventListener('click', function(e) {
-            if (!e.target.closest('.export-dropdown')) {
-              menu.classList.remove('show');
-            }
-          });
+            const menu = document.getElementById('exportMenu');
+            menu.classList.toggle('show');
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.export-dropdown')) {
+                    menu.classList.remove('show');
+                }
+            });
         }
         
         function collectChatMessages(selectedOnly = false) {
-          const messages = [];
-          const msgElements = selectedOnly ? 
-            document.querySelectorAll('.msg input[type="checkbox"]:checked') :
-            document.querySelectorAll('.msg');
-          
-          (selectedOnly ? 
-            Array.from(msgElements).map(cb => cb.closest('.msg')) :
-            Array.from(msgElements)
-          ).forEach(function(msg) {
-            const isUser = msg.classList.contains('user');
-            const isBot = msg.classList.contains('bot');
-            const timeElement = msg.querySelector('.message-time');
-            const time = timeElement ? timeElement.textContent : getCurrentTime();
+            const messages = [];
+            const msgElements = selectedOnly ? 
+                document.querySelectorAll('.msg input[type="checkbox"]:checked') :
+                document.querySelectorAll('.msg');
             
-            // Extract message content (excluding checkboxes and timestamps)
-            let content = msg.textContent.replace(time, '').trim();
-            // Clean up content  
-            content = content.replace(/[^a-zA-Z0-9 .,!?;:()-]/g, '');
-            content = content.trim();
+            (selectedOnly ? 
+                Array.from(msgElements).map(cb => cb.closest('.msg')) :
+                Array.from(msgElements)
+            ).forEach(function(msg) {
+                const isUser = msg.classList.contains('user');
+                const timeElement = msg.querySelector('.message-time');
+                const time = timeElement ? timeElement.textContent : getCurrentTime();
+                
+                // Extract message content
+                let content = msg.textContent.replace(time, '').trim();
+                content = content.replace(/[^a-zA-Z0-9 .,!?;:()-]/g, '');
+                content = content.trim();
+                
+                if (content && !msg.classList.contains('typing')) {
+                    messages.push({
+                        type: isUser ? 'user' : 'bot',
+                        content: content,
+                        timestamp: time,
+                        id: msg.getAttribute('data-msg-id') || 'unknown'
+                    });
+                }
+            });
             
-            if (content && !msg.classList.contains('typing')) {
-              messages.push({
-                type: isUser ? 'user' : 'bot',
-                content: content,
-                timestamp: time,
-                id: msg.getAttribute('data-msg-id') || 'unknown'
-              });
-            }
-          });
-          
-          return messages;
+            return messages;
         }
         
         async function exportChat(format) {
-          document.getElementById('exportMenu').classList.remove('show');
-          
-          const messages = collectChatMessages();
-          if (messages.length === 0) {
-            alert('No messages to export.');
-            return;
-          }
-          
-          try {
-            const response = await fetch('/export-chat', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ messages: messages, format: format })
-            });
+            document.getElementById('exportMenu').classList.remove('show');
             
-            if (!response.ok) {
-              throw new Error('Export failed');
+            const messages = collectChatMessages();
+            if (messages.length === 0) {
+                alert('No messages to export.');
+                return;
             }
             
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            
-            const timestamp = new Date().toISOString().slice(0, 19).split(':').join('-');
-            const filename = 'KanoonPK_Chat_' + timestamp + '.' + format;
-            
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-            
-            addMessage('✅ Chat exported as ' + format.toUpperCase() + ' successfully!', false);
-            
-          } catch (error) {
-            console.error('Export error:', error);
-            addMessage('❌ Error exporting chat. Please try again.', false);
-          }
+            try {
+                const response = await fetch('/export-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: messages, format: format })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Export failed');
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                
+                const timestamp = new Date().toISOString().slice(0, 19).split(':').join('-');
+                const filename = 'KanoonPK_Chat_' + timestamp + '.' + format;
+                
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+                
+                addMessage('✅ Chat exported as ' + format.toUpperCase() + ' successfully!', false);
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                addMessage('❌ Error exporting chat. Please try again.', false);
+            }
         }
         
         async function exportSelectedMessages() {
-          document.getElementById('exportMenu').classList.remove('show');
-          
-          const selectedMessages = collectChatMessages(true);
-          if (selectedMessages.length === 0) {
-            alert('Please select messages to export.');
-            return;
-          }
-          
-          const format = prompt('Export format (txt, pdf, json):', 'txt');
-          if (!format || !['txt', 'pdf', 'json'].includes(format.toLowerCase())) {
-            return;
-          }
-          
-          try {
-            const response = await fetch('/export-chat', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ messages: selectedMessages, format: format.toLowerCase() })
-            });
+            document.getElementById('exportMenu').classList.remove('show');
             
-            if (!response.ok) {
-              throw new Error('Export failed');
+            const selectedMessages = collectChatMessages(true);
+            if (selectedMessages.length === 0) {
+                alert('Please select messages to export.');
+                return;
             }
             
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
+            const format = prompt('Export format (txt, pdf, json):', 'txt');
+            if (!format || !['txt', 'pdf', 'json'].includes(format.toLowerCase())) {
+                return;
+            }
             
-            const timestamp = new Date().toISOString().slice(0, 19).split(':').join('-');
-            const filename = 'KanoonPK_Selected_' + timestamp + '.' + format;
-            
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-            
-            addMessage('✅ Selected messages exported as ' + format.toUpperCase() + ' successfully!', false);
-            
-          } catch (error) {
-            console.error('Export error:', error);
-            addMessage('❌ Error exporting selected messages. Please try again.', false);
-          }
+            try {
+                const response = await fetch('/export-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: selectedMessages, format: format.toLowerCase() })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Export failed');
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                
+                const timestamp = new Date().toISOString().slice(0, 19).split(':').join('-');
+                const filename = 'KanoonPK_Selected_' + timestamp + '.' + format;
+                
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+                
+                addMessage('✅ Selected messages exported as ' + format.toUpperCase() + ' successfully!', false);
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                addMessage('❌ Error exporting selected messages. Please try again.', false);
+            }
         }
         
         async function downloadPDF() {
-          if (!lastAnswer) {
-            alert("⚠️ No answer to download yet.");
-            return;
-          }
-          try {
-            const res = await fetch("/export_pdf", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ text: lastAnswer, citations: lastCitations })
-            });
-            
-            if (!res.ok) {
-              throw new Error('Failed to generate PDF');
+            if (!lastAnswer) {
+                alert("⚠️ No answer to download yet.");
+                return;
             }
-            
-            const blob = await res.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "KanoonPK_Answer.pdf";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-          } catch (error) {
-            console.error('PDF download error:', error);
-            alert('⚠️ Error generating PDF. Please try again.');
-          }
+            try {
+                const res = await fetch("/export_pdf", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: lastAnswer, citations: lastCitations })
+                });
+                
+                if (!res.ok) {
+                    throw new Error('Failed to generate PDF');
+                }
+                
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "KanoonPK_Answer.pdf";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('PDF download error:', error);
+                alert('⚠️ Error generating PDF. Please try again.');
+            }
         }
         
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-          checkAdminStatus();
-          
-          // Click name to customize user profile
-          const userNameEl = document.getElementById('userName');
-          if (userNameEl) {
-            userNameEl.addEventListener('click', function() {
-              const newName = prompt('Enter your name:', this.textContent);
-              if (newName && newName.trim()) {
-                localStorage.setItem('userName', newName.trim());
-                const makeAdmin = confirm('Are you an admin user?');
-                localStorage.setItem('isAdmin', makeAdmin.toString());
-                checkAdminStatus();
-              }
-            });
-          }
+            checkAdminStatus();
+            
+            // Click name to customize user profile
+            const userNameEl = document.getElementById('userName');
+            if (userNameEl) {
+                userNameEl.addEventListener('click', function() {
+                    const newName = prompt('Enter your name:', this.textContent);
+                    if (newName && newName.trim()) {
+                        localStorage.setItem('userName', newName.trim());
+                        const makeAdmin = confirm('Are you an admin user?');
+                        localStorage.setItem('isAdmin', makeAdmin.toString());
+                        checkAdminStatus();
+                    }
+                });
+            }
         });
-      </script>
-    </body>
-    </html>
-    """)
+    </script>
+</body>
+</html>
+""")
+
+@app.route("/chat", methods=["POST"])
+def chat():
+    user_input = request.json.get("message") if request.json else None
+    filters = request.json.get("filters", {}) if request.json else {}
+    
+    if not user_input:
+        return jsonify({"reply": "Please provide a message.", "sources": []})
+    
+    # Build where clause for filtering
+    where_clause = {}
+    if filters.get("citation"):
+        where_clause["citation"] = {"$contains": filters["citation"]}
+    if filters.get("year"):
+        where_clause["year"] = {"$contains": filters["year"]}
+    if filters.get("page"):
+        where_clause["page"] = {"$contains": filters["page"]}
+    if filters.get("court"):
+        where_clause["court"] = {"$contains": filters["court"]}
+    
+    # Query with or without filters
+    if where_clause:
+        results = collection.query(
+            query_texts=[user_input], 
+            n_results=5,
+            where=where_clause
+        )
+    else:
+        results = collection.query(query_texts=[user_input], n_results=5)
+    
+    # Process results
+    context = ""
+    sources = []
+    
+    if results["documents"] and results["documents"][0]:
+        for i, doc in enumerate(results["documents"][0]):
+            context += f"Document {i+1}: {doc}\\n\\n"
+            
+            # Get source info
+            metadata = results["metadatas"][0][i] if results["metadatas"] and results["metadatas"][0] else {}
+            source_info = metadata.get("source", "Unknown source")
+            if metadata.get("citation"):
+                source_info = metadata["citation"]
+            elif metadata.get("year"):
+                source_info += f" ({metadata['year']})"
+            
+            if source_info not in sources:
+                sources.append(source_info)
+    
+    # Prepare system prompt
+    if context:
+        system_prompt = LEGAL_SYSTEM_PROMPT + f"\\n\\nRelevant context from uploaded documents:\\n{context}"
+    else:
+        system_prompt = GENERAL_LEGAL_PROMPT
+    
+    try:
+        # the newest OpenAI model is "gpt-5" which was released August 7, 2025.
+        # do not change this unless explicitly requested by the user
+        response = client.chat.completions.create(
+            model="gpt-5",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_input}
+            ],
+            max_tokens=1500,
+            temperature=0.7
+        )
+        
+        ai_reply = response.choices[0].message.content
+        
+        # Save to history
+        timestamp = datetime.datetime.now().isoformat()
+        history_entry = {
+            "timestamp": timestamp,
+            "question": user_input,
+            "reply": ai_reply,
+            "sources": sources,
+            "citations": sources
+        }
+        
+        # Save to file
+        os.makedirs("logs", exist_ok=True)
+        history_file = "logs/history.json"
+        
+        try:
+            with open(history_file, "r") as f:
+                history = json.load(f)
+        except:
+            history = []
+        
+        history.append(history_entry)
+        
+        with open(history_file, "w") as f:
+            json.dump(history, f, indent=2)
+        
+        return jsonify({
+            "reply": ai_reply,
+            "sources": sources
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "reply": f"I apologize, but I encountered an error while processing your request: {str(e)}",
+            "sources": []
+        })
+
+@app.route("/upload-and-analyze", methods=["POST"])
+def upload_and_analyze():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No file selected"}), 400
+    
+    if file:
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        
+        # Process and save to collection
+        result = save_to_collection(filepath, filename)
+        
+        return jsonify({
+            "message": "File uploaded and analyzed successfully",
+            "filename": filename,
+            "summary": result
+        })
+
+@app.route("/export-chat", methods=["POST"])
+def export_chat():
+    try:
+        data = request.json
+        messages = data.get('messages', [])
+        format_type = data.get('format', 'txt')
+        
+        if not messages:
+            return jsonify({'error': 'No messages to export'}), 400
+        
+        # Create exports directory
+        os.makedirs("exports", exist_ok=True)
+        
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        if format_type == 'txt':
+            filename = f"exports/chat_export_{timestamp}.txt"
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write("KanoonPK Chat Export\\n")
+                f.write("=" * 50 + "\\n\\n")
+                f.write(f"Exported: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\\n")
+                f.write(f"Total Messages: {len(messages)}\\n\\n")
+                
+                for msg in messages:
+                    sender = "You" if msg['type'] == 'user' else "KanoonPK"
+                    f.write(f"[{msg['timestamp']}] {sender}: {msg['content']}\\n\\n")
+            
+            return send_file(filename, as_attachment=True, download_name=f"KanoonPK_Chat_{timestamp}.txt")
+        
+        elif format_type == 'json':
+            export_data = {
+                'export_info': {
+                    'exported_at': datetime.datetime.now().isoformat(),
+                    'total_messages': len(messages)
+                },
+                'messages': messages
+            }
+            filename = f"exports/chat_export_{timestamp}.json"
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(export_data, f, indent=2, ensure_ascii=False)
+            
+            return send_file(filename, as_attachment=True, download_name=f"KanoonPK_Chat_{timestamp}.json")
+        
+        elif format_type == 'pdf':
+            filename = f"exports/chat_export_{timestamp}.pdf"
+            
+            # Create PDF
+            c = canvas.Canvas(filename, pagesize=A4)
+            width, height = A4
+            
+            # Header
+            c.setFont("Helvetica-Bold", 16)
+            c.drawString(50, height - 50, "KanoonPK Chat Export")
+            
+            c.setFont("Helvetica", 10)
+            c.drawString(50, height - 70, f"Exported: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            c.drawString(50, height - 85, f"Messages: {len(messages)}")
+            
+            # Messages
+            y = height - 120
+            c.setFont("Helvetica", 9)
+            
+            for msg in messages:
+                sender = "You" if msg['type'] == 'user' else "KanoonPK"
+                
+                # Check if we need a new page
+                if y < 100:
+                    c.showPage()
+                    y = height - 50
+                
+                # Message header
+                c.setFont("Helvetica-Bold", 9)
+                c.drawString(50, y, f"[{msg['timestamp']}] {sender}:")
+                y -= 15
+                
+                # Message content
+                c.setFont("Helvetica", 8)
+                content = msg['content'][:500]  # Truncate very long messages
+                lines = content.split('\\n')
+                for line in lines:
+                    if y < 50:
+                        c.showPage()
+                        y = height - 50
+                    c.drawString(70, y, line[:80])  # Truncate long lines
+                    y -= 12
+                
+                y -= 10  # Extra space between messages
+            
+            c.save()
+            return send_file(filename, as_attachment=True, download_name=f"KanoonPK_Chat_{timestamp}.pdf")
+        
+        else:
+            return jsonify({'error': 'Unsupported format'}), 400
+            
+    except Exception as e:
+        print(f"Export error: {e}")
+        return jsonify({'error': f'Export failed: {str(e)}'}), 500
+
+@app.route("/export_pdf", methods=["POST"])
+def export_pdf():
+    data = request.json
+    text = data.get("text", "")
+    citations = data.get("citations", [])
+    
+    filename = f"exports/{uuid.uuid4().hex}.pdf"
+    os.makedirs("exports", exist_ok=True)
+    
+    c = canvas.Canvas(filename, pagesize=A4)
+    width, height = A4
+    
+    # Header
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(50, height - 50, "KanoonPK Legal Analysis")
+    
+    # Date
+    c.setFont("Helvetica", 10)
+    c.drawString(50, height - 70, f"Generated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    # Content
+    y_position = height - 100
+    c.setFont("Helvetica", 10)
+    
+    # Split text into lines that fit the page
+    lines = text.split('\\n')
+    for line in lines:
+        if y_position < 100:
+            c.showPage()
+            y_position = height - 50
+        c.drawString(50, y_position, line[:100])  # Truncate long lines
+        y_position -= 15
+    
+    # Citations
+    if citations:
+        y_position -= 20
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(50, y_position, "Sources:")
+        y_position -= 20
+        
+        c.setFont("Helvetica", 10)
+        for citation in citations:
+            if y_position < 50:
+                c.showPage()
+                y_position = height - 50
+            c.drawString(70, y_position, f"• {citation}")
+            y_position -= 15
+    
+    c.save()
+    return send_file(filename, as_attachment=True, download_name="KanoonPK_Analysis.pdf")
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
-    # Simple admin check - in production, implement proper authentication
-    # For demo purposes, we'll assume access is controlled client-side
     if request.method == "POST":
         file = request.files["file"]
         if file and file.filename:
@@ -870,73 +1377,182 @@ def admin():
             doc_details += f"<p><strong>Chunks:</strong> {doc['chunks']}</p>"
             
             documents_html += f"""
-            <div class="document-card">
-                <div class="doc-header">
-                    <h4>{doc['filename']}</h4>
-                    <button onclick="deleteDocument('{doc['filename']}')" class="delete-btn" title="Delete Document">🗑️</button>
-                </div>
-                <div class="doc-details">
-                    {doc_details}
-                </div>
+            <div class='document-card'>
+                <h4>{doc['filename']}</h4>
+                {doc_details}
+                <button onclick="deleteDocument('{doc['filename']}')" class='delete-btn'>🗑️ Delete</button>
             </div>
             """
         documents_html += "</div>"
     else:
         documents_html = "<div class='no-documents'><p>No documents uploaded yet. Upload your first document below!</p></div>"
     
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>KanoonPK Admin Panel</title>
-        <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 20px; }
-            .container { max-width: 700px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
-            .header { text-align: center; margin-bottom: 40px; }
-            .logo { max-width: 150px; height: auto; margin-bottom: 15px; }
-            .form-group { margin-bottom: 25px; }
-            label { display: block; margin-bottom: 8px; font-weight: 600; color: #2bc77a; font-size: 14px; }
-            input[type="text"], input[type="file"] { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; transition: border-color 0.3s; }
-            input[type="text"]:focus, input[type="file"]:focus { border-color: #4dd0b7; outline: none; }
-            input[type="submit"] { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; padding: 15px 40px; border: none; border-radius: 25px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.3s; width: 100%; }
-            input[type="submit"]:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(45, 199, 122, 0.4); }
-            .file-types { font-size: 12px; color: #666; margin-top: 8px; padding: 8px; background: #f8f9fa; border-radius: 5px; }
-            .title { color: #2bc77a; font-size: 24px; font-weight: 700; margin-bottom: 10px; }
-            .subtitle { color: #666; margin-bottom: 30px; }
-            .back-link { display: inline-block; margin-top: 30px; color: #4dd0b7; text-decoration: none; font-weight: 600; padding: 10px 25px; border: 2px solid #4dd0b7; border-radius: 20px; transition: all 0.3s; }
-            .back-link:hover { background: #4dd0b7; color: white; }
-            .success { color: #2bc77a; font-weight: bold; margin: 20px 0; padding: 15px; background: #d4edda; border-radius: 10px; border-left: 4px solid #2bc77a; }
-            .documents-section { margin-bottom: 30px; }
-            .documents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-bottom: 20px; }
-            .document-card { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 10px; padding: 15px; }
-            .doc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-            .doc-header h4 { color: #2bc77a; margin: 0; font-size: 16px; }
-            .delete-btn { background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 14px; transition: all 0.3s; }
-            .delete-btn:hover { background: #ee5a24; transform: scale(1.1); }
-            .doc-details p { margin: 5px 0; font-size: 13px; color: #666; }
-            .no-documents { text-align: center; color: #666; padding: 40px 20px; background: #f8f9fa; border-radius: 10px; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <img src="/static/images/kanoonpk-logo.jpg" alt="KanoonPK Logo" class="logo">
-                <div class="title">Admin Panel</div>
-                <div class="subtitle">Upload and manage legal documents</div>
-            </div>
-            
-            <!-- Existing Documents Section -->
-            <div class="documents-section">
-                <h3 style="color: #2bc77a; margin-bottom: 20px; font-size: 20px;">📚 Uploaded Documents</h3>
-""" + documents_html + """
-            </div>
-            
-            <hr style="margin: 40px 0; border: none; height: 1px; background: #e0e0e0;">
-            
-            <!-- Upload Form Section -->
-            <h3 style="color: #2bc77a; margin-bottom: 20px; font-size: 20px;">📤 Upload New Document</h3>
-            <form method='POST' enctype='multipart/form-data'>
+    return render_template_string(f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KanoonPK Admin Panel</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }}
+        .container {{
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }}
+        .header {{
+            text-align: center;
+            margin-bottom: 30px;
+        }}
+        .logo {{
+            height: 60px;
+            margin-bottom: 10px;
+        }}
+        h1 {{
+            color: #4dd0b7;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }}
+        .subtitle {{
+            color: #666;
+            font-size: 16px;
+        }}
+        .upload-section {{
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px dashed #4dd0b7;
+        }}
+        .form-group {{
+            margin-bottom: 20px;
+        }}
+        label {{
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }}
+        input[type="text"], input[type="file"] {{
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }}
+        input[type="text"]:focus, input[type="file"]:focus {{
+            outline: none;
+            border-color: #4dd0b7;
+        }}
+        .file-types {{
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }}
+        input[type="submit"] {{
+            background: linear-gradient(135deg, #4dd0b7, #36a085);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+            width: 100%;
+        }}
+        input[type="submit"]:hover {{
+            transform: translateY(-2px);
+        }}
+        .back-link {{
+            display: inline-block;
+            margin-top: 20px;
+            color: #4dd0b7;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 20px;
+            border: 2px solid #4dd0b7;
+            border-radius: 25px;
+            transition: all 0.3s;
+        }}
+        .back-link:hover {{
+            background: #4dd0b7;
+            color: white;
+        }}
+        .documents-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }}
+        .document-card {{
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #4dd0b7;
+        }}
+        .document-card h4 {{
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }}
+        .document-card p {{
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #666;
+        }}
+        .delete-btn {{
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+        }}
+        .no-documents {{
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 30px;
+        }}
+        .success {{
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="/static/images/kanoonpk-logo.jpg" alt="KanoonPK Logo" class="logo">
+            <h1>Admin Panel</h1>
+            <p class="subtitle">Document Management & Legal Database Administration</p>
+        </div>
+        
+        <div class="upload-section">
+            <h3 style="margin-bottom: 20px; color: #4dd0b7;">📤 Upload Legal Document</h3>
+            <form method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="file">📁 Select Document:</label>
                     <input type='file' name='file' id='file' accept=".pdf,.docx,.txt,.jpg,.jpeg,.png" required>
@@ -968,380 +1584,120 @@ def admin():
             <a href='/' class="back-link">← Back to Chat</a>
         </div>
         
+        <h3 style="color: #4dd0b7; margin-bottom: 20px;">📚 Uploaded Documents</h3>
+        {documents_html}
+        
         <script>
-            async function deleteDocument(filename) {
-                if (!confirm('Are you sure you want to delete "' + filename + '"? This action cannot be undone.')) {
+            async function deleteDocument(filename) {{
+                if (!confirm('Are you sure you want to delete "' + filename + '"? This action cannot be undone.')) {{
                     return;
-                }
+                }}
                 
-                try {
-                    const response = await fetch('/admin/delete', {
+                try {{
+                    const response = await fetch('/admin/delete', {{
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ filename: filename })
-                    });
+                        headers: {{ 'Content-Type': 'application/json' }},
+                        body: JSON.stringify({{ filename: filename }})
+                    }});
                     
                     const result = await response.json();
                     
-                    if (result.success) {
+                    if (result.success) {{
                         alert('Document deleted successfully!');
                         location.reload();
-                    } else {
+                    }} else {{
                         alert('Error deleting document: ' + result.message);
-                    }
-                } catch (error) {
+                    }}
+                }} catch (error) {{
                     alert('Error deleting document: ' + error.message);
-                }
-            }
+                }}
+            }}
         </script>
-    </body>
-    </html>
-    """)
+    </div>
+</body>
+</html>
+""")
 
-@app.route("/chat", methods=["POST"])
-def chat():
-    user_input = request.json.get("message") if request.json else None
-    filters = request.json.get("filters", {}) if request.json else {}
-    
-    if not user_input:
-        return jsonify({"reply": "Please provide a message.", "sources": []})
-    
-    # Build where clause for filtering
-    where_clause = {}
-    if filters.get("citation"):
-        where_clause["citation"] = {"$contains": filters["citation"]}
-    if filters.get("year"):
-        where_clause["year"] = {"$contains": filters["year"]}
-    if filters.get("page"):
-        where_clause["page"] = {"$contains": filters["page"]}
-    if filters.get("court"):
-        where_clause["court"] = {"$contains": filters["court"]}
-    
-    # Query with or without filters
-    if where_clause:
-        results = collection.query(
-            query_texts=[user_input], 
-            n_results=5,
-            where=where_clause
-        )
-    else:
-        results = collection.query(query_texts=[user_input], n_results=3)
-    
-    context = ""
-    citations_used = []
-    
-    if results["documents"] and results["documents"][0]:
-        for i, doc in enumerate(results["documents"][0]):
-            metadata = results["metadatas"][0][i]
-            citation = metadata.get("citation", metadata.get("source", "Unknown"))
-            year = metadata.get("year", "")
-            page = metadata.get("page", "")
-            court = metadata.get("court", "")
+@app.route("/admin/delete", methods=["POST"])
+def delete_document():
+    try:
+        data = request.json
+        filename = data.get('filename')
+        
+        if not filename:
+            return jsonify({'success': False, 'message': 'No filename provided'})
+        
+        # Delete from ChromaDB (all chunks of this document)
+        try:
+            all_docs = collection.get()
+            ids_to_delete = []
             
-            # Build citation display
-            citation_display = citation
-            if year or page or court:
-                details = []
-                if year: details.append(f"Year: {year}")
-                if page: details.append(f"Page: {page}")
-                if court: details.append(f"Court: {court}")
-                citation_display += f" ({', '.join(details)})"
+            for i, metadata in enumerate(all_docs['metadatas']):
+                if metadata.get('source') == filename:
+                    ids_to_delete.append(all_docs['ids'][i])
             
-            citations_used.append(citation_display)
-            context += f"\n\n[Citation: {citation_display}] {doc[:800]}..."
-    
-    # Use OpenAI with different prompts based on whether documents were found
-    if context:
-        # Documents found - use document-based response
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": LEGAL_SYSTEM_PROMPT},
-                {"role": "user", "content": user_input},
-                {"role": "assistant", "content": "Relevant documents:\n" + context}
-            ]
-        )
-        reply = response.choices[0].message.content
-    else:
-        # No documents found - use general legal knowledge
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": GENERAL_LEGAL_PROMPT},
-                {"role": "user", "content": user_input}
-            ]
-        )
-        reply = response.choices[0].message.content + "\n\n📝 *Note: This answer is based on general knowledge of Pakistan law. For more specific information, please upload relevant legal documents.*"
-        citations_used = ["General Legal Knowledge"]
-
-    # Log history
-    log_entry = {
-        "timestamp": datetime.datetime.now().isoformat(),
-        "question": user_input,
-        "reply": reply,
-        "citations": citations_used
-    }
-    os.makedirs("logs", exist_ok=True)
-    history_file = "logs/history.json"
-    if os.path.exists(history_file):
-        with open(history_file, "r", encoding="utf-8") as f:
-            history = json.load(f)
-    else:
-        history = []
-    history.append(log_entry)
-    with open(history_file, "w", encoding="utf-8") as f:
-        json.dump(history, f, indent=2)
-
-    return jsonify({"reply": reply, "sources": citations_used})
+            if ids_to_delete:
+                collection.delete(ids=ids_to_delete)
+        except Exception as e:
+            print(f"Error deleting from ChromaDB: {e}")
+        
+        # Delete physical file
+        try:
+            file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        except Exception as e:
+            print(f"Error deleting file: {e}")
+        
+        return jsonify({'success': True, 'message': 'Document deleted successfully'})
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
 
 @app.route("/history")
 def history():
-    history_file = "logs/history.json"
-    if not os.path.exists(history_file):
-        return "<h2>No history yet.</h2>"
-
-    with open(history_file, "r", encoding="utf-8") as f:
-        history = json.load(f)
-
-    html = "<h1>⚖️ KanoonPK — Search History</h1>"
+    try:
+        with open("logs/history.json", "r") as f:
+            history = json.load(f)
+    except:
+        history = []
+    
+    html = "<h1>Chat History</h1>"
     html += "<a href='/export_csv'>⬇️ Download as CSV</a><br><br>"
-    html += "<table border='1' cellpadding='8' style='border-collapse:collapse;'>"
+    html += "<table border='1'>"
     html += "<tr><th>Time</th><th>Question</th><th>AI Reply (short)</th><th>Citations</th></tr>"
-
-    for h in reversed(history[-50:]):
-        short_reply = (h['reply'][:200] + "...") if len(h['reply']) > 200 else h['reply']
+    
+    for h in history[-50:]:  # Show last 50 entries
+        short_reply = h['reply'][:100] + "..." if len(h['reply']) > 100 else h['reply']
         html += f"<tr><td>{h['timestamp']}</td><td>{h['question']}</td><td>{short_reply}</td><td>{', '.join(h['citations'])}</td></tr>"
-
+    
     html += "</table>"
     return html
 
 @app.route("/export_csv")
 def export_csv():
-    history_file = "logs/history.json"
-    if not os.path.exists(history_file):
-        return "No history to export."
-    with open(history_file, "r", encoding="utf-8") as f:
-        history = json.load(f)
-
-    filename = f"exports/history_{uuid.uuid4().hex}.csv"
-    os.makedirs("exports", exist_ok=True)
-
-    with open(filename, "w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(["Timestamp", "Question", "Reply", "Citations"])
-        for h in history:
-            writer.writerow([h["timestamp"], h["question"], h["reply"], "; ".join(h["citations"])])
-
-    return send_file(filename, as_attachment=True)
-
-@app.route("/upload-and-analyze", methods=["POST"])
-def upload_and_analyze():
-    """Handle file upload from chat interface"""
-    if 'file' not in request.files:
-        return jsonify({'success': False, 'message': 'No file provided'}), 400
-    
-    file = request.files['file']
-    if not file or not file.filename:
-        return jsonify({'success': False, 'message': 'No file selected'}), 400
-    
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    
     try:
-        file.save(file_path)
-        
-        # Process and add to collection
-        save_to_collection(file_path, filename)
-        
-        # Generate summary
-        if filename.lower().endswith('.pdf'):
-            text_preview = extract_text_from_pdf(file_path)[:500] + "..."
-        elif filename.lower().endswith('.docx'):
-            text_preview = extract_text_from_docx(file_path)[:500] + "..."
-        else:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                text_preview = f.read()[:500] + "..."
-        
-        return jsonify({
-            'success': True, 
-            'message': 'File uploaded and indexed successfully',
-            'filename': filename,
-            'summary': f'Document contains legal text and has been indexed for search. Preview: {text_preview}'
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'message': f'Upload failed: {str(e)}'}), 500
-
-@app.route("/admin/delete", methods=["POST"])
-def admin_delete():
-    data = request.json if request.json else {}
-    filename = data.get('filename')
+        with open("logs/history.json", "r") as f:
+            history = json.load(f)
+    except:
+        history = []
     
-    if not filename:
-        return jsonify({'success': False, 'message': 'No filename provided'})
-    
-    if delete_document(filename):
-        return jsonify({'success': True, 'message': 'Document deleted successfully'})
-    else:
-        return jsonify({'success': False, 'message': 'Failed to delete document'})
-
-@app.route("/export-chat", methods=["POST"])
-def export_chat():
-    """Export chat messages in various formats"""
-    data = request.json if request.json else {}
-    messages = data.get('messages', [])
-    format_type = data.get('format', 'txt').lower()
-    
-    if not messages:
-        return jsonify({'error': 'No messages provided'}), 400
-    
-    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    filename = f"exports/KanoonPK_Chat_{timestamp}.{format_type}"
+    filename = f"exports/history_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
     os.makedirs("exports", exist_ok=True)
     
-    try:
-        if format_type == 'txt':
-            with open(filename, 'w', encoding='utf-8') as f:
-                f.write("KanoonPK Chat Export\n")
-                f.write("=" * 50 + "\n")
-                f.write(f"Exported on: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-                f.write(f"Total Messages: {len(messages)}\n\n")
-                
-                for msg in messages:
-                    sender = "You" if msg['type'] == 'user' else "KanoonPK"
-                    f.write(f"[{msg['timestamp']}] {sender}: {msg['content']}\n\n")
+    with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
+        fieldnames = ['timestamp', 'question', 'reply', 'citations']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         
-        elif format_type == 'json':
-            export_data = {
-                'export_info': {
-                    'exported_at': datetime.datetime.now().isoformat(),
-                    'total_messages': len(messages),
-                    'format': 'json',
-                    'source': 'KanoonPK AI Legal Research Assistant'
-                },
-                'messages': messages
-            }
-            
-            with open(filename, 'w', encoding='utf-8') as f:
-                json.dump(export_data, f, indent=2, ensure_ascii=False)
-        
-        elif format_type == 'pdf':
-            from reportlab.pdfgen import canvas
-            from reportlab.lib.pagesizes import A4
-            from reportlab.lib import colors
-            from reportlab.lib.styles import getSampleStyleSheet
-            from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-            
-            c = canvas.Canvas(filename, pagesize=A4)
-            width, height = A4
-            
-            # Header
-            c.setFont("Helvetica-Bold", 16)
-            c.setFillColor(colors.HexColor("#2bc77a"))
-            c.drawString(50, height - 50, "KanoonPK Chat Export")
-            
-            c.setFont("Helvetica", 10)
-            c.setFillColor(colors.black)
-            c.drawString(50, height - 70, f"Exported: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-            c.drawString(50, height - 85, f"Messages: {len(messages)}")
-            
-            # Draw separator line
-            c.line(50, height - 95, width - 50, height - 95)
-            
-            y = height - 120
-            
-            for msg in messages:
-                sender = "You" if msg['type'] == 'user' else "KanoonPK"
-                
-                # Message header
-                c.setFont("Helvetica-Bold", 10)
-                c.setFillColor(colors.HexColor("#4dd0b7") if msg['type'] == 'user' else colors.HexColor("#6c757d"))
-                c.drawString(50, y, f"[{msg['timestamp']}] {sender}:")
-                y -= 15
-                
-                # Message content
-                c.setFont("Helvetica", 9)
-                c.setFillColor(colors.black)
-                
-                # Word wrap for long messages
-                words = msg['content'].split(' ')
-                line = ""
-                for word in words:
-                    test_line = line + word + " "
-                    if c.stringWidth(test_line, "Helvetica", 9) < (width - 100):
-                        line = test_line
-                    else:
-                        if line:
-                            c.drawString(70, y, line.strip())
-                            y -= 12
-                        line = word + " "
-                        
-                        if y < 100:  # Start new page
-                            c.showPage()
-                            y = height - 50
-                
-                if line:
-                    c.drawString(70, y, line.strip())
-                    y -= 20
-                
-                if y < 100:  # Start new page
-                    c.showPage()
-                    y = height - 50
-            
-            c.save()
-        
-        else:
-            return jsonify({'error': 'Unsupported format'}), 400
-        
-        return send_file(filename, as_attachment=True)
+        writer.writeheader()
+        for entry in history:
+            writer.writerow({
+                'timestamp': entry['timestamp'],
+                'question': entry['question'],
+                'reply': entry['reply'],
+                'citations': '; '.join(entry.get('citations', []))
+            })
     
-    except Exception as e:
-        return jsonify({'error': f'Export failed: {str(e)}'}), 500
-
-@app.route("/export_pdf", methods=["POST"])
-def export_pdf():
-    data = request.json
-    text = data.get("text", "") if data else ""
-    citations = data.get("citations", []) if data else []
-
-    filename = f"exports/{uuid.uuid4().hex}.pdf"
-    os.makedirs("exports", exist_ok=True)
-
-    c = canvas.Canvas(filename, pagesize=A4)
-    width, height = A4
-
-    # Watermark
-    c.setFont("Helvetica-Bold", 60)
-    c.setFillGray(0.9, 0.3)
-    c.saveState()
-    c.translate(width/2, height/2)
-    c.rotate(45)
-    c.drawCentredString(0, 0, "KanoonPK")
-    c.restoreState()
-
-    y = height - 60
-
-    # Citation Banner
-    if citations:
-        c.setFillColor(colors.HexColor("#007BFF"))
-        c.rect(40, y-30, width-80, 30, fill=1)
-        c.setFillColor(colors.white)
-        c.setFont("Helvetica-Bold", 12)
-        c.drawString(50, y-20, "Citations: " + ", ".join(citations))
-        y -= 50
-
-    # Answer text
-    c.setFillColor(colors.black)
-    c.setFont("Helvetica", 12)
-    for line in text.split("\n"):
-        c.drawString(50, y, line)
-        y -= 18
-        if y < 80:
-            c.showPage()
-            y = height - 80
-            c.setFont("Helvetica", 12)
-
-    c.save()
     return send_file(filename, as_attachment=True)
 
 if __name__ == "__main__":
