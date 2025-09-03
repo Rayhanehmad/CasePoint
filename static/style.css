@@ -1,0 +1,176 @@
+/* Custom styles for KanoonPK */
+
+.chat-messages {
+    height: 500px;
+    overflow-y: auto;
+    border: none;
+    background-color: var(--bs-body-bg);
+}
+
+.message {
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    max-width: 80%;
+    word-wrap: break-word;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.message.user {
+    background-color: var(--bs-primary);
+    color: white;
+    margin-left: auto;
+    text-align: right;
+    border-bottom-right-radius: 0.25rem;
+}
+
+.message.bot {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+    margin-right: auto;
+    border-bottom-left-radius: 0.25rem;
+}
+
+.message .timestamp {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin-top: 0.25rem;
+}
+
+.citations {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.citation-badge {
+    font-size: 0.7rem;
+    margin: 0.1rem;
+}
+
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background-color: var(--bs-secondary-bg);
+    border-radius: 1rem;
+    max-width: 80px;
+    margin-bottom: 1rem;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.typing-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--bs-secondary);
+    animation: typing 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes typing {
+    0%, 60%, 100% { transform: scale(0.8); opacity: 0.5; }
+    30% { transform: scale(1.2); opacity: 1; }
+}
+
+/* Scrollbar styling */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background-color: var(--bs-secondary);
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background-color: var(--bs-secondary-color);
+}
+
+/* Welcome card animation */
+#welcomeCard {
+    animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Button loading state */
+.btn-loading {
+    position: relative;
+}
+
+.btn-loading:disabled {
+    color: transparent;
+}
+
+.btn-loading:disabled::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Error message styling */
+.error-message {
+    background-color: var(--bs-danger-bg-subtle);
+    border: 1px solid var(--bs-danger-border-subtle);
+    color: var(--bs-danger-text-emphasis);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .message {
+        max-width: 95%;
+        font-size: 0.9rem;
+    }
+    
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    .chat-messages {
+        height: 400px;
+    }
+}
