@@ -764,22 +764,6 @@ def home():
           }
         }
         
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-          checkAdminStatus();
-          
-          // Demo: Allow users to set their name and admin status
-          document.getElementById('userName').addEventListener('click', function() {
-            const newName = prompt('Enter your name:', this.textContent);
-            if (newName && newName.trim()) {
-              localStorage.setItem('userName', newName.trim());
-              const makeAdmin = confirm('Are you an admin user?');
-              localStorage.setItem('isAdmin', makeAdmin.toString());
-              checkAdminStatus();
-            }
-          });
-        });
-
         async function downloadPDF() {
           if (!lastAnswer) {
             alert("⚠️ No answer to download yet.");
@@ -810,6 +794,22 @@ def home():
             alert('⚠️ Error generating PDF. Please try again.');
           }
         }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+          checkAdminStatus();
+          
+          // Demo: Allow users to set their name and admin status
+          document.getElementById('userName').addEventListener('click', function() {
+            const newName = prompt('Enter your name:', this.textContent);
+            if (newName && newName.trim()) {
+              localStorage.setItem('userName', newName.trim());
+              const makeAdmin = confirm('Are you an admin user?');
+              localStorage.setItem('isAdmin', makeAdmin.toString());
+              checkAdminStatus();
+            }
+          });
+        });
       </script>
     </body>
     </html>
