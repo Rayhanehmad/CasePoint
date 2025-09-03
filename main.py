@@ -595,6 +595,7 @@ def index():
         let lastCitations = [];
         let isSelectMode = false;
         let messageIdCounter = 0;
+        let responseCache = new Map();
         
         // Utility functions
         function getCurrentTime() {
@@ -653,8 +654,16 @@ def index():
             addMessage(userText, true);
             input.value = "";
             
-            // Show typing indicator
-            const typingMsg = addMessage('💭 KanoonPK is analyzing your query...', false, true);
+            // Check cache first for faster response
+            const cacheKey = userText.toLowerCase().trim();
+            if (responseCache.has(cacheKey)) {
+                const cachedResponse = responseCache.get(cacheKey);
+                addMessage(cachedResponse.content);
+                return;
+            }
+            
+            // Show faster typing indicator
+            const typingMsg = addMessage('⚡ Searching legal database...', false, true);
 
             try {
                 const res = await fetch("/chat", {
@@ -685,6 +694,15 @@ def index():
                 if (Object.values(filters).some(f => f)) {
                     const activeFilters = Object.entries(filters).filter(([k, v]) => v).map(([k, v]) => k + ': ' + v).join(", ");
                     content += '<div class="sources"><strong>🔍 Search Filters:</strong> ' + activeFilters + '</div>';
+                }
+                
+                // Cache response for faster future access
+                responseCache.set(cacheKey, { content: content, timestamp: Date.now() });
+                
+                // Clear old cache entries (keep only last 10)
+                if (responseCache.size > 10) {
+                    const oldestKey = responseCache.keys().next().value;
+                    responseCache.delete(oldestKey);
                 }
                 
                 addMessage(content);
@@ -1070,6 +1088,10 @@ def chat():
     if not user_input:
         return jsonify({"reply": "Please provide a message.", "sources": []})
     
+    # Quick response for very short queries
+    if len(user_input.strip()) < 5:
+        return jsonify({"reply": "Please provide a more detailed legal question for better assistance.", "sources": []})
+    
     # Build where clause for filtering
     where_clause = {}
     if filters.get("citation"):
@@ -1081,15 +1103,15 @@ def chat():
     if filters.get("court"):
         where_clause["court"] = {"$contains": filters["court"]}
     
-    # Query with or without filters
+    # Query with or without filters (reduced to 3 results for faster processing)
     if where_clause:
         results = collection.query(
             query_texts=[user_input], 
-            n_results=5,
+            n_results=3,
             where=where_clause
         )
     else:
-        results = collection.query(query_texts=[user_input], n_results=5)
+        results = collection.query(query_texts=[user_input], n_results=3)
     
     # Process results
     context = ""
@@ -1125,7 +1147,7 @@ def chat():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_input}
             ],
-            max_completion_tokens=1500
+            max_completion_tokens=800
         )
         
         ai_reply = response.choices[0].message.content
