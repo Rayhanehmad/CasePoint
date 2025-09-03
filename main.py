@@ -364,16 +364,16 @@ def home():
           const time = getCurrentTime();
           const msgId = 'msg_' + (++messageIdCounter);
           
-          messageDiv.className = `msg ${isUser ? 'user' : 'bot'}${isTyping ? ' typing' : ''}${isSelectMode ? ' selecting' : ''}`;
+          messageDiv.className = 'msg ' + (isUser ? 'user' : 'bot') + (isTyping ? ' typing' : '') + (isSelectMode ? ' selecting' : '');
           messageDiv.setAttribute('data-msg-id', msgId);
           
-          const checkboxHtml = `<div class="msg-checkbox"><input type="checkbox" onchange="updateSelection()"></div>`;
+          const checkboxHtml = '<div class="msg-checkbox"><input type="checkbox" onchange="updateSelection()"></div>';
           
           if (isTyping) {
             messageDiv.id = 'typing';
             messageDiv.innerHTML = checkboxHtml + content;
           } else {
-            messageDiv.innerHTML = checkboxHtml + `${content}<div class="message-time">${time}</div>`;
+            messageDiv.innerHTML = checkboxHtml + content + '<div class="message-time">' + time + '</div>';
           }
           
           msgBox.appendChild(messageDiv);
@@ -429,12 +429,12 @@ def home():
             let content = data.reply.replace(/\\n/g,"<br>");
             
             if (data.sources.length) {
-              content += `<div class='sources'><strong>📑 Legal Sources:</strong> ${data.sources.join(", ")}</div>`;
+              content += '<div class=\"sources\"><strong>📑 Legal Sources:</strong> ' + data.sources.join(", ") + '</div>';
             }
             
             if (Object.values(filters).some(f => f)) {
-              const activeFilters = Object.entries(filters).filter(([k, v]) => v).map(([k, v]) => `${k}: ${v}`).join(", ");
-              content += `<div class='sources'><strong>🔍 Search Filters:</strong> ${activeFilters}</div>`;
+              const activeFilters = Object.entries(filters).filter(([k, v]) => v).map(([k, v]) => k + ': ' + v).join(", ");
+              content += '<div class=\"sources\"><strong>🔍 Search Filters:</strong> ' + activeFilters + '</div>';
             }
             
             addMessage(content);
@@ -471,13 +471,11 @@ def home():
         function clearChat() {
           if (confirm('Are you sure you want to clear all messages? This action cannot be undone.')) {
             const msgBox = document.getElementById('messages');
-            msgBox.innerHTML = `
-              <div class='msg bot' data-msg-id="welcome">
-                <div class="msg-checkbox"><input type="checkbox" onchange="updateSelection()"></div>
-                🙏 Welcome to KanoonPK! I'm your AI legal research assistant for Pakistan law. Ask me about legal cases, statutes, or upload documents for analysis.
-                <div class="message-time">Online</div>
-              </div>
-            `;
+            msgBox.innerHTML = '<div class="msg bot" data-msg-id="welcome">' +
+              '<div class="msg-checkbox"><input type="checkbox" onchange="updateSelection()"></div>' +
+              '🙏 Welcome to KanoonPK! I\\'m your AI legal research assistant for Pakistan law. Ask me about legal cases, statutes, or upload documents for analysis.' +
+              '<div class="message-time">Online</div>' +
+              '</div>';
             messageIdCounter = 0;
             if (isSelectMode) {
               toggleSelectMode();
@@ -537,7 +535,7 @@ def home():
             return;
           }
           
-          if (confirm(`Delete ${selectedMessages.length} selected message(s)?`)) {
+          if (confirm('Delete ' + selectedMessages.length + ' selected message(s)?')) {
             selectedMessages.forEach(checkbox => {
               const msgElement = checkbox.closest('.msg');
               msgElement.remove();
@@ -558,12 +556,12 @@ def home():
             const msgElement = checkbox.closest('.msg');
             const msgContent = msgElement.textContent.replace(/☑️|Online|\d{1,2}:\d{2}/g, '').trim();
             const isUser = msgElement.classList.contains('user');
-            forwardText += `${isUser ? 'You' : 'KanoonPK'}: ${msgContent}\n\n`;
+            forwardText += (isUser ? 'You' : 'KanoonPK') + ': ' + msgContent + '\\n\\n';
           });
           
           // Copy to clipboard
           navigator.clipboard.writeText(forwardText).then(() => {
-            alert(`${selectedMessages.length} message(s) copied to clipboard!`);
+            alert(selectedMessages.length + ' message(s) copied to clipboard!');
           }).catch(() => {
             // Fallback: show in alert
             prompt('Copy this text to forward:', forwardText);
@@ -583,7 +581,7 @@ def home():
           if (!file) return;
           
           // Show upload progress
-          const uploadMsg = addMessage(`📁 Uploading and analyzing: ${file.name}...`, false, true);
+          const uploadMsg = addMessage('📁 Uploading and analyzing: ' + file.name + '...', false, true);
           
           const formData = new FormData();
           formData.append('file', file);
@@ -604,7 +602,7 @@ def home():
             uploadMsg.remove();
             
             // Add analysis result
-            addMessage(`📄 Document uploaded and indexed successfully!<br><strong>File:</strong> ${file.name}<br><strong>Analysis:</strong> ${result.summary || 'Document processed and ready for queries.'}`);
+            addMessage('📄 Document uploaded and indexed successfully!<br><strong>File:</strong> ' + file.name + '<br><strong>Analysis:</strong> ' + (result.summary || 'Document processed and ready for queries.'));
             
             // Clear file input
             fileInput.value = '';
@@ -714,7 +712,7 @@ def home():
             const a = document.createElement('a');
             
             const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-            const filename = `KanoonPK_Chat_${timestamp}.${format}`;
+            const filename = 'KanoonPK_Chat_' + timestamp + '.' + format;
             
             a.href = url;
             a.download = filename;
@@ -723,7 +721,7 @@ def home():
             a.remove();
             window.URL.revokeObjectURL(url);
             
-            addMessage(`✅ Chat exported as ${format.toUpperCase()} successfully!`, false);
+            addMessage('✅ Chat exported as ' + format.toUpperCase() + ' successfully!', false);
             
           } catch (error) {
             console.error('Export error:', error);
@@ -761,7 +759,7 @@ def home():
             const a = document.createElement('a');
             
             const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-            const filename = `KanoonPK_Selected_${timestamp}.${format}`;
+            const filename = 'KanoonPK_Selected_' + timestamp + '.' + format;
             
             a.href = url;
             a.download = filename;
@@ -770,7 +768,7 @@ def home():
             a.remove();
             window.URL.revokeObjectURL(url);
             
-            addMessage(`✅ Selected messages exported as ${format.toUpperCase()} successfully!`, false);
+            addMessage('✅ Selected messages exported as ' + format.toUpperCase() + ' successfully!', false);
             
           } catch (error) {
             console.error('Export error:', error);
