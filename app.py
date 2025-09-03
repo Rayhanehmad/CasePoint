@@ -207,8 +207,7 @@ def chat():
         response = client.chat.completions.create(
             model="gpt-5",  # Using latest model
             messages=messages,
-            max_completion_tokens=1500,
-            temperature=0.3
+            max_completion_tokens=1500
         )
         
         reply = response.choices[0].message.content
