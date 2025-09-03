@@ -160,49 +160,56 @@ def home():
       <title>KanoonPK - AI Legal Research</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; }
-        .chat-container { max-width: 1000px; margin: auto; padding: 20px; }
-        .header { background: white; padding: 15px 20px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; font-size: 14px; }
+        .chat-container { max-width: 100%; margin: 0; padding: 10px; }
+        .header { background: white; padding: 8px 12px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
         .header-left { display: flex; align-items: center; }
-        .logo { width: 80px; height: auto; margin-right: 15px; }
-        .header-text h1 { color: #2bc77a; font-size: 24px; font-weight: 700; margin: 0; }
-        .header-text .tagline { color: #666; font-size: 14px; margin: 0; }
-        .admin-link { color: #4dd0b7; text-decoration: none; font-size: 14px; font-weight: 600; padding: 8px 15px; border: 2px solid #4dd0b7; border-radius: 20px; transition: all 0.3s; }
+        .logo { width: 50px; height: auto; margin-right: 10px; }
+        .header-text h1 { color: #2bc77a; font-size: 16px; font-weight: 700; margin: 0; }
+        .header-text .tagline { color: #666; font-size: 11px; margin: 0; }
+        .admin-link { color: #4dd0b7; text-decoration: none; font-size: 11px; font-weight: 600; padding: 5px 10px; border: 1px solid #4dd0b7; border-radius: 15px; transition: all 0.3s; }
         .admin-link:hover { background: #4dd0b7; color: white; }
-        .msg { padding: 15px; margin: 8px 0; border-radius: 18px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); max-width: 85%; word-wrap: break-word; animation: slideIn 0.3s ease-out; }
+        .msg { padding: 10px; margin: 5px 0; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.1); max-width: 85%; word-wrap: break-word; animation: slideIn 0.3s ease-out; font-size: 13px; }
         .user { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; align-self: flex-end; margin-left: auto; position: relative; }
-        .user::after { content: ''; position: absolute; right: -8px; bottom: 8px; width: 0; height: 0; border: 8px solid transparent; border-left: 8px solid #2bc77a; }
+        .user::after { content: ''; position: absolute; right: -6px; bottom: 6px; width: 0; height: 0; border: 6px solid transparent; border-left: 6px solid #2bc77a; }
         .bot { background: white; color: #333; align-self: flex-start; margin-right: auto; border: 1px solid #e0e0e0; position: relative; }
-        .bot::after { content: ''; position: absolute; left: -8px; bottom: 8px; width: 0; height: 0; border: 8px solid transparent; border-right: 8px solid white; }
-        #messages { height: 450px; overflow-y: auto; padding: 20px; background: rgba(255,255,255,0.3); border-radius: 15px; margin-bottom: 20px; backdrop-filter: blur(10px); display: flex; flex-direction: column; }
-        .search-panel { background: white; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
-        .search-banner { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; padding: 15px 20px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s; }
+        .bot::after { content: ''; position: absolute; left: -6px; bottom: 6px; width: 0; height: 0; border: 6px solid transparent; border-right: 6px solid white; }
+        #messages { height: 300px; overflow-y: auto; padding: 10px; background: rgba(255,255,255,0.3); border-radius: 10px; margin-bottom: 10px; backdrop-filter: blur(10px); display: flex; flex-direction: column; }
+        .search-panel { background: white; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
+        .search-banner { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; padding: 10px 15px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s; }
         .search-banner:hover { background: linear-gradient(135deg, #2bc77a 0%, #4dd0b7 100%); }
-        .search-banner-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; }
-        .search-banner-title::before { content: '🔍'; margin-right: 10px; font-size: 18px; }
-        .search-toggle { font-size: 20px; transition: transform 0.3s; }
+        .search-banner-title { font-size: 13px; font-weight: 600; display: flex; align-items: center; }
+        .search-banner-title::before { content: '🔍'; margin-right: 8px; font-size: 14px; }
+        .search-toggle { font-size: 16px; transition: transform 0.3s; }
         .search-toggle.open { transform: rotate(180deg); }
         .search-content { padding: 0; max-height: 0; overflow: hidden; transition: all 0.3s ease-out; }
-        .search-content.open { padding: 20px; max-height: 300px; }
-        .search-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
-        .search-field { flex: 1; min-width: 180px; }
-        .search-field label { display: block; font-size: 13px; color: #555; margin-bottom: 5px; font-weight: 600; }
-        .search-field input { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; transition: border-color 0.3s; }
+        .search-content.open { padding: 15px; max-height: 250px; }
+        .search-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+        .search-field { flex: 1; min-width: 120px; }
+        .search-field label { display: block; font-size: 10px; color: #555; margin-bottom: 3px; font-weight: 600; }
+        .search-field input { width: 100%; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 6px; transition: border-color 0.3s; font-size: 12px; }
         .search-field input:focus { border-color: #4dd0b7; outline: none; }
-        .search-actions { text-align: center; margin-top: 10px; }
-        .input-section { display: flex; gap: 10px; background: white; padding: 15px; border-radius: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .input-section input { flex: 1; padding: 15px; border: none; border-radius: 20px; outline: none; background: #f8f9fa; }
-        .input-section button { padding: 15px 25px; border: none; border-radius: 20px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .search-actions { text-align: center; margin-top: 8px; }
+        .input-section { display: flex; gap: 5px; background: white; padding: 10px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .input-section input { flex: 1; padding: 10px 12px; border: none; border-radius: 15px; outline: none; background: #f8f9fa; font-size: 13px; }
+        .input-section button { padding: 10px 15px; border: none; border-radius: 15px; cursor: pointer; font-weight: 600; transition: all 0.3s; font-size: 12px; }
         .send-btn { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; }
-        .send-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(45, 199, 122, 0.4); }
+        .send-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(45, 199, 122, 0.4); }
         .pdf-btn { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); color: white; }
-        .pdf-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); }
-        .clear-btn { background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%); color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; }
-        .clear-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4); }
+        .pdf-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4); }
+        .clear-btn { background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%); color: white; padding: 6px 12px; border-radius: 15px; font-size: 10px; }
+        .clear-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(108, 92, 231, 0.4); }
         .typing { opacity: 0.7; }
-        .sources { background: #f8f9fa; padding: 10px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #4dd0b7; }
+        .sources { background: #f8f9fa; padding: 6px 8px; border-radius: 6px; margin-top: 6px; border-left: 3px solid #4dd0b7; font-size: 11px; }
         .typing { opacity: 0.8; font-style: italic; }
-        .message-time { font-size: 11px; color: #888; margin-top: 5px; }
+        .message-time { font-size: 9px; color: #888; margin-top: 3px; }
+        @media (max-width: 768px) {
+          .chat-container { padding: 5px; }
+          .search-row { flex-direction: column; gap: 5px; }
+          .search-field { min-width: 100%; }
+          .input-section { gap: 3px; padding: 8px; }
+          .msg { max-width: 95%; }
+        }
         @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
       </style>
     </head>
