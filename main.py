@@ -294,6 +294,22 @@ def index():
             text-align: center;
         }
         
+        .search-btn {
+            background: #4dd0b7;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        
+        .search-btn:hover {
+            background: #36a085;
+        }
+        
         .clear-btn {
             background: #dc3545;
             color: white;
@@ -547,6 +563,7 @@ def index():
                 </div>
             </div>
             <div class="search-actions">
+                <button onclick="performAdvancedSearch()" class="search-btn">🔍 Search Database</button>
                 <button onclick="clearFilters()" class="clear-btn">🗑️ Clear Filters</button>
             </div>
         </div>
@@ -721,6 +738,73 @@ def index():
             searchContent.classList.toggle('open');
         }
 
+        function performAdvancedSearch() {
+            // Get filter values
+            const filters = {
+                citation: document.getElementById("citationFilter").value.trim(),
+                year: document.getElementById("yearFilter").value.trim(),
+                page: document.getElementById("pageFilter").value.trim(),
+                court: document.getElementById("courtFilter").value.trim()
+            };
+            
+            // Get search query from main input
+            const userInput = document.getElementById("userInput").value.trim();
+            
+            if (!userInput) {
+                alert("Please enter a search query in the main input field.");
+                return;
+            }
+            
+            // Check if at least one filter is applied
+            const hasFilters = Object.values(filters).some(value => value);
+            if (!hasFilters) {
+                alert("Please apply at least one filter for advanced database search.");
+                return;
+            }
+            
+            // Add user message showing the search
+            const filterText = Object.entries(filters)
+                .filter(([k, v]) => v)
+                .map(([k, v]) => `${k}: ${v}`)
+                .join(", ");
+            
+            addMessage(`🔍 Advanced Database Search: "${userInput}" with filters: ${filterText}`, true);
+            
+            // Clear the input
+            document.getElementById("userInput").value = "";
+            
+            // Show typing indicator
+            const typingMsg = addMessage('🔍 Searching KanoonPK database with filters...', false, true);
+            
+            // Perform the search with filters
+            fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userInput, filters: filters })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Remove typing indicator
+                typingMsg.remove();
+                
+                // Build bot response
+                let content = data.reply.split('\\n').join('<br>');
+                
+                if (data.sources.length) {
+                    content += '<div class="sources"><strong>📑 Legal Sources:</strong> ' + data.sources.join(", ") + '</div>';
+                }
+                
+                addMessage(content);
+            })
+            .catch(error => {
+                console.error('Advanced search error:', error);
+                if (typingMsg && typingMsg.parentNode) {
+                    typingMsg.remove();
+                }
+                addMessage('⚠️ Sorry, there was an error with the advanced search. Please try again.', false);
+            });
+        }
+        
         function clearFilters() {
             document.getElementById("citationFilter").value = "";
             document.getElementById("yearFilter").value = "";
@@ -1104,73 +1188,130 @@ def chat():
     if len(user_input.strip()) < 5:
         return jsonify({"reply": "Please provide a more detailed legal question for better assistance.", "sources": []})
     
-    # STEP 1: First check KanoonPK database
-    print(f"🔍 Step 1: Searching KanoonPK database for: {user_input}")
+    # Check if advanced search filters are being used
+    has_filters = any(filters.get(key) for key in ["citation", "year", "page", "court"])
     
-    # Build where clause for filtering
-    where_clause = {}
-    if filters.get("citation"):
-        where_clause["citation"] = {"$contains": filters["citation"]}
-    if filters.get("year"):
-        where_clause["year"] = {"$contains": filters["year"]}
-    if filters.get("page"):
-        where_clause["page"] = {"$contains": filters["page"]}
-    if filters.get("court"):
-        where_clause["court"] = {"$contains": filters["court"]}
-    
-    # Query KanoonPK database first
-    try:
-        if where_clause:
+    if has_filters:
+        # ADVANCED SEARCH: Database-only search when filters are applied
+        print(f"🔍 Advanced Search (Database-Only) for: {user_input}")
+        print(f"📋 Filters applied: {filters}")
+        
+        # Build where clause for filtering
+        where_clause = {}
+        if filters.get("citation"):
+            where_clause["citation"] = {"$contains": filters["citation"]}
+        if filters.get("year"):
+            where_clause["year"] = {"$contains": filters["year"]}
+        if filters.get("page"):
+            where_clause["page"] = {"$contains": filters["page"]}
+        if filters.get("court"):
+            where_clause["court"] = {"$contains": filters["court"]}
+        
+        # Database-only search with filters
+        try:
             results = collection.query(
                 query_texts=[user_input], 
-                n_results=3,
+                n_results=5,  # More results for filtered search
                 where=where_clause
             )
-        else:
-            results = collection.query(query_texts=[user_input], n_results=3)
-    except Exception as e:
-        print(f"Database query error: {e}")
-        results = {"documents": [[]], "metadatas": [[]]}
-    
-    # Process database results
-    context = ""
-    sources = []
-    database_found = False
-    
-    if results["documents"] and results["documents"][0]:
-        database_found = True
-        print(f"✅ Found {len(results['documents'][0])} results in KanoonPK database")
-        for i, doc in enumerate(results["documents"][0]):
-            context += f"Document {i+1}: {doc}\\n\\n"
-            
-            # Get source info
-            metadata = results["metadatas"][0][i] if results["metadatas"] and results["metadatas"][0] else {}
-            source_info = metadata.get("source", "Unknown source")
-            if metadata.get("citation"):
-                source_info = metadata["citation"]
-            elif metadata.get("year"):
-                source_info += f" ({metadata['year']})"
-            
-            if source_info not in sources:
-                sources.append(source_info)
-    else:
-        print("❌ No results found in KanoonPK database")
-    
-    # STEP 2: Now use ChatGPT with database context or general knowledge
-    print(f"🤖 Step 2: Using ChatGPT with {'database context' if database_found else 'general knowledge'}")
-    
-    # Prepare system prompt based on database results
-    if database_found:
-        system_prompt = f"""You are KanoonPK, an AI Legal Research Assistant specialized in Pakistan law.
+        except Exception as e:
+            print(f"Database query error: {e}")
+            results = {"documents": [[]], "metadatas": [[]]}
         
+        # Process database results
+        context = ""
+        sources = []
+        
+        if results["documents"] and results["documents"][0]:
+            print(f"✅ Found {len(results['documents'][0])} results in KanoonPK database")
+            for i, doc in enumerate(results["documents"][0]):
+                context += f"Document {i+1}: {doc}\\n\\n"
+                
+                # Get source info
+                metadata = results["metadatas"][0][i] if results["metadatas"] and results["metadatas"][0] else {}
+                source_info = metadata.get("source", "Unknown source")
+                if metadata.get("citation"):
+                    source_info = metadata["citation"]
+                elif metadata.get("year"):
+                    source_info += f" ({metadata['year']})"
+                
+                if source_info not in sources:
+                    sources.append(source_info)
+            
+            # Database-only response (no ChatGPT for filtered searches)
+            if context:
+                filtered_response = f"📊 **[Database Search Results]**\\n\\n**Query:** {user_input}\\n\\n**Applied Filters:** {', '.join([f'{k}: {v}' for k, v in filters.items() if v])}\\n\\n**Results:**\\n\\n{context}\\n\\n**Sources:** {', '.join(sources) if sources else 'Database documents'}"
+                
+                # Add search method indicator to response
+                final_reply = filtered_response
+                
+                print(f"📤 Sending database-only response: {len(final_reply)} characters")
+                
+                return jsonify({
+                    "reply": final_reply,
+                    "sources": sources
+                })
+            else:
+                return jsonify({
+                    "reply": f"📊 **[Database Search Results]**\\n\\nNo documents found in KanoonPK database matching your search criteria:\\n\\n**Query:** {user_input}\\n**Filters:** {', '.join([f'{k}: {v}' for k, v in filters.items() if v])}\\n\\nPlease try different search terms or upload relevant documents to the database.",
+                    "sources": []
+                })
+        else:
+            return jsonify({
+                "reply": f"📊 **[Database Search Results]**\\n\\nNo documents found in KanoonPK database matching your search criteria:\\n\\n**Query:** {user_input}\\n**Filters:** {', '.join([f'{k}: {v}' for k, v in filters.items() if v])}\\n\\nPlease try different search terms or upload relevant documents to the database.",
+                "sources": []
+            })
+    
+    else:
+        # REGULAR SEARCH: Database first, then ChatGPT fallback
+        print(f"🔍 Step 1: Searching KanoonPK database for: {user_input}")
+        
+        # Query KanoonPK database first
+        try:
+            results = collection.query(query_texts=[user_input], n_results=3)
+        except Exception as e:
+            print(f"Database query error: {e}")
+            results = {"documents": [[]], "metadatas": [[]]}
+        
+        # Process database results
+        context = ""
+        sources = []
+        database_found = False
+        
+        if results["documents"] and results["documents"][0]:
+            database_found = True
+            print(f"✅ Found {len(results['documents'][0])} results in KanoonPK database")
+            for i, doc in enumerate(results["documents"][0]):
+                context += f"Document {i+1}: {doc}\\n\\n"
+                
+                # Get source info
+                metadata = results["metadatas"][0][i] if results["metadatas"] and results["metadatas"][0] else {}
+                source_info = metadata.get("source", "Unknown source")
+                if metadata.get("citation"):
+                    source_info = metadata["citation"]
+                elif metadata.get("year"):
+                    source_info += f" ({metadata['year']})"
+                
+                if source_info not in sources:
+                    sources.append(source_info)
+        else:
+            print("❌ No results found in KanoonPK database")
+        
+        # STEP 2: Now use ChatGPT with database context or general knowledge
+        print(f"🤖 Step 2: Using ChatGPT with {'database context' if database_found else 'general knowledge'}")
+        
+        # Prepare system prompt based on database results
+        if database_found:
+            system_prompt = f"""You are KanoonPK, an AI Legal Research Assistant specialized in Pakistan law.
+            
 I found relevant information in our KanoonPK database. Use this information along with your knowledge of Pakistan law to provide a comprehensive answer.
 
 Database Results:
 {context}
 
 Provide a detailed answer citing the database sources and adding any additional relevant legal context."""
-    else:
-        system_prompt = f"""You are KanoonPK, an AI Legal Research Assistant specialized in Pakistan law.
+        else:
+            system_prompt = f"""You are KanoonPK, an AI Legal Research Assistant specialized in Pakistan law.
 
 No specific documents were found in our database for this query, so provide an answer using your knowledge of Pakistan law.
 Focus on:
