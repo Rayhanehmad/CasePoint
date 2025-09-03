@@ -1,4 +1,4 @@
-# Code to be fixed hereimport os
+import os
 import uuid
 import json
 import datetime
@@ -156,7 +156,7 @@ def home():
 def admin():
     if request.method == "POST":
         file = request.files["file"]
-        if file:
+        if file and file.filename:
             filename = secure_filename(file.filename)
             path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
             file.save(path)
@@ -172,7 +172,7 @@ def admin():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    user_input = request.json.get("message")
+    user_input = request.json.get("message") if request.json else None
 
     results = collection.query(query_texts=[user_input], n_results=3)
     context = ""
@@ -255,8 +255,8 @@ def export_csv():
 @app.route("/export_pdf", methods=["POST"])
 def export_pdf():
     data = request.json
-    text = data.get("text", "")
-    citations = data.get("citations", [])
+    text = data.get("text", "") if data else ""
+    citations = data.get("citations", []) if data else []
 
     filename = f"exports/{uuid.uuid4().hex}.pdf"
     os.makedirs("exports", exist_ok=True)
@@ -299,4 +299,4 @@ def export_pdf():
     return send_file(filename, as_attachment=True)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
