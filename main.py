@@ -665,7 +665,7 @@ def home():
             const time = timeElement ? timeElement.textContent : getCurrentTime();
             
             // Extract message content (excluding checkboxes and timestamps)
-            let content = msg.textContent.replace(/\s*✅\s*/, '').replace(time, '').trim();
+            let content = msg.textContent.replace(/\s*\u2705\s*/, '').replace(time, '').trim();
             
             // Remove checkbox artifacts
             content = content.replace(/^\s*/, '');
