@@ -169,7 +169,25 @@ def home():
         .header-text .tagline { color: #666; font-size: 11px; margin: 0; }
         .admin-link { color: #4dd0b7; text-decoration: none; font-size: 11px; font-weight: 600; padding: 5px 10px; border: 1px solid #4dd0b7; border-radius: 15px; transition: all 0.3s; }
         .admin-link:hover { background: #4dd0b7; color: white; }
-        .msg { padding: 10px; margin: 5px 0; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.1); max-width: 85%; word-wrap: break-word; animation: slideIn 0.3s ease-out; font-size: 13px; }
+        .chat-actions { display: flex; gap: 8px; margin-bottom: 10px; }
+        .chat-action-btn { padding: 6px 12px; border: none; border-radius: 15px; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.3s; }
+        .delete-chat-btn { background: #ff6b6b; color: white; }
+        .delete-chat-btn:hover { background: #ee5a24; }
+        .select-mode-btn { background: #6c5ce7; color: white; }
+        .select-mode-btn:hover { background: #5a4fcf; }
+        .select-mode-btn.active { background: #5a4fcf; }
+        .bulk-actions { display: none; gap: 5px; padding: 8px; background: white; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .bulk-actions.active { display: flex; }
+        .bulk-action-btn { padding: 6px 12px; border: none; border-radius: 10px; cursor: pointer; font-size: 11px; font-weight: 600; }
+        .delete-selected-btn { background: #ff6b6b; color: white; }
+        .forward-selected-btn { background: #4dd0b7; color: white; }
+        .cancel-selection-btn { background: #6c757d; color: white; }
+        .msg { padding: 10px; margin: 5px 0; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.1); max-width: 85%; word-wrap: break-word; animation: slideIn 0.3s ease-out; font-size: 13px; position: relative; cursor: pointer; }
+        .msg.selecting { padding-left: 35px; }
+        .msg.selected { background-color: rgba(77, 208, 183, 0.2) !important; border: 2px solid #4dd0b7; }
+        .msg-checkbox { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); display: none; }
+        .selecting .msg-checkbox { display: block; }
+        .msg-checkbox input { width: 16px; height: 16px; }
         .user { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; align-self: flex-end; margin-left: auto; position: relative; }
         .user::after { content: ''; position: absolute; right: -6px; bottom: 6px; width: 0; height: 0; border: 6px solid transparent; border-left: 6px solid #2bc77a; }
         .bot { background: white; color: #333; align-self: flex-start; margin-right: auto; border: 1px solid #e0e0e0; position: relative; }
@@ -226,8 +244,21 @@ def home():
           <a href="/admin" class="admin-link">🔧 Admin Panel</a>
         </div>
         
+        <div class="chat-actions">
+          <button class="chat-action-btn delete-chat-btn" onclick="clearChat()">🗑️ Clear Chat</button>
+          <button class="chat-action-btn select-mode-btn" id="selectModeBtn" onclick="toggleSelectMode()">☑️ Select</button>
+        </div>
+        
+        <div class="bulk-actions" id="bulkActions">
+          <button class="bulk-action-btn delete-selected-btn" onclick="deleteSelected()">🗑️ Delete</button>
+          <button class="bulk-action-btn forward-selected-btn" onclick="forwardSelected()">➤ Forward</button>
+          <button class="bulk-action-btn cancel-selection-btn" onclick="cancelSelection()">✕ Cancel</button>
+          <span id="selectedCount" style="font-size: 11px; color: #666; margin-left: 10px;">0 selected</span>
+        </div>
+        
         <div id="messages">
-          <div class='msg bot'>
+          <div class='msg bot' data-msg-id="welcome">
+            <div class="msg-checkbox"><input type="checkbox" onchange="updateSelection()"></div>
             🙏 Welcome to KanoonPK! I'm your AI legal research assistant for Pakistan law. Ask me about legal cases, statutes, or upload documents for analysis.
             <div class="message-time">Online</div>
           </div>
@@ -273,6 +304,8 @@ def home():
       <script>
         let lastAnswer = "";
         let lastCitations = [];
+        let isSelectMode = false;
+        let messageIdCounter = 0;
         
         function getCurrentTime() {
           const now = new Date();
@@ -283,14 +316,18 @@ def home():
           const msgBox = document.getElementById("messages");
           const messageDiv = document.createElement('div');
           const time = getCurrentTime();
+          const msgId = 'msg_' + (++messageIdCounter);
           
-          messageDiv.className = `msg ${isUser ? 'user' : 'bot'}${isTyping ? ' typing' : ''}`;
+          messageDiv.className = `msg ${isUser ? 'user' : 'bot'}${isTyping ? ' typing' : ''}${isSelectMode ? ' selecting' : ''}`;
+          messageDiv.setAttribute('data-msg-id', msgId);
+          
+          const checkboxHtml = `<div class="msg-checkbox"><input type="checkbox" onchange="updateSelection()"></div>`;
           
           if (isTyping) {
             messageDiv.id = 'typing';
-            messageDiv.innerHTML = content;
+            messageDiv.innerHTML = checkboxHtml + content;
           } else {
-            messageDiv.innerHTML = `${content}<div class="message-time">${time}</div>`;
+            messageDiv.innerHTML = checkboxHtml + `${content}<div class="message-time">${time}</div>`;
           }
           
           msgBox.appendChild(messageDiv);
@@ -383,6 +420,114 @@ def home():
           document.getElementById("yearFilter").value = "";
           document.getElementById("pageFilter").value = "";
           document.getElementById("courtFilter").value = "";
+        }
+        
+        function clearChat() {
+          if (confirm('Are you sure you want to clear all messages? This action cannot be undone.')) {
+            const msgBox = document.getElementById('messages');
+            msgBox.innerHTML = `
+              <div class='msg bot' data-msg-id="welcome">
+                <div class="msg-checkbox"><input type="checkbox" onchange="updateSelection()"></div>
+                🙏 Welcome to KanoonPK! I'm your AI legal research assistant for Pakistan law. Ask me about legal cases, statutes, or upload documents for analysis.
+                <div class="message-time">Online</div>
+              </div>
+            `;
+            messageIdCounter = 0;
+            if (isSelectMode) {
+              toggleSelectMode();
+            }
+          }
+        }
+        
+        function toggleSelectMode() {
+          const selectBtn = document.getElementById('selectModeBtn');
+          const bulkActions = document.getElementById('bulkActions');
+          const messages = document.querySelectorAll('.msg');
+          
+          isSelectMode = !isSelectMode;
+          
+          if (isSelectMode) {
+            selectBtn.classList.add('active');
+            selectBtn.innerHTML = '☑️ Selecting...';
+            bulkActions.classList.add('active');
+            messages.forEach(msg => {
+              msg.classList.add('selecting');
+              const checkbox = msg.querySelector('input[type="checkbox"]');
+              if (checkbox) checkbox.checked = false;
+            });
+          } else {
+            selectBtn.classList.remove('active');
+            selectBtn.innerHTML = '☑️ Select';
+            bulkActions.classList.remove('active');
+            messages.forEach(msg => {
+              msg.classList.remove('selecting', 'selected');
+              const checkbox = msg.querySelector('input[type="checkbox"]');
+              if (checkbox) checkbox.checked = false;
+            });
+          }
+          
+          updateSelection();
+        }
+        
+        function updateSelection() {
+          const selectedCount = document.querySelectorAll('.msg input[type="checkbox"]:checked').length;
+          document.getElementById('selectedCount').textContent = selectedCount + ' selected';
+          
+          // Update visual selection
+          document.querySelectorAll('.msg').forEach(msg => {
+            const checkbox = msg.querySelector('input[type="checkbox"]');
+            if (checkbox && checkbox.checked) {
+              msg.classList.add('selected');
+            } else {
+              msg.classList.remove('selected');
+            }
+          });
+        }
+        
+        function deleteSelected() {
+          const selectedMessages = document.querySelectorAll('.msg input[type="checkbox"]:checked');
+          if (selectedMessages.length === 0) {
+            alert('Please select messages to delete.');
+            return;
+          }
+          
+          if (confirm(`Delete ${selectedMessages.length} selected message(s)?`)) {
+            selectedMessages.forEach(checkbox => {
+              const msgElement = checkbox.closest('.msg');
+              msgElement.remove();
+            });
+            updateSelection();
+          }
+        }
+        
+        function forwardSelected() {
+          const selectedMessages = document.querySelectorAll('.msg input[type="checkbox"]:checked');
+          if (selectedMessages.length === 0) {
+            alert('Please select messages to forward.');
+            return;
+          }
+          
+          let forwardText = 'Forwarded Messages:\n\n';
+          selectedMessages.forEach(checkbox => {
+            const msgElement = checkbox.closest('.msg');
+            const msgContent = msgElement.textContent.replace(/☑️|Online|\d{1,2}:\d{2}/g, '').trim();
+            const isUser = msgElement.classList.contains('user');
+            forwardText += `${isUser ? 'You' : 'KanoonPK'}: ${msgContent}\n\n`;
+          });
+          
+          // Copy to clipboard
+          navigator.clipboard.writeText(forwardText).then(() => {
+            alert(`${selectedMessages.length} message(s) copied to clipboard!`);
+          }).catch(() => {
+            // Fallback: show in alert
+            prompt('Copy this text to forward:', forwardText);
+          });
+        }
+        
+        function cancelSelection() {
+          if (isSelectMode) {
+            toggleSelectMode();
+          }
         }
 
         async function downloadPDF() {
