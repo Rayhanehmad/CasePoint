@@ -554,7 +554,7 @@ def home():
           let forwardText = 'Forwarded Messages:\n\n';
           selectedMessages.forEach(function(checkbox) {
             const msgElement = checkbox.closest('.msg');
-            const msgContent = msgElement.textContent.replace(/☑️|Online|\d{1,2}:\d{2}/g, '').trim();
+            const msgContent = msgElement.textContent.replace(/\u2611|Online|\d{1,2}:\d{2}/g, '').trim();
             const isUser = msgElement.classList.contains('user');
             forwardText += (isUser ? 'You' : 'KanoonPK') + ': ' + msgContent + '\n\n';
           });
