@@ -665,13 +665,10 @@ def home():
             const time = timeElement ? timeElement.textContent : getCurrentTime();
             
             // Extract message content (excluding checkboxes and timestamps)
-            let content = msg.textContent
-              .replace(/\s*✅\s*/, '')
-              .replace(time, '')
-              .trim();
+            let content = msg.textContent.replace(/\\s*✅\\s*/, '').replace(time, '').trim();
             
             // Remove checkbox artifacts
-            content = content.replace(/^\s*/, '');
+            content = content.replace(/^\\s*/, '');
             
             if (content && !msg.classList.contains('typing')) {
               messages.push({
