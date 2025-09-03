@@ -557,8 +557,8 @@ def home():
             let msgContent = msgElement.textContent;
             msgContent = msgContent.split('Online').join('');
             // Clean up content
-            msgContent = msgContent.replace(/\d{1,2}:\d{2}/g, '');
-            msgContent = msgContent.replace(/[^\w\s.,!?;:()-]/g, '').trim();
+            msgContent = msgContent.split(':').join(' ');
+            msgContent = msgContent.trim();
             const isUser = msgElement.classList.contains('user');
             forwardText += (isUser ? 'You' : 'KanoonPK') + ': ' + msgContent + '\n\n';
           });
@@ -671,7 +671,7 @@ def home():
             // Extract message content (excluding checkboxes and timestamps)
             let content = msg.textContent.replace(time, '').trim();
             // Clean up content  
-            content = content.replace(/[^\w\s.,!?;:()-]/g, '');
+            content = content.replace(/[^a-zA-Z0-9 .,!?;:()-]/g, '');
             content = content.trim();
             
             if (content && !msg.classList.contains('typing')) {
