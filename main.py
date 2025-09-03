@@ -426,7 +426,7 @@ def home():
             lastCitations = data.sources;
 
             // Build bot response with proper formatting
-            let content = data.reply.replace(/\n/g,"<br>");
+            let content = data.reply.split('\n').join('<br>');
             
             if (data.sources.length) {
               content += '<div class=\"sources\"><strong>📑 Legal Sources:</strong> ' + data.sources.join(", ") + '</div>';
@@ -555,9 +555,11 @@ def home():
           selectedMessages.forEach(function(checkbox) {
             const msgElement = checkbox.closest('.msg');
             let msgContent = msgElement.textContent;
-            msgContent = msgContent.replace(/Online/g, '');
+            msgContent = msgContent.split('Online').join('');
+            // Remove time patterns like 14:30
             msgContent = msgContent.replace(/\d{1,2}:\d{2}/g, '');
-            msgContent = msgContent.replace(/[\u2600-\u26FF]/g, '').trim();
+            // Remove emojis and symbols
+            msgContent = msgContent.replace(/[\u2600-\u26FF\u2700-\u27BF]/g, '').trim();
             const isUser = msgElement.classList.contains('user');
             forwardText += (isUser ? 'You' : 'KanoonPK') + ': ' + msgContent + '\n\n';
           });
@@ -669,10 +671,12 @@ def home():
             
             // Extract message content (excluding checkboxes and timestamps)
             let content = msg.textContent.replace(time, '').trim();
-            content = content.replace(/[\u2600-\u26FF]/g, '');
+            // Remove emojis and symbols
+            content = content.replace(/[\u2600-\u26FF\u2700-\u27BF]/g, '');
             
             // Remove checkbox artifacts
-            content = content.replace(/^\s+/, '');
+            // Remove leading whitespace
+            content = content.replace(/^\s+/g, '');
             
             if (content && !msg.classList.contains('typing')) {
               messages.push({
@@ -711,7 +715,7 @@ def home():
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             
-            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            const timestamp = new Date().toISOString().slice(0, 19).split(':').join('-');
             const filename = 'KanoonPK_Chat_' + timestamp + '.' + format;
             
             a.href = url;
@@ -758,7 +762,7 @@ def home():
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             
-            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            const timestamp = new Date().toISOString().slice(0, 19).split(':').join('-');
             const filename = 'KanoonPK_Selected_' + timestamp + '.' + format;
             
             a.href = url;
