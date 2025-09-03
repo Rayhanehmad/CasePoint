@@ -1,1 +1,1 @@
-# Code to be fixed here
+from app import app  # noqa: F401
