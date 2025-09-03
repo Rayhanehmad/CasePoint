@@ -187,6 +187,17 @@ def home():
         .delete-selected-btn { background: #ff6b6b; color: white; }
         .forward-selected-btn { background: #4dd0b7; color: white; }
         .cancel-selection-btn { background: #6c757d; color: white; }
+        .export-actions { display: flex; gap: 8px; margin-bottom: 10px; }
+        .export-btn { padding: 6px 12px; border: none; border-radius: 15px; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.3s; }
+        .export-txt-btn { background: #28a745; color: white; }
+        .export-pdf-btn { background: #ff6b6b; color: white; }
+        .export-json-btn { background: #6f42c1; color: white; }
+        .export-dropdown { position: relative; display: inline-block; }
+        .export-menu { display: none; position: absolute; background: white; min-width: 160px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border-radius: 10px; z-index: 1000; top: 100%; left: 0; }
+        .export-menu.show { display: block; }
+        .export-option { padding: 10px 15px; cursor: pointer; font-size: 12px; border-bottom: 1px solid #f0f0f0; }
+        .export-option:hover { background: #f8f9fa; }
+        .export-option:last-child { border-bottom: none; }
         .msg { padding: 10px; margin: 5px 0; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.1); max-width: 85%; word-wrap: break-word; animation: slideIn 0.3s ease-out; font-size: 13px; position: relative; cursor: pointer; }
         .msg.selecting { padding-left: 35px; }
         .msg.selected { background-color: rgba(77, 208, 183, 0.2) !important; border: 2px solid #4dd0b7; }
@@ -266,6 +277,16 @@ def home():
         <div class="chat-actions">
           <button class="chat-action-btn delete-chat-btn" onclick="clearChat()">🗑️ Clear Chat</button>
           <button class="chat-action-btn select-mode-btn" id="selectModeBtn" onclick="toggleSelectMode()">☑️ Select</button>
+          
+          <div class="export-dropdown">
+            <button class="chat-action-btn" onclick="toggleExportMenu()" style="background: #17a2b8; color: white;">📤 Export</button>
+            <div class="export-menu" id="exportMenu">
+              <div class="export-option" onclick="exportChat('txt')">📄 Export as TXT</div>
+              <div class="export-option" onclick="exportChat('pdf')">📁 Export as PDF</div>
+              <div class="export-option" onclick="exportChat('json')">📊 Export as JSON</div>
+              <div class="export-option" onclick="exportSelectedMessages()">☑️ Export Selected</div>
+            </div>
+          </div>
         </div>
         
         <div class="bulk-actions" id="bulkActions">
@@ -602,6 +623,144 @@ def home():
           
           if (isAdmin) {
             document.body.classList.add('admin-user');
+          }
+        }
+        
+        function toggleExportMenu() {
+          const menu = document.getElementById('exportMenu');
+          menu.classList.toggle('show');
+          
+          // Close menu when clicking outside
+          document.addEventListener('click', function(e) {
+            if (!e.target.closest('.export-dropdown')) {
+              menu.classList.remove('show');
+            }
+          });
+        }
+        
+        function collectChatMessages(selectedOnly = false) {
+          const messages = [];
+          const msgElements = selectedOnly ? 
+            document.querySelectorAll('.msg input[type="checkbox"]:checked') :
+            document.querySelectorAll('.msg');
+          
+          (selectedOnly ? 
+            Array.from(msgElements).map(cb => cb.closest('.msg')) :
+            Array.from(msgElements)
+          ).forEach(msg => {
+            const isUser = msg.classList.contains('user');
+            const isBot = msg.classList.contains('bot');
+            const timeElement = msg.querySelector('.message-time');
+            const time = timeElement ? timeElement.textContent : getCurrentTime();
+            
+            // Extract message content (excluding checkboxes and timestamps)
+            let content = msg.textContent
+              .replace(/\s*✅\s*/, '')
+              .replace(time, '')
+              .trim();
+            
+            // Remove checkbox artifacts
+            content = content.replace(/^\s*/, '');
+            
+            if (content && !msg.classList.contains('typing')) {
+              messages.push({
+                type: isUser ? 'user' : 'bot',
+                content: content,
+                timestamp: time,
+                id: msg.getAttribute('data-msg-id') || 'unknown'
+              });
+            }
+          });
+          
+          return messages;
+        }
+        
+        async function exportChat(format) {
+          document.getElementById('exportMenu').classList.remove('show');
+          
+          const messages = collectChatMessages();
+          if (messages.length === 0) {
+            alert('No messages to export.');
+            return;
+          }
+          
+          try {
+            const response = await fetch('/export-chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ messages: messages, format: format })
+            });
+            
+            if (!response.ok) {
+              throw new Error('Export failed');
+            }
+            
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            const filename = `KanoonPK_Chat_${timestamp}.${format}`;
+            
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+            
+            addMessage(`✅ Chat exported as ${format.toUpperCase()} successfully!`, false);
+            
+          } catch (error) {
+            console.error('Export error:', error);
+            addMessage('❌ Error exporting chat. Please try again.', false);
+          }
+        }
+        
+        async function exportSelectedMessages() {
+          document.getElementById('exportMenu').classList.remove('show');
+          
+          const selectedMessages = collectChatMessages(true);
+          if (selectedMessages.length === 0) {
+            alert('Please select messages to export.');
+            return;
+          }
+          
+          const format = prompt('Export format (txt, pdf, json):', 'txt');
+          if (!format || !['txt', 'pdf', 'json'].includes(format.toLowerCase())) {
+            return;
+          }
+          
+          try {
+            const response = await fetch('/export-chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ messages: selectedMessages, format: format.toLowerCase() })
+            });
+            
+            if (!response.ok) {
+              throw new Error('Export failed');
+            }
+            
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            const filename = `KanoonPK_Selected_${timestamp}.${format}`;
+            
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+            
+            addMessage(`✅ Selected messages exported as ${format.toUpperCase()} successfully!`, false);
+            
+          } catch (error) {
+            console.error('Export error:', error);
+            addMessage('❌ Error exporting selected messages. Please try again.', false);
           }
         }
         
@@ -1010,6 +1169,119 @@ def admin_delete():
         return jsonify({'success': True, 'message': 'Document deleted successfully'})
     else:
         return jsonify({'success': False, 'message': 'Failed to delete document'})
+
+@app.route("/export-chat", methods=["POST"])
+def export_chat():
+    """Export chat messages in various formats"""
+    data = request.json if request.json else {}
+    messages = data.get('messages', [])
+    format_type = data.get('format', 'txt').lower()
+    
+    if not messages:
+        return jsonify({'error': 'No messages provided'}), 400
+    
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    filename = f"exports/KanoonPK_Chat_{timestamp}.{format_type}"
+    os.makedirs("exports", exist_ok=True)
+    
+    try:
+        if format_type == 'txt':
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write("KanoonPK Chat Export\n")
+                f.write("=" * 50 + "\n")
+                f.write(f"Exported on: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write(f"Total Messages: {len(messages)}\n\n")
+                
+                for msg in messages:
+                    sender = "You" if msg['type'] == 'user' else "KanoonPK"
+                    f.write(f"[{msg['timestamp']}] {sender}: {msg['content']}\n\n")
+        
+        elif format_type == 'json':
+            export_data = {
+                'export_info': {
+                    'exported_at': datetime.datetime.now().isoformat(),
+                    'total_messages': len(messages),
+                    'format': 'json',
+                    'source': 'KanoonPK AI Legal Research Assistant'
+                },
+                'messages': messages
+            }
+            
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(export_data, f, indent=2, ensure_ascii=False)
+        
+        elif format_type == 'pdf':
+            from reportlab.pdfgen import canvas
+            from reportlab.lib.pagesizes import A4
+            from reportlab.lib import colors
+            from reportlab.lib.styles import getSampleStyleSheet
+            from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+            
+            c = canvas.Canvas(filename, pagesize=A4)
+            width, height = A4
+            
+            # Header
+            c.setFont("Helvetica-Bold", 16)
+            c.setFillColor(colors.HexColor("#2bc77a"))
+            c.drawString(50, height - 50, "KanoonPK Chat Export")
+            
+            c.setFont("Helvetica", 10)
+            c.setFillColor(colors.black)
+            c.drawString(50, height - 70, f"Exported: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            c.drawString(50, height - 85, f"Messages: {len(messages)}")
+            
+            # Draw separator line
+            c.line(50, height - 95, width - 50, height - 95)
+            
+            y = height - 120
+            
+            for msg in messages:
+                sender = "You" if msg['type'] == 'user' else "KanoonPK"
+                
+                # Message header
+                c.setFont("Helvetica-Bold", 10)
+                c.setFillColor(colors.HexColor("#4dd0b7") if msg['type'] == 'user' else colors.HexColor("#6c757d"))
+                c.drawString(50, y, f"[{msg['timestamp']}] {sender}:")
+                y -= 15
+                
+                # Message content
+                c.setFont("Helvetica", 9)
+                c.setFillColor(colors.black)
+                
+                # Word wrap for long messages
+                words = msg['content'].split(' ')
+                line = ""
+                for word in words:
+                    test_line = line + word + " "
+                    if c.stringWidth(test_line, "Helvetica", 9) < (width - 100):
+                        line = test_line
+                    else:
+                        if line:
+                            c.drawString(70, y, line.strip())
+                            y -= 12
+                        line = word + " "
+                        
+                        if y < 100:  # Start new page
+                            c.showPage()
+                            y = height - 50
+                
+                if line:
+                    c.drawString(70, y, line.strip())
+                    y -= 20
+                
+                if y < 100:  # Start new page
+                    c.showPage()
+                    y = height - 50
+            
+            c.save()
+        
+        else:
+            return jsonify({'error': 'Unsupported format'}), 400
+        
+        return send_file(filename, as_attachment=True)
+    
+    except Exception as e:
+        return jsonify({'error': f'Export failed: {str(e)}'}), 500
 
 @app.route("/export_pdf", methods=["POST"])
 def export_pdf():
