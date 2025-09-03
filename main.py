@@ -299,7 +299,7 @@ def home():
         <div id="messages">
           <div class='msg bot' data-msg-id="welcome">
             <div class="msg-checkbox"><input type="checkbox" onchange="updateSelection()"></div>
-            🙏 Welcome to KanoonPK! I'm your AI legal research assistant for Pakistan law. Ask me about legal cases, statutes, or upload documents for analysis.
+            🙏 Welcome to KanoonPK! I am your AI legal research assistant for Pakistan law. Ask me about legal cases, statutes, or upload documents for analysis.
             <div class="message-time">Online</div>
           </div>
         </div>
@@ -473,7 +473,7 @@ def home():
             const msgBox = document.getElementById('messages');
             msgBox.innerHTML = '<div class="msg bot" data-msg-id="welcome">' +
               '<div class="msg-checkbox"><input type="checkbox" onchange="updateSelection()"></div>' +
-              '🙏 Welcome to KanoonPK! I\'m your AI legal research assistant for Pakistan law. Ask me about legal cases, statutes, or upload documents for analysis.' +
+              '🙏 Welcome to KanoonPK! I am your AI legal research assistant for Pakistan law. Ask me about legal cases, statutes, or upload documents for analysis.' +
               '<div class="message-time">Online</div>' +
               '</div>';
             messageIdCounter = 0;
