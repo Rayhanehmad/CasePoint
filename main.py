@@ -3,7 +3,7 @@ import uuid
 import json
 import datetime
 import csv
-from flask import Flask, request, jsonify, render_template_string, send_file
+from flask import Flask, request, jsonify, render_template_string, send_file, Response
 from werkzeug.utils import secure_filename
 from openai import OpenAI
 import chromadb
@@ -1027,15 +1027,20 @@ def index():
         }
         
         async function downloadPDF() {
-            if (!lastAnswer) {
-                alert("⚠️ No answer to download yet.");
+            // Get last 5 chat messages
+            const allMessages = collectChatMessages();
+            const last5Messages = allMessages.slice(-5);
+            
+            if (last5Messages.length === 0) {
+                alert("⚠️ No chat messages to export yet.");
                 return;
             }
+            
             try {
-                const res = await fetch("/export_pdf", {
+                const res = await fetch("/export-pdf-last5", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ text: lastAnswer, citations: lastCitations })
+                    body: JSON.stringify({ messages: last5Messages })
                 });
                 
                 if (!res.ok) {
@@ -1045,12 +1050,19 @@ def index():
                 const blob = await res.blob();
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
+                
+                const timestamp = new Date().toISOString().slice(0, 19).split(':').join('-');
+                const filename = 'KanoonPK_Last5_' + timestamp + '.pdf';
+                
                 a.href = url;
-                a.download = "KanoonPK_Answer.pdf";
+                a.download = filename;
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
                 window.URL.revokeObjectURL(url);
+                
+                addMessage('✅ Last 5 chat replies exported as PDF with watermark!', false);
+                
             } catch (error) {
                 console.error('PDF download error:', error);
                 alert('⚠️ Error generating PDF. Please try again.');
@@ -1736,6 +1748,118 @@ def delete_document():
         
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
+
+@app.route("/export-pdf-last5", methods=["POST"])
+def export_pdf_last5():
+    try:
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.pagesizes import letter, A4
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+        from reportlab.lib.units import inch
+        from io import BytesIO
+        import textwrap
+        
+        data = request.json
+        messages = data.get('messages', [])
+        
+        if not messages:
+            return jsonify({'error': 'No messages provided'}), 400
+        
+        # Create PDF in memory
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4,
+                              rightMargin=72, leftMargin=72,
+                              topMargin=72, bottomMargin=18)
+        
+        # Create styles
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=18,
+            spaceAfter=30,
+            textColor='#4dd0b7'
+        )
+        
+        user_style = ParagraphStyle(
+            'UserMessage',
+            parent=styles['Normal'],
+            fontSize=11,
+            spaceAfter=12,
+            leftIndent=20,
+            textColor='#2c3e50'
+        )
+        
+        bot_style = ParagraphStyle(
+            'BotMessage', 
+            parent=styles['Normal'],
+            fontSize=11,
+            spaceAfter=15,
+            textColor='#34495e'
+        )
+        
+        watermark_style = ParagraphStyle(
+            'Watermark',
+            parent=styles['Normal'],
+            fontSize=8,
+            textColor='#bdc3c7',
+            alignment=1  # Center alignment
+        )
+        
+        # Build PDF content
+        story = []
+        
+        # Title
+        story.append(Paragraph("KanoonPK - AI Legal Research Assistant", title_style))
+        story.append(Paragraph(f"Last 5 Chat Replies - {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Heading2']))
+        story.append(Spacer(1, 20))
+        
+        # Add watermark
+        story.append(Paragraph("🔒 CONFIDENTIAL - AI-Generated Legal Information - For Reference Only", watermark_style))
+        story.append(Spacer(1, 20))
+        
+        # Add messages
+        for i, msg in enumerate(messages):
+            msg_type = "👤 User" if msg['type'] == 'user' else "🤖 KanoonPK"
+            timestamp = msg.get('timestamp', 'Unknown time')
+            
+            # Message header
+            header = f"<b>{msg_type}</b> - {timestamp}"
+            story.append(Paragraph(header, styles['Heading3']))
+            
+            # Message content
+            content = msg['content'].replace('\n', '<br/>')
+            if msg['type'] == 'user':
+                story.append(Paragraph(content, user_style))
+            else:
+                story.append(Paragraph(content, bot_style))
+            
+            story.append(Spacer(1, 15))
+        
+        # Footer watermark
+        story.append(Spacer(1, 30))
+        story.append(Paragraph("⚖️ This document contains AI-generated legal information and should not be considered as professional legal advice. Please consult with a qualified lawyer for legal matters.", watermark_style))
+        story.append(Paragraph("📧 Generated by KanoonPK AI Legal Research Assistant", watermark_style))
+        
+        # Build PDF
+        doc.build(story)
+        
+        # Get PDF data
+        buffer.seek(0)
+        pdf_data = buffer.getvalue()
+        buffer.close()
+        
+        # Return PDF
+        return Response(
+            pdf_data,
+            mimetype='application/pdf',
+            headers={'Content-Disposition': f'attachment; filename=KanoonPK_Last5_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'}
+        )
+        
+    except Exception as e:
+        print(f"PDF generation error: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route("/history")
 def history():
