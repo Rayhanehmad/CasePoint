@@ -1338,11 +1338,8 @@ Also suggest uploading specific documents related to these search criteria for m
             with open(history_file, "w") as f:
                 json.dump(history, f, indent=2)
             
-            # Add search method indicator to response
-            if database_found:
-                final_reply = f"📊 **[Advanced Search: Database + AI Analysis]**\\n\\n{ai_reply}"
-            else:
-                final_reply = f"🔍 **[Advanced Search: AI Knowledge]**\\n\\n{ai_reply}"
+            # Clean response without indicators
+            final_reply = ai_reply
             
             print(f"📤 Sending advanced search response: {len(final_reply)} characters")
             
@@ -1479,11 +1476,8 @@ Always mention that this answer is based on general legal knowledge and suggest 
         with open(history_file, "w") as f:
             json.dump(history, f, indent=2)
         
-        # Add search method indicator to response
-        if database_found:
-            final_reply = f"📊 **[Found in KanoonPK Database]**\\n\\n{ai_reply}"
-        else:
-            final_reply = f"🧠 **[General Legal Knowledge]**\\n\\n{ai_reply}"
+        # Clean response without indicators
+        final_reply = ai_reply
         
         print(f"📤 Sending final response: {len(final_reply)} characters")
         
