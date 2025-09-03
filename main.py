@@ -556,10 +556,9 @@ def home():
             const msgElement = checkbox.closest('.msg');
             let msgContent = msgElement.textContent;
             msgContent = msgContent.split('Online').join('');
-            // Remove time patterns like 14:30
+            // Clean up content
             msgContent = msgContent.replace(/\d{1,2}:\d{2}/g, '');
-            // Remove emojis and symbols
-            msgContent = msgContent.replace(/[\u2600-\u26FF\u2700-\u27BF]/g, '').trim();
+            msgContent = msgContent.replace(/[^\w\s.,!?;:()-]/g, '').trim();
             const isUser = msgElement.classList.contains('user');
             forwardText += (isUser ? 'You' : 'KanoonPK') + ': ' + msgContent + '\n\n';
           });
@@ -671,12 +670,9 @@ def home():
             
             // Extract message content (excluding checkboxes and timestamps)
             let content = msg.textContent.replace(time, '').trim();
-            // Remove emojis and symbols
-            content = content.replace(/[\u2600-\u26FF\u2700-\u27BF]/g, '');
-            
-            // Remove checkbox artifacts
-            // Remove leading whitespace
-            content = content.replace(/^\s+/g, '');
+            // Clean up content  
+            content = content.replace(/[^\w\s.,!?;:()-]/g, '');
+            content = content.trim();
             
             if (content && !msg.classList.contains('typing')) {
               messages.push({
