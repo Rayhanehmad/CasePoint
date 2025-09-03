@@ -152,12 +152,12 @@ def home():
         .admin-link { position: absolute; top: 15px; right: 20px; color: #4dd0b7; text-decoration: none; font-size: 14px; font-weight: 600; padding: 8px 15px; border: 2px solid #4dd0b7; border-radius: 20px; transition: all 0.3s; }
         .admin-link:hover { background: #4dd0b7; color: white; }
         .tagline { color: #666; font-size: 16px; margin-top: 10px; }
-        .msg { padding: 15px; margin: 15px 0; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .user { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; text-align: right; margin-left: 20%; position: relative; }
-        .user::before { content: ''; position: absolute; right: -10px; top: 20px; width: 0; height: 0; border: 10px solid transparent; border-left-color: #2bc77a; }
-        .bot { background: white; color: #333; text-align: left; margin-right: 20%; border: 1px solid #e0e0e0; position: relative; }
-        .bot::before { content: ''; position: absolute; left: -10px; top: 20px; width: 0; height: 0; border: 10px solid transparent; border-right-color: white; }
-        #messages { height: 450px; overflow-y: auto; padding: 20px; background: rgba(255,255,255,0.3); border-radius: 15px; margin-bottom: 20px; backdrop-filter: blur(10px); }
+        .msg { padding: 15px; margin: 8px 0; border-radius: 18px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); max-width: 85%; word-wrap: break-word; animation: slideIn 0.3s ease-out; }
+        .user { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; align-self: flex-end; margin-left: auto; position: relative; }
+        .user::after { content: ''; position: absolute; right: -8px; bottom: 8px; width: 0; height: 0; border: 8px solid transparent; border-left: 8px solid #2bc77a; }
+        .bot { background: white; color: #333; align-self: flex-start; margin-right: auto; border: 1px solid #e0e0e0; position: relative; }
+        .bot::after { content: ''; position: absolute; left: -8px; bottom: 8px; width: 0; height: 0; border: 8px solid transparent; border-right: 8px solid white; }
+        #messages { height: 450px; overflow-y: auto; padding: 20px; background: rgba(255,255,255,0.3); border-radius: 15px; margin-bottom: 20px; backdrop-filter: blur(10px); display: flex; flex-direction: column; }
         .search-panel { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         .search-title { color: #2bc77a; font-size: 18px; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; }
         .search-title::before { content: '🔍'; margin-right: 10px; }
@@ -177,6 +177,9 @@ def home():
         .clear-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4); }
         .typing { opacity: 0.7; }
         .sources { background: #f8f9fa; padding: 10px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #4dd0b7; }
+        .typing { opacity: 0.8; font-style: italic; }
+        .message-time { font-size: 11px; color: #888; margin-top: 5px; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
       </style>
     </head>
     <body>
@@ -188,7 +191,12 @@ def home():
           <p class="tagline">Your trusted partner for Pakistan law research and legal insights</p>
         </div>
         
-        <div id="messages"></div>
+        <div id="messages">
+          <div class='msg bot'>
+            🙏 Welcome to KanoonPK! I'm your AI legal research assistant for Pakistan law. Ask me about legal cases, statutes, or upload documents for analysis.
+            <div class="message-time">Online</div>
+          </div>
+        </div>
         
         <div class="search-panel">
           <div class="search-title">Advanced Search Filters</div>
@@ -223,10 +231,38 @@ def home():
       <script>
         let lastAnswer = "";
         let lastCitations = [];
+        
+        function getCurrentTime() {
+          const now = new Date();
+          return now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        function addMessage(content, isUser = false, isTyping = false) {
+          const msgBox = document.getElementById("messages");
+          const messageDiv = document.createElement('div');
+          const time = getCurrentTime();
+          
+          messageDiv.className = `msg ${isUser ? 'user' : 'bot'}${isTyping ? ' typing' : ''}`;
+          
+          if (isTyping) {
+            messageDiv.id = 'typing';
+            messageDiv.innerHTML = content;
+          } else {
+            messageDiv.innerHTML = `${content}<div class="message-time">${time}</div>`;
+          }
+          
+          msgBox.appendChild(messageDiv);
+          
+          // Smooth scroll to bottom
+          setTimeout(() => {
+            msgBox.scrollTop = msgBox.scrollHeight;
+          }, 50);
+          
+          return messageDiv;
+        }
 
         async function sendMessage() {
           const input = document.getElementById("userInput");
-          const msgBox = document.getElementById("messages");
           const userText = input.value.trim();
           if (!userText) return;
 
@@ -238,12 +274,12 @@ def home():
             court: document.getElementById("courtFilter").value.trim()
           };
 
-          msgBox.innerHTML += `<div class='msg user'>${userText}</div>`;
+          // Add user message with animation
+          addMessage(userText, true);
           input.value = "";
           
           // Show typing indicator
-          msgBox.innerHTML += `<div class='msg bot' id='typing'>💭 Thinking...</div>`;
-          msgBox.scrollTop = msgBox.scrollHeight;
+          const typingMsg = addMessage('💭 KanoonPK is analyzing your query...', false, true);
 
           try {
             const res = await fetch("/chat", {
@@ -259,25 +295,31 @@ def home():
             const data = await res.json();
             
             // Remove typing indicator
-            document.getElementById('typing').remove();
+            typingMsg.remove();
 
             lastAnswer = data.reply;
             lastCitations = data.sources;
 
-            let citationText = data.sources.length ? `<div class='sources'><strong>📑 Sources:</strong> ${data.sources.join(", ")}</div>` : "";
-            let filterInfo = "";
-            if (Object.values(filters).some(f => f)) {
-              const activeFilters = Object.entries(filters).filter(([k, v]) => v).map(([k, v]) => `${k}: ${v}`).join(", ");
-              filterInfo = `<div class='sources'><strong>🔍 Filters applied:</strong> ${activeFilters}</div>`;
+            // Build bot response with proper formatting
+            let content = data.reply.replace(/\\n/g,"<br>");
+            
+            if (data.sources.length) {
+              content += `<div class='sources'><strong>📑 Legal Sources:</strong> ${data.sources.join(", ")}</div>`;
             }
             
-            msgBox.innerHTML += `<div class='msg bot'>${data.reply.replace(/\\n/g,"<br>")} ${citationText} ${filterInfo}</div>`;
-            msgBox.scrollTop = msgBox.scrollHeight;
+            if (Object.values(filters).some(f => f)) {
+              const activeFilters = Object.entries(filters).filter(([k, v]) => v).map(([k, v]) => `${k}: ${v}`).join(", ");
+              content += `<div class='sources'><strong>🔍 Search Filters:</strong> ${activeFilters}</div>`;
+            }
+            
+            addMessage(content);
+            
           } catch (error) {
             console.error('Chat error:', error);
-            document.getElementById('typing').remove();
-            msgBox.innerHTML += `<div class='msg bot' style='color: red;'>⚠️ Sorry, there was an error processing your request. Please try again.</div>`;
-            msgBox.scrollTop = msgBox.scrollHeight;
+            if (typingMsg && typingMsg.parentNode) {
+              typingMsg.remove();
+            }
+            addMessage('⚠️ Sorry, there was an error processing your request. Please try again.', false);
           }
         }
 
