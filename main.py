@@ -1262,11 +1262,10 @@ I found relevant information in our KanoonPK database using advanced search filt
 **Database Results:**
 {context}
 
-Provide a detailed legal analysis that:
+Provide ONLY your legal analysis and answer. Do NOT add any headers, source labels, or formatting like "Sources from Database" or "Source 1:". Just provide the legal analysis content that:
 1. Summarizes the key findings from the database
 2. Explains the legal significance 
-3. Provides context within Pakistan law
-4. Cites the database sources properly"""
+3. Provides context within Pakistan law"""
         else:
             # No database results with filters - still use ChatGPT for general guidance
             print(f"🤖 Step 2: Using ChatGPT for general legal knowledge (no database matches)")
@@ -1344,9 +1343,9 @@ Also suggest uploading specific documents related to these search criteria for m
             
             # Include both AI response and source text from database
             if database_found and source_texts:
-                citations_text = "\\n\\n<hr style='border: 1px solid #ccc; margin: 20px 0;'>\\n\\n**📚 Sources from Database:**\\n\\n"
-                for i, text in enumerate(source_texts):
-                    citations_text += f"**Source {i+1}:**\\n{text}\\n\\n"
+                citations_text = "\\n\\n<hr style='border: 1px solid #ccc; margin: 20px 0;'>\\n\\n"
+                for text in source_texts:
+                    citations_text += f"{text}\\n\\n"
                 final_reply = ai_reply + citations_text
             else:
                 final_reply = ai_reply
@@ -1416,7 +1415,7 @@ I found relevant information in our KanoonPK database. Use this information alon
 Database Results:
 {context}
 
-Provide a detailed answer citing the database sources and adding any additional relevant legal context."""
+Provide ONLY your legal analysis and answer. Do NOT add any headers, source labels, or formatting like "Sources from Database" or "Source 1:". Just provide the legal analysis content."""
         else:
             system_prompt = f"""You are KanoonPK, an AI Legal Research Assistant specialized in Pakistan law.
 
@@ -1492,9 +1491,9 @@ Always mention that this answer is based on general legal knowledge and suggest 
         
         # Include both AI response and source text from database
         if database_found and source_texts:
-            citations_text = "\\n\\n<hr style='border: 1px solid #ccc; margin: 20px 0;'>\\n\\n**📚 Sources from Database:**\\n\\n"
-            for i, text in enumerate(source_texts):
-                citations_text += f"**Source {i+1}:**\\n{text}\\n\\n"
+            citations_text = "\\n\\n<hr style='border: 1px solid #ccc; margin: 20px 0;'>\\n\\n"
+            for text in source_texts:
+                citations_text += f"{text}\\n\\n"
             final_reply = ai_reply + citations_text
         else:
             final_reply = ai_reply
