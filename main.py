@@ -1092,6 +1092,9 @@ def chat():
     if len(user_input.strip()) < 5:
         return jsonify({"reply": "Please provide a more detailed legal question for better assistance.", "sources": []})
     
+    # STEP 1: First check KanoonPK database
+    print(f"🔍 Step 1: Searching KanoonPK database for: {user_input}")
+    
     # Build where clause for filtering
     where_clause = {}
     if filters.get("citation"):
@@ -1103,21 +1106,28 @@ def chat():
     if filters.get("court"):
         where_clause["court"] = {"$contains": filters["court"]}
     
-    # Query with or without filters (reduced to 3 results for faster processing)
-    if where_clause:
-        results = collection.query(
-            query_texts=[user_input], 
-            n_results=3,
-            where=where_clause
-        )
-    else:
-        results = collection.query(query_texts=[user_input], n_results=3)
+    # Query KanoonPK database first
+    try:
+        if where_clause:
+            results = collection.query(
+                query_texts=[user_input], 
+                n_results=3,
+                where=where_clause
+            )
+        else:
+            results = collection.query(query_texts=[user_input], n_results=3)
+    except Exception as e:
+        print(f"Database query error: {e}")
+        results = {"documents": [[]], "metadatas": [[]]}
     
-    # Process results
+    # Process database results
     context = ""
     sources = []
+    database_found = False
     
     if results["documents"] and results["documents"][0]:
+        database_found = True
+        print(f"✅ Found {len(results['documents'][0])} results in KanoonPK database")
         for i, doc in enumerate(results["documents"][0]):
             context += f"Document {i+1}: {doc}\\n\\n"
             
@@ -1131,26 +1141,69 @@ def chat():
             
             if source_info not in sources:
                 sources.append(source_info)
-    
-    # Prepare system prompt
-    if context:
-        system_prompt = LEGAL_SYSTEM_PROMPT + f"\\n\\nRelevant context from uploaded documents:\\n{context}"
     else:
-        system_prompt = GENERAL_LEGAL_PROMPT
+        print("❌ No results found in KanoonPK database")
+    
+    # STEP 2: Now use ChatGPT with database context or general knowledge
+    print(f"🤖 Step 2: Using ChatGPT with {'database context' if database_found else 'general knowledge'}")
+    
+    # Prepare system prompt based on database results
+    if database_found:
+        system_prompt = f"""You are KanoonPK, an AI Legal Research Assistant specialized in Pakistan law.
+        
+I found relevant information in our KanoonPK database. Use this information along with your knowledge of Pakistan law to provide a comprehensive answer.
+
+Database Results:
+{context}
+
+Provide a detailed answer citing the database sources and adding any additional relevant legal context."""
+    else:
+        system_prompt = f"""You are KanoonPK, an AI Legal Research Assistant specialized in Pakistan law.
+
+No specific documents were found in our database for this query, so provide an answer using your knowledge of Pakistan law.
+Focus on:
+- Constitution of Pakistan 1973
+- Pakistan Penal Code
+- Civil Procedure Code
+- Criminal Procedure Code
+- Contract Act 1872
+- Companies Act 2017
+- Other relevant Pakistan legal statutes
+
+Always mention that this answer is based on general legal knowledge and suggest uploading specific documents for more detailed analysis."""
     
     try:
         # the newest OpenAI model is "gpt-5" which was released August 7, 2025.
         # do not change this unless explicitly requested by the user
-        response = client.chat.completions.create(
-            model="gpt-5",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_input}
-            ],
-            max_completion_tokens=800
-        )
+        print(f"💬 Calling ChatGPT with user input: {user_input}")
+        
+        # Try with gpt-4o model first as fallback
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": system_prompt[:1000]},  # Limit system prompt length
+                    {"role": "user", "content": user_input}
+                ],
+                max_tokens=500,
+                temperature=0.7
+            )
+        except Exception as e:
+            print(f"gpt-4o failed: {e}, trying gpt-5...")
+            response = client.chat.completions.create(
+                model="gpt-5",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_input}
+                ],
+                max_completion_tokens=800
+            )
         
         ai_reply = response.choices[0].message.content
+        if not ai_reply:
+            ai_reply = "I apologize, but I received an empty response from the AI model. Please try rephrasing your question."
+        print(f"✅ ChatGPT response received: {len(ai_reply)} characters")
+        print(f"📝 Response content: {ai_reply[:200]}...")
         
         # Save to history
         timestamp = datetime.datetime.now().isoformat()
@@ -1177,12 +1230,21 @@ def chat():
         with open(history_file, "w") as f:
             json.dump(history, f, indent=2)
         
+        # Add search method indicator to response
+        if database_found:
+            final_reply = f"📊 **[Found in KanoonPK Database]**\\n\\n{ai_reply}"
+        else:
+            final_reply = f"🧠 **[General Legal Knowledge]**\\n\\n{ai_reply}"
+        
+        print(f"📤 Sending final response: {len(final_reply)} characters")
+        
         return jsonify({
-            "reply": ai_reply,
+            "reply": final_reply,
             "sources": sources
         })
         
     except Exception as e:
+        print(f"❌ ChatGPT Error: {str(e)}")
         return jsonify({
             "reply": f"I apologize, but I encountered an error while processing your request: {str(e)}",
             "sources": []
