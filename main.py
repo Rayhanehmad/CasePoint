@@ -162,25 +162,34 @@ def home():
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; }
         .chat-container { max-width: 1000px; margin: auto; padding: 20px; }
-        .header { text-align: center; margin-bottom: 30px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); position: relative; }
-        .logo { max-width: 200px; height: auto; margin-bottom: 10px; }
-        .admin-link { position: absolute; top: 15px; right: 20px; color: #4dd0b7; text-decoration: none; font-size: 14px; font-weight: 600; padding: 8px 15px; border: 2px solid #4dd0b7; border-radius: 20px; transition: all 0.3s; }
+        .header { background: white; padding: 15px 20px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+        .header-left { display: flex; align-items: center; }
+        .logo { width: 80px; height: auto; margin-right: 15px; }
+        .header-text h1 { color: #2bc77a; font-size: 24px; font-weight: 700; margin: 0; }
+        .header-text .tagline { color: #666; font-size: 14px; margin: 0; }
+        .admin-link { color: #4dd0b7; text-decoration: none; font-size: 14px; font-weight: 600; padding: 8px 15px; border: 2px solid #4dd0b7; border-radius: 20px; transition: all 0.3s; }
         .admin-link:hover { background: #4dd0b7; color: white; }
-        .tagline { color: #666; font-size: 16px; margin-top: 10px; }
         .msg { padding: 15px; margin: 8px 0; border-radius: 18px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); max-width: 85%; word-wrap: break-word; animation: slideIn 0.3s ease-out; }
         .user { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; align-self: flex-end; margin-left: auto; position: relative; }
         .user::after { content: ''; position: absolute; right: -8px; bottom: 8px; width: 0; height: 0; border: 8px solid transparent; border-left: 8px solid #2bc77a; }
         .bot { background: white; color: #333; align-self: flex-start; margin-right: auto; border: 1px solid #e0e0e0; position: relative; }
         .bot::after { content: ''; position: absolute; left: -8px; bottom: 8px; width: 0; height: 0; border: 8px solid transparent; border-right: 8px solid white; }
         #messages { height: 450px; overflow-y: auto; padding: 20px; background: rgba(255,255,255,0.3); border-radius: 15px; margin-bottom: 20px; backdrop-filter: blur(10px); display: flex; flex-direction: column; }
-        .search-panel { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .search-title { color: #2bc77a; font-size: 18px; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; }
-        .search-title::before { content: '🔍'; margin-right: 10px; }
+        .search-panel { background: white; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+        .search-banner { background: linear-gradient(135deg, #4dd0b7 0%, #2bc77a 100%); color: white; padding: 15px 20px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s; }
+        .search-banner:hover { background: linear-gradient(135deg, #2bc77a 0%, #4dd0b7 100%); }
+        .search-banner-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; }
+        .search-banner-title::before { content: '🔍'; margin-right: 10px; font-size: 18px; }
+        .search-toggle { font-size: 20px; transition: transform 0.3s; }
+        .search-toggle.open { transform: rotate(180deg); }
+        .search-content { padding: 0; max-height: 0; overflow: hidden; transition: all 0.3s ease-out; }
+        .search-content.open { padding: 20px; max-height: 300px; }
         .search-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
         .search-field { flex: 1; min-width: 180px; }
         .search-field label { display: block; font-size: 13px; color: #555; margin-bottom: 5px; font-weight: 600; }
         .search-field input { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; transition: border-color 0.3s; }
         .search-field input:focus { border-color: #4dd0b7; outline: none; }
+        .search-actions { text-align: center; margin-top: 10px; }
         .input-section { display: flex; gap: 10px; background: white; padding: 15px; border-radius: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         .input-section input { flex: 1; padding: 15px; border: none; border-radius: 20px; outline: none; background: #f8f9fa; }
         .input-section button { padding: 15px 25px; border: none; border-radius: 20px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
@@ -200,10 +209,14 @@ def home():
     <body>
       <div class="chat-container">
         <div class="header">
+          <div class="header-left">
+            <img src="/static/images/kanoonpk-logo.jpg" alt="KanoonPK Logo" class="logo">
+            <div class="header-text">
+              <h1>AI Legal Research Assistant</h1>
+              <p class="tagline">Your trusted partner for Pakistan law research and legal insights</p>
+            </div>
+          </div>
           <a href="/admin" class="admin-link">🔧 Admin Panel</a>
-          <img src="/static/images/kanoonpk-logo.jpg" alt="KanoonPK Logo" class="logo">
-          <h1 style="color: #2bc77a; font-size: 28px; font-weight: 700; margin: 10px 0;">AI Legal Research Assistant</h1>
-          <p class="tagline">Your trusted partner for Pakistan law research and legal insights</p>
         </div>
         
         <div id="messages">
@@ -214,26 +227,33 @@ def home():
         </div>
         
         <div class="search-panel">
-          <div class="search-title">Advanced Search Filters</div>
-          <div class="search-row">
-            <div class="search-field">
-              <label for="citationFilter">📑 Citations:</label>
-              <input type="text" id="citationFilter" placeholder="e.g., PLD 2020 SC">
+          <div class="search-banner" onclick="toggleSearch()">
+            <div class="search-banner-title">Advanced Search Filters</div>
+            <div class="search-toggle" id="searchToggle">▼</div>
+          </div>
+          <div class="search-content" id="searchContent">
+            <div class="search-row">
+              <div class="search-field">
+                <label for="citationFilter">📑 Citations:</label>
+                <input type="text" id="citationFilter" placeholder="e.g., PLD 2020 SC">
+              </div>
+              <div class="search-field">
+                <label for="yearFilter">📅 Year:</label>
+                <input type="text" id="yearFilter" placeholder="e.g., 2020">
+              </div>
+              <div class="search-field">
+                <label for="pageFilter">📄 Page:</label>
+                <input type="text" id="pageFilter" placeholder="e.g., 123">
+              </div>
+              <div class="search-field">
+                <label for="courtFilter">🏛️ Court:</label>
+                <input type="text" id="courtFilter" placeholder="e.g., Supreme Court">
+              </div>
             </div>
-            <div class="search-field">
-              <label for="yearFilter">📅 Year:</label>
-              <input type="text" id="yearFilter" placeholder="e.g., 2020">
-            </div>
-            <div class="search-field">
-              <label for="pageFilter">📄 Page:</label>
-              <input type="text" id="pageFilter" placeholder="e.g., 123">
-            </div>
-            <div class="search-field">
-              <label for="courtFilter">🏛️ Court:</label>
-              <input type="text" id="courtFilter" placeholder="e.g., Supreme Court">
+            <div class="search-actions">
+              <button onclick="clearFilters()" class="clear-btn">🗑️ Clear Filters</button>
             </div>
           </div>
-          <button onclick="clearFilters()" class="clear-btn">🗑️ Clear Filters</button>
         </div>
         
         <div class="input-section">
@@ -335,6 +355,19 @@ def home():
               typingMsg.remove();
             }
             addMessage('⚠️ Sorry, there was an error processing your request. Please try again.', false);
+          }
+        }
+
+        function toggleSearch() {
+          const searchContent = document.getElementById('searchContent');
+          const searchToggle = document.getElementById('searchToggle');
+          
+          if (searchContent.classList.contains('open')) {
+            searchContent.classList.remove('open');
+            searchToggle.classList.remove('open');
+          } else {
+            searchContent.classList.add('open');
+            searchToggle.classList.add('open');
           }
         }
 
