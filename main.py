@@ -2207,13 +2207,14 @@ Provide practical, actionable legal guidance. Keep the response clean and focuse
         with open(history_file, "w") as f:
             json.dump(history, f, indent=2)
         
-        # Include both AI response and source text from database
-        if database_found and source_texts:
+        # Include citations ONLY when specifically requested (filters or citation patterns)
+        if database_found and source_texts and (has_filters or wants_citations):
             citations_text = "\\n\\n<hr style='border: 1px solid #ccc; margin: 20px 0;'>\\n\\n"
             for text in source_texts:
                 citations_text += f"{text}\\n\\n"
             final_reply = ai_reply + citations_text
         else:
+            # For general queries, provide clean AI response without database citations
             final_reply = ai_reply
         
         print(f"📤 Sending final response: {len(final_reply)} characters")
