@@ -175,11 +175,11 @@ def index():
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #2c3e50;
             min-height: 100vh;
-            font-size: 13px;
+            font-size: 14px;
         }
         
         .container {
@@ -187,18 +187,20 @@ def index():
             height: 100vh;
             display: flex;
             flex-direction: column;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(249, 249, 249, 0.98);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(184, 134, 11, 0.1);
         }
         
         .header {
-            background: linear-gradient(135deg, #4dd0b7, #36a085);
-            color: white;
-            padding: 8px 15px;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #f8f9fa;
+            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border-bottom: 3px solid #b8860b;
         }
         
         .header .logo {
@@ -239,18 +241,21 @@ def index():
         }
         
         .search-banner {
-            background: linear-gradient(45deg, #ff9a56, #ffad56);
+            background: linear-gradient(45deg, #b8860b, #d4af37);
             color: white;
-            padding: 8px 15px;
+            padding: 10px 20px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             text-align: center;
-            font-size: 12px;
+            font-size: 13px;
             transition: all 0.3s;
+            font-family: 'Georgia', serif;
+            letter-spacing: 0.5px;
         }
         
         .search-banner:hover {
-            background: linear-gradient(45deg, #ff8a46, #ff9d46);
+            background: linear-gradient(45deg, #996f0a, #b8860b);
+            transform: translateY(-1px);
         }
         
         .search-content {
@@ -295,19 +300,23 @@ def index():
         }
         
         .search-btn {
-            background: #4dd0b7;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
             color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 11px;
+            border: 2px solid #b8860b;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             margin-right: 8px;
+            transition: all 0.3s;
+            font-family: 'Georgia', serif;
         }
         
         .search-btn:hover {
-            background: #36a085;
+            background: linear-gradient(135deg, #2a5298, #1e3c72);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(184, 134, 11, 0.3);
         }
         
         .clear-btn {
@@ -340,18 +349,49 @@ def index():
         }
         
         .msg.user {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
             color: white;
+            border-left: 4px solid #b8860b;
             align-self: flex-end;
             border-bottom-right-radius: 4px;
         }
         
         .msg.bot {
-            background: #f1f3f4;
-            color: #333;
+            background: #f8f9fa;
+            color: #2c3e50;
             align-self: flex-start;
             border-bottom-left-radius: 4px;
-            border-left: 3px solid #4dd0b7;
+            border-left: 3px solid #b8860b;
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+        }
+        
+        /* Legal Citation Typography */
+        .legal-citation {
+            font-weight: 700;
+            color: #1e3c72;
+            font-style: italic;
+            background: rgba(184, 134, 11, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin: 2px 0;
+            display: inline-block;
+        }
+        
+        .case-reference {
+            border-left: 4px solid #b8860b;
+            padding-left: 12px;
+            margin: 8px 0;
+            background: rgba(30, 60, 114, 0.05);
+            font-family: 'Georgia', serif;
+            border-radius: 0 6px 6px 0;
+        }
+        
+        .legal-section {
+            font-weight: 600;
+            color: #1e3c72;
+            text-decoration: underline;
+            text-decoration-color: #b8860b;
         }
         
         .msg.selecting {
@@ -460,14 +500,244 @@ def index():
         }
         
         .send-btn {
-            background: linear-gradient(135deg, #4dd0b7, #36a085);
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            border: 2px solid #b8860b;
+            padding: 10px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+            transition: all 0.3s;
+        }
+        
+        .send-btn:hover {
+            background: linear-gradient(135deg, #2a5298, #1e3c72);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(184, 134, 11, 0.3);
+        }
+        
+        /* Loading Indicator */
+        .loading-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(184, 134, 11, 0.1);
+            border-radius: 12px;
+            margin: 8px 0;
+            border-left: 4px solid #b8860b;
+        }
+        
+        .loading-indicator.active {
+            display: flex;
+        }
+        
+        .loading-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #b8860b;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: #1e3c72;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        
+        /* Error Handling */
+        .error-message {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 8px 0;
+            border-left: 4px solid #bd2130;
+            font-weight: 600;
+        }
+        
+        .warning-message {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: #333;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 8px 0;
+            border-left: 4px solid #d39e00;
+            font-weight: 600;
+        }
+        
+        /* Autocomplete Styling */
+        .autocomplete-container {
+            position: relative;
+            flex: 1;
+        }
+        
+        .autocomplete-suggestions {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #b8860b;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 -4px 12px rgba(184, 134, 11, 0.2);
+        }
+        
+        .autocomplete-suggestions.show {
+            display: block;
+        }
+        
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 12px;
+            font-family: 'Georgia', serif;
+            transition: all 0.2s;
+        }
+        
+        .suggestion-item:hover, .suggestion-item.highlighted {
+            background: linear-gradient(135deg, rgba(30, 60, 114, 0.1), rgba(184, 134, 11, 0.1));
+            color: #1e3c72;
+            font-weight: 600;
+        }
+        
+        .suggestion-category {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            font-weight: 700;
+            font-size: 10px;
+            padding: 4px 12px;
+            border: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .suggestion-preview {
+            font-size: 10px;
+            color: #666;
+            font-style: italic;
+            margin-left: 8px;
+        }
+        
+        /* Case Comparison Tools */
+        .comparison-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+        }
+        
+        .comparison-panel.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .comparison-content {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #b8860b;
+        }
+        
+        .comparison-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e3c72;
+            font-family: 'Georgia', serif;
+        }
+        
+        .comparison-close {
+            background: #dc3545;
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
+            padding: 8px 12px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 11px;
             font-weight: 600;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .comparison-case {
+            border: 2px solid #b8860b;
+            border-radius: 8px;
+            padding: 15px;
+            background: rgba(184, 134, 11, 0.05);
+        }
+        
+        .comparison-case-title {
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-family: 'Georgia', serif;
+        }
+        
+        .comparison-case-content {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+        
+        .comparison-actions {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .comparison-btn {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            border: 2px solid #b8860b;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 0 5px;
+            font-family: 'Georgia', serif;
+        }
+        
+        .comparison-btn:hover {
+            background: linear-gradient(135deg, #2a5298, #1e3c72);
+            transform: translateY(-1px);
         }
         
         .pdf-btn {
@@ -584,6 +854,7 @@ def index():
             </div>
             <div class="bulk-actions" id="bulkActions">
                 <button onclick="deleteSelected()" class="control-btn">🗑️ Delete Selected</button>
+                <button onclick="compareSelected()" class="control-btn">⚖️ Compare Cases</button>
                 <button onclick="forwardSelected()" class="control-btn">📧 Forward Selected</button>
                 <button onclick="cancelSelection()" class="control-btn">❌ Cancel</button>
             </div>
@@ -597,12 +868,34 @@ def index():
             </div>
         </div>
         
+        <!-- Loading Indicator -->
+        <div class="loading-indicator" id="loadingIndicator">
+            <div class="loading-spinner"></div>
+            <div class="loading-text" id="loadingText">Searching legal database...</div>
+        </div>
+        
         <div class="input-section">
             <input type="file" id="documentInput" class="file-input" accept=".pdf,.docx,.txt" onchange="handleFileUpload()">
             <button onclick="document.getElementById('documentInput').click()" class="file-upload-btn" title="Upload Document for Analysis">📁</button>
-            <input id="userInput" placeholder="Ask about Pakistan law..." onkeydown="handleKeyPress(event)">
+            <div class="autocomplete-container">
+                <div class="autocomplete-suggestions" id="autocompleteSuggestions"></div>
+                <input id="userInput" placeholder="Ask about Pakistan law..." onkeydown="handleKeyPress(event)" oninput="handleAutoComplete()" onfocus="showRecentSuggestions()" onblur="hideAutoComplete()">
+            </div>
             <button onclick="sendMessage()" class="send-btn">💬 Send</button>
             <button onclick="downloadPDF()" class="pdf-btn">📄 PDF</button>
+        </div>
+    </div>
+
+    <!-- Case Comparison Panel -->
+    <div class="comparison-panel" id="comparisonPanel">
+        <div class="comparison-content">
+            <div class="comparison-header">
+                <div class="comparison-title">⚖️ Legal Case Comparison</div>
+                <button onclick="closeComparison()" class="comparison-close">✖ Close</button>
+            </div>
+            <div id="comparisonResults">
+                <!-- Comparison content will be populated here -->
+            </div>
         </div>
     </div>
 
@@ -613,6 +906,70 @@ def index():
         let isSelectMode = false;
         let messageIdCounter = 0;
         let responseCache = new Map();
+        let selectedSuggestionIndex = -1;
+        let recentQueries = [];
+        
+        // Legal terms and case patterns for autocomplete
+        const legalSuggestions = {
+            'constitutional': [
+                'Constitutional law in Pakistan',
+                'Constitutional amendments Pakistan',
+                'Constitutional Court decisions',
+                'Fundamental rights under Pakistan Constitution'
+            ],
+            'criminal': [
+                'Criminal law procedures Pakistan',
+                'Criminal Code of Pakistan 1860',
+                'Criminal cases Supreme Court Pakistan',
+                'Criminal appeals procedure'
+            ],
+            'civil': [
+                'Civil Procedure Code Pakistan',
+                'Civil suits procedure',
+                'Civil appeals process',
+                'Civil contracts law Pakistan'
+            ],
+            'contract': [
+                'Contract Act 1872 Pakistan',
+                'Contract enforcement Pakistan',
+                'Breach of contract remedies',
+                'Contract formation requirements'
+            ],
+            'property': [
+                'Property law Pakistan',
+                'Property registration procedure',
+                'Property disputes resolution',
+                'Transfer of Property Act 1882'
+            ],
+            'family': [
+                'Family law Pakistan',
+                'Muslim Family Laws Ordinance 1961',
+                'Divorce procedures Pakistan',
+                'Custody laws Pakistan'
+            ],
+            'labor': [
+                'Labor law Pakistan',
+                'Industrial Relations Act',
+                'Employment rights Pakistan',
+                'Workers compensation law'
+            ],
+            'tax': [
+                'Tax law Pakistan',
+                'Income Tax Ordinance 2001',
+                'Sales Tax Act 1990',
+                'Tax appeals procedure'
+            ]
+        };
+        
+        const commonCaseCitations = [
+            'PLD 2023 SC',
+            'PLD 2022 SC', 
+            'PLD 2021 SC',
+            'MLD 2023',
+            'MLD 2022',
+            'CLR 2023',
+            'CLR 2022'
+        ];
         
         // Utility functions
         function getCurrentTime() {
@@ -649,9 +1006,146 @@ def index():
         }
         
         function handleKeyPress(event) {
+            const suggestions = document.getElementById('autocompleteSuggestions');
+            const suggestionItems = suggestions.querySelectorAll('.suggestion-item');
+            
             if (event.key === 'Enter') {
+                if (selectedSuggestionIndex >= 0 && suggestionItems[selectedSuggestionIndex]) {
+                    // Use selected suggestion
+                    const selectedText = suggestionItems[selectedSuggestionIndex].textContent.split(' - ')[0];
+                    document.getElementById('userInput').value = selectedText;
+                    hideAutoComplete();
+                    event.preventDefault();
+                    return;
+                }
                 sendMessage();
+            } else if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                if (suggestionItems.length > 0) {
+                    selectedSuggestionIndex = Math.min(selectedSuggestionIndex + 1, suggestionItems.length - 1);
+                    updateSuggestionHighlight();
+                }
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                if (suggestionItems.length > 0) {
+                    selectedSuggestionIndex = Math.max(selectedSuggestionIndex - 1, -1);
+                    updateSuggestionHighlight();
+                }
+            } else if (event.key === 'Escape') {
+                hideAutoComplete();
             }
+        }
+        
+        function updateSuggestionHighlight() {
+            const suggestionItems = document.querySelectorAll('.suggestion-item');
+            suggestionItems.forEach((item, index) => {
+                if (index === selectedSuggestionIndex) {
+                    item.classList.add('highlighted');
+                } else {
+                    item.classList.remove('highlighted');
+                }
+            });
+        }
+        
+        function handleAutoComplete() {
+            const input = document.getElementById('userInput');
+            const query = input.value.trim().toLowerCase();
+            const suggestions = document.getElementById('autocompleteSuggestions');
+            
+            if (query.length < 2) {
+                hideAutoComplete();
+                return;
+            }
+            
+            const matches = [];
+            
+            // Search legal terms
+            Object.keys(legalSuggestions).forEach(category => {
+                if (category.toLowerCase().includes(query)) {
+                    matches.push({
+                        category: 'Legal Categories',
+                        suggestions: legalSuggestions[category].slice(0, 3)
+                    });
+                }
+            });
+            
+            // Search within suggestions
+            Object.values(legalSuggestions).flat().forEach(suggestion => {
+                if (suggestion.toLowerCase().includes(query) && matches.length < 8) {
+                    if (!matches.some(m => m.suggestions && m.suggestions.includes(suggestion))) {
+                        matches.push({
+                            category: 'Legal Queries',
+                            suggestions: [suggestion]
+                        });
+                    }
+                }
+            });
+            
+            // Add case citation suggestions
+            if (query.includes('pld') || query.includes('mld') || query.includes('clr') || /\d{4}/.test(query)) {
+                const citationMatches = commonCaseCitations.filter(citation => 
+                    citation.toLowerCase().includes(query)
+                );
+                if (citationMatches.length > 0) {
+                    matches.unshift({
+                        category: 'Case Citations',
+                        suggestions: citationMatches.slice(0, 3).map(c => `${c} cases`)
+                    });
+                }
+            }
+            
+            displaySuggestions(matches.slice(0, 6));
+        }
+        
+        function displaySuggestions(matches) {
+            const suggestions = document.getElementById('autocompleteSuggestions');
+            selectedSuggestionIndex = -1;
+            
+            if (matches.length === 0) {
+                hideAutoComplete();
+                return;
+            }
+            
+            let html = '';
+            matches.forEach(match => {
+                if (match.category) {
+                    html += `<div class="suggestion-category">${match.category}</div>`;
+                }
+                if (match.suggestions) {
+                    match.suggestions.forEach(suggestion => {
+                        html += `<div class="suggestion-item" onclick="selectSuggestion('${suggestion.replace(/'/g, "\\'")}')">
+                            ${suggestion} <span class="suggestion-preview">Press Enter to use</span>
+                        </div>`;
+                    });
+                }
+            });
+            
+            suggestions.innerHTML = html;
+            suggestions.classList.add('show');
+        }
+        
+        function selectSuggestion(text) {
+            document.getElementById('userInput').value = text;
+            hideAutoComplete();
+            document.getElementById('userInput').focus();
+        }
+        
+        function showRecentSuggestions() {
+            if (recentQueries.length > 0) {
+                const matches = [{
+                    category: 'Recent Queries',
+                    suggestions: recentQueries.slice(-5).reverse()
+                }];
+                displaySuggestions(matches);
+            }
+        }
+        
+        function hideAutoComplete() {
+            setTimeout(() => {
+                const suggestions = document.getElementById('autocompleteSuggestions');
+                suggestions.classList.remove('show');
+                selectedSuggestionIndex = -1;
+            }, 150);
         }
         
         async function sendMessage() {
@@ -669,18 +1163,38 @@ def index():
 
             // Add user message
             addMessage(userText, true);
-            input.value = "";
             
-            // Check cache first for faster response
-            const cacheKey = userText.toLowerCase().trim();
-            if (responseCache.has(cacheKey)) {
-                const cachedResponse = responseCache.get(cacheKey);
-                addMessage(cachedResponse.content);
-                return;
+            // Store query for autocomplete
+            if (!recentQueries.includes(userText)) {
+                recentQueries.push(userText);
+                if (recentQueries.length > 10) {
+                    recentQueries.shift();
+                }
             }
             
-            // Show faster typing indicator
-            const typingMsg = addMessage('⚡ Searching legal database...', false, true);
+            input.value = "";
+            hideAutoComplete();
+            
+            // Show loading indicator with dynamic text
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const loadingText = document.getElementById('loadingText');
+            
+            if (Object.values(filters).some(f => f)) {
+                loadingText.textContent = '🔍 Searching filtered legal database...';
+            } else {
+                loadingText.textContent = '📚 Analyzing legal query with AI...';
+            }
+            
+            loadingIndicator.classList.add('active');
+            
+            // Check cache first for faster response
+            const cacheKey = userText.toLowerCase().trim() + JSON.stringify(filters);
+            if (responseCache.has(cacheKey)) {
+                const cachedResponse = responseCache.get(cacheKey);
+                loadingIndicator.classList.remove('active');
+                addMessage(enhanceLegalTypography(cachedResponse.content));
+                return;
+            }
 
             try {
                 const res = await fetch("/chat", {
@@ -690,24 +1204,19 @@ def index():
                 });
                 
                 if (!res.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error('Server error: ' + res.status);
                 }
                 
                 const data = await res.json();
                 
-                // Remove typing indicator
-                typingMsg.remove();
+                // Hide loading indicator
+                loadingIndicator.classList.remove('active');
 
                 lastAnswer = data.reply;
                 lastCitations = data.sources;
 
-                // Build bot response
-                let content = data.reply.split('\\n').join('<br>');
-                
-                // Legal sources removed per user request
-                // if (data.sources.length) {
-                //     content += '<div class="sources"><strong>📑 Legal Sources:</strong> ' + data.sources.join(", ") + '</div>';
-                // }
+                // Build bot response with enhanced typography
+                let content = enhanceLegalTypography(data.reply.split('\\n').join('<br>'));
                 
                 if (Object.values(filters).some(f => f)) {
                     const activeFilters = Object.entries(filters).filter(([k, v]) => v).map(([k, v]) => k + ': ' + v).join(", ");
@@ -717,8 +1226,8 @@ def index():
                 // Cache response for faster future access
                 responseCache.set(cacheKey, { content: content, timestamp: Date.now() });
                 
-                // Clear old cache entries (keep only last 10)
-                if (responseCache.size > 10) {
+                // Clear old cache entries (keep only last 20)
+                if (responseCache.size > 20) {
                     const oldestKey = responseCache.keys().next().value;
                     responseCache.delete(oldestKey);
                 }
@@ -727,11 +1236,41 @@ def index():
                 
             } catch (error) {
                 console.error('Chat error:', error);
-                if (typingMsg && typingMsg.parentNode) {
-                    typingMsg.remove();
+                loadingIndicator.classList.remove('active');
+                
+                let errorMessage = '<div class="error-message">⚠️ <strong>Error:</strong> ';
+                if (error.message.includes('Server error')) {
+                    errorMessage += 'Server is temporarily unavailable. Please try again in a moment.';
+                } else if (error.message.includes('Network')) {
+                    errorMessage += 'Network connection issue. Please check your internet connection.';
+                } else {
+                    errorMessage += 'An unexpected error occurred. Please try rephrasing your query.';
                 }
-                addMessage('⚠️ Sorry, there was an error processing your request. Please try again.', false);
+                errorMessage += '</div>';
+                
+                addMessage(errorMessage);
             }
+        }
+        
+        // Function to enhance legal typography in responses
+        function enhanceLegalTypography(text) {
+            // Enhance case citations (e.g., "2020 SC 123", "PLD 2019 Lahore 456")
+            text = text.replace(/(\d{4}\s+[A-Z]{2,5}\s+\d+)/g, '<span class="legal-citation">$1</span>');
+            
+            // Enhance MLD citations
+            text = text.replace(/(\d{4}\s+MLD\s+\d+)/g, '<span class="legal-citation">$1</span>');
+            
+            // Enhance legal sections and articles
+            text = text.replace(/(Article\s+\d+)/gi, '<span class="legal-section">$1</span>');
+            text = text.replace(/(Section\s+\d+)/gi, '<span class="legal-section">$1</span>');
+            
+            // Enhance constitutional references
+            text = text.replace(/(Constitution of Pakistan)/gi, '<span class="legal-section">$1</span>');
+            
+            // Enhance case references in a block format
+            text = text.replace(/(vs\.?\s+[A-Z][^<]*?\s+\d{4})/gi, '<div class="case-reference">$1</div>');
+            
+            return text;
         }
 
         function toggleSearch() {
@@ -883,6 +1422,131 @@ def index():
                 });
                 updateSelection();
             }
+        }
+        
+        function compareSelected() {
+            const selectedMsgs = document.querySelectorAll('.msg input[type="checkbox"]:checked');
+            if (selectedMsgs.length < 2) {
+                alert('Please select at least 2 messages to compare.');
+                return;
+            }
+            if (selectedMsgs.length > 4) {
+                alert('Maximum 4 messages can be compared at once.');
+                return;
+            }
+            
+            // Collect selected messages
+            const comparisons = [];
+            selectedMsgs.forEach((checkbox, index) => {
+                const msgDiv = checkbox.closest('.msg');
+                const isUser = msgDiv.classList.contains('user');
+                const content = msgDiv.innerHTML
+                    .replace(/<div class="msg-checkbox">.*?<\/div>/, '')
+                    .replace(/<div class="message-time">.*?<\/div>/, '');
+                
+                comparisons.push({
+                    title: isUser ? `Query ${index + 1}` : `Legal Analysis ${index + 1}`,
+                    content: content,
+                    type: isUser ? 'user' : 'bot'
+                });
+            });
+            
+            displayComparison(comparisons);
+        }
+        
+        function displayComparison(comparisons) {
+            const panel = document.getElementById('comparisonPanel');
+            const results = document.getElementById('comparisonResults');
+            
+            let html = '<div class="comparison-grid">';
+            
+            comparisons.forEach(comp => {
+                html += `
+                    <div class="comparison-case">
+                        <div class="comparison-case-title">${comp.title}</div>
+                        <div class="comparison-case-content">${comp.content}</div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            // Add AI-powered comparison analysis
+            html += `
+                <div class="comparison-actions">
+                    <button onclick="generateComparisonAnalysis()" class="comparison-btn">🤖 AI Analysis</button>
+                    <button onclick="exportComparison()" class="comparison-btn">📄 Export Comparison</button>
+                    <button onclick="closeComparison()" class="comparison-btn">❌ Close</button>
+                </div>
+            `;
+            
+            results.innerHTML = html;
+            panel.classList.add('active');
+        }
+        
+        function generateComparisonAnalysis() {
+            // Get comparison data
+            const comparisonCases = document.querySelectorAll('.comparison-case');
+            const cases = Array.from(comparisonCases).map(caseDiv => ({
+                title: caseDiv.querySelector('.comparison-case-title').textContent,
+                content: caseDiv.querySelector('.comparison-case-content').textContent
+            }));
+            
+            const prompt = `Compare these legal analyses and provide insights: ${JSON.stringify(cases)}`;
+            
+            // Show loading in comparison panel
+            const results = document.getElementById('comparisonResults');
+            results.innerHTML += '<div class="loading-indicator active"><div class="loading-spinner"></div><div class="loading-text">Generating AI comparison analysis...</div></div>';
+            
+            // Send to AI for analysis
+            fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: prompt, filters: {} })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const analysis = `
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(30, 60, 114, 0.05); border-left: 4px solid #b8860b; border-radius: 8px;">
+                        <h3 style="color: #1e3c72; margin-bottom: 10px;">🤖 AI Comparative Analysis</h3>
+                        <div style="line-height: 1.6;">${enhanceLegalTypography(data.reply.split('\\n').join('<br>'))}</div>
+                    </div>
+                `;
+                
+                // Remove loading and add analysis
+                document.querySelector('.loading-indicator.active').remove();
+                results.innerHTML += analysis;
+            })
+            .catch(error => {
+                console.error('Comparison analysis error:', error);
+                document.querySelector('.loading-indicator.active').remove();
+                results.innerHTML += '<div class="error-message">Failed to generate AI analysis. Please try again.</div>';
+            });
+        }
+        
+        function exportComparison() {
+            const comparisonData = {
+                timestamp: new Date().toISOString(),
+                comparisons: Array.from(document.querySelectorAll('.comparison-case')).map(caseDiv => ({
+                    title: caseDiv.querySelector('.comparison-case-title').textContent,
+                    content: caseDiv.querySelector('.comparison-case-content').textContent
+                }))
+            };
+            
+            const blob = new Blob([JSON.stringify(comparisonData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `legal-comparison-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function closeComparison() {
+            const panel = document.getElementById('comparisonPanel');
+            panel.classList.remove('active');
         }
         
         function forwardSelected() {
