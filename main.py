@@ -1842,6 +1842,36 @@ def index():
 </html>
 """)
 
+def contains_citation_patterns(text):
+    """Check if user query contains specific citation patterns that warrant database search"""
+    citation_patterns = [
+        r'PLD\s+\d{4}',           # PLD 2020
+        r'MLD\s+\d{4}',           # MLD 2020  
+        r'CLR\s+\d{4}',           # CLR 2020
+        r'\d{4}\s+SC\s+\d+',      # 2020 SC 123
+        r'\d{4}\s+[A-Z]{2,5}\s+\d+',  # 2020 Lahore 456
+        r'case\s+citation',       # case citation
+        r'citation',              # citation (when explicitly mentioned)
+        r'precedent',             # precedent
+        r'judgment',              # judgment
+        r'ruling',                # ruling
+        r'vs\.?\s+[A-Z]',         # vs. (case format with capital letter)
+        r'appeal\s+\d+',          # appeal 123
+        r'find\s+case',           # find case
+        r'show\s+case',           # show case
+        r'search\s+case',         # search case
+        r'lookup\s+case',         # lookup case
+        r'cite\s+',               # cite (when asking for citations)
+        r'reference\s+.*\d{4}',   # reference with year
+    ]
+    
+    text_lower = text.lower()
+    for pattern in citation_patterns:
+        import re
+        if re.search(pattern, text_lower, re.IGNORECASE):
+            return True
+    return False
+
 @app.route("/chat", methods=["POST"])
 def chat():
     user_input = request.json.get("message") if request.json else None
@@ -1856,6 +1886,9 @@ def chat():
     
     # Check if advanced search filters are being used
     has_filters = any(filters.get(key) for key in ["citation", "year", "page", "court"])
+    
+    # Check if user query contains citation patterns
+    wants_citations = contains_citation_patterns(user_input)
     
     if has_filters:
         # ADVANCED SEARCH: Database-only search when filters are applied
@@ -2028,9 +2061,9 @@ Also suggest uploading specific documents related to these search criteria for m
                 "sources": sources
             })
     
-    else:
-        # REGULAR SEARCH: Database first, then ChatGPT fallback
-        print(f"🔍 Step 1: Searching KanoonPK database for: {user_input}")
+    elif wants_citations:
+        # CITATION SEARCH: Only search database when user asks for citations/cases
+        print(f"🔍 Step 1: Searching KanoonPK database for citations/cases: {user_input}")
         
         # Query KanoonPK database first
         try:
@@ -2094,6 +2127,27 @@ Focus on:
 - Other relevant Pakistan legal statutes
 
 Always mention that this answer is based on general legal knowledge and suggest uploading specific documents for more detailed analysis."""
+    
+    else:
+        # GENERAL LEGAL QUERY: Skip database search, use ChatGPT directly for cleaner response
+        print(f"💭 General legal query detected (no citations requested): {user_input}")
+        print(f"🤖 Using ChatGPT directly for clean legal guidance")
+        
+        sources = []
+        source_texts = []
+        database_found = False
+        
+        system_prompt = f"""You are KanoonPK, an AI Legal Research Assistant specialized in Pakistan law.
+
+Provide a comprehensive legal answer about this topic using your knowledge of Pakistan law. Focus on:
+- Constitution of Pakistan 1973
+- Pakistan Penal Code  
+- Civil and Criminal Procedure Codes
+- Contract Act 1872
+- Companies Act 2017
+- Other relevant Pakistan legal statutes
+
+Provide practical, actionable legal guidance. Keep the response clean and focused without database citations unless specifically requested."""
     
     try:
         # the newest OpenAI model is "gpt-5" which was released August 7, 2025.
