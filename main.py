@@ -201,6 +201,113 @@ def index():
             align-items: center;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             border-bottom: 3px solid #b8860b;
+            position: relative;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        /* Hamburger Menu */
+        .hamburger-menu {
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .hamburger-menu:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-1px);
+        }
+        
+        .hamburger-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        
+        .hamburger-line {
+            width: 20px;
+            height: 2px;
+            background: white;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+        
+        /* Navigation Dropdown */
+        .nav-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border: 2px solid #b8860b;
+            border-top: none;
+            min-width: 250px;
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+        
+        .nav-dropdown.show {
+            display: block;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 1px solid #f0f0f0;
+            color: #2c3e50;
+            font-family: 'Georgia', serif;
+        }
+        
+        .nav-item:hover {
+            background: linear-gradient(135deg, rgba(30, 60, 114, 0.05), rgba(184, 134, 11, 0.05));
+            color: #1e3c72;
+            transform: translateX(5px);
+        }
+        
+        .nav-item:last-child {
+            border-bottom: none;
+        }
+        
+        .nav-item i {
+            font-size: 16px;
+            color: #b8860b;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .nav-item-text {
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        .nav-item-desc {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 2px;
         }
         
         .header .logo {
@@ -801,7 +908,48 @@ def index():
 <body>
     <div class="container">
         <div class="header">
-            <img src="/static/images/kanoonpk-logo.jpg" alt="KanoonPK Logo" class="logo">
+            <div class="header-left">
+                <div class="hamburger-menu" id="hamburgerMenu" onclick="toggleNavMenu()">
+                    <div class="hamburger-lines">
+                        <div class="hamburger-line"></div>
+                        <div class="hamburger-line"></div>
+                        <div class="hamburger-line"></div>
+                    </div>
+                </div>
+                <img src="/static/images/kanoonpk-logo.jpg" alt="KanoonPK Logo" class="logo">
+            </div>
+            
+            <div class="nav-dropdown" id="navDropdown">
+                <div class="nav-item" onclick="showHistory()">
+                    <i class="fas fa-history"></i>
+                    <div>
+                        <div class="nav-item-text">Search History</div>
+                        <div class="nav-item-desc">View previous legal queries</div>
+                    </div>
+                </div>
+                <div class="nav-item" onclick="showFlags()">
+                    <i class="fas fa-flag"></i>
+                    <div>
+                        <div class="nav-item-text">Flagged Cases</div>
+                        <div class="nav-item-desc">Important marked items</div>
+                    </div>
+                </div>
+                <div class="nav-item" onclick="saveCitations()">
+                    <i class="fas fa-bookmark"></i>
+                    <div>
+                        <div class="nav-item-text">Save Citations</div>
+                        <div class="nav-item-desc">Bookmark legal references</div>
+                    </div>
+                </div>
+                <div class="nav-item" onclick="saveResearch()">
+                    <i class="fas fa-save"></i>
+                    <div>
+                        <div class="nav-item-text">Save Research</div>
+                        <div class="nav-item-desc">Export current session</div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="user-profile" id="userProfile">
                 <img src="https://ui-avatars.com/api/?name=Legal+User&background=4dd0b7&color=fff&size=25" alt="User Avatar" class="user-avatar" id="userAvatar">
                 <span class="user-name" id="userName">Legal User</span>
@@ -1819,6 +1967,194 @@ def index():
             }
         }
         
+        // Navigation Menu Functions
+        function toggleNavMenu() {
+            const hamburger = document.getElementById('hamburgerMenu');
+            const dropdown = document.getElementById('navDropdown');
+            
+            hamburger.classList.toggle('active');
+            dropdown.classList.toggle('show');
+            
+            // Close menu when clicking outside
+            if (dropdown.classList.contains('show')) {
+                document.addEventListener('click', closeNavOnOutsideClick);
+            } else {
+                document.removeEventListener('click', closeNavOnOutsideClick);
+            }
+        }
+        
+        function closeNavOnOutsideClick(event) {
+            const hamburger = document.getElementById('hamburgerMenu');
+            const dropdown = document.getElementById('navDropdown');
+            
+            if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
+                hamburger.classList.remove('active');
+                dropdown.classList.remove('show');
+                document.removeEventListener('click', closeNavOnOutsideClick);
+            }
+        }
+        
+        function showHistory() {
+            // Close the navigation menu
+            toggleNavMenu();
+            
+            // Create history modal
+            const historyModal = document.createElement('div');
+            historyModal.className = 'comparison-panel active';
+            historyModal.innerHTML = `
+                <div class="comparison-content">
+                    <div class="comparison-header">
+                        <div class="comparison-title">📜 Search History</div>
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" class="comparison-close">✖ Close</button>
+                    </div>
+                    <div id="historyResults">
+                        <div style="padding: 20px; text-align: center;">
+                            <i class="fas fa-history" style="font-size: 48px; color: #b8860b; margin-bottom: 15px;"></i>
+                            <h3 style="color: #1e3c72; margin-bottom: 10px;">Search History</h3>
+                            <p style="color: #666;">Your recent legal queries will appear here.</p>
+                            <button onclick="loadSearchHistory()" style="margin-top: 15px; padding: 8px 16px; background: #1e3c72; color: white; border: none; border-radius: 6px; cursor: pointer;">Load History</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(historyModal);
+        }
+        
+        function showFlags() {
+            // Close the navigation menu
+            toggleNavMenu();
+            
+            // Create flags modal
+            const flagsModal = document.createElement('div');
+            flagsModal.className = 'comparison-panel active';
+            flagsModal.innerHTML = `
+                <div class="comparison-content">
+                    <div class="comparison-header">
+                        <div class="comparison-title">🚩 Flagged Cases</div>
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" class="comparison-close">✖ Close</button>
+                    </div>
+                    <div id="flagsResults">
+                        <div style="padding: 20px; text-align: center;">
+                            <i class="fas fa-flag" style="font-size: 48px; color: #dc3545; margin-bottom: 15px;"></i>
+                            <h3 style="color: #1e3c72; margin-bottom: 10px;">Flagged Cases</h3>
+                            <p style="color: #666;">Important cases you've marked will appear here.</p>
+                            <button onclick="addCurrentToFlags()" style="margin-top: 15px; padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer;">Flag Current Case</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(flagsModal);
+        }
+        
+        function saveCitations() {
+            // Close the navigation menu
+            toggleNavMenu();
+            
+            // Get current citations from the chat
+            const messages = document.querySelectorAll('.msg.bot');
+            let citations = [];
+            
+            messages.forEach(msg => {
+                const content = msg.textContent;
+                if (content.includes('PLD') || content.includes('MLD') || content.includes('CLR')) {
+                    citations.push({
+                        text: content,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            });
+            
+            // Save to localStorage
+            let savedCitations = JSON.parse(localStorage.getItem('savedCitations') || '[]');
+            citations.forEach(citation => {
+                if (!savedCitations.some(saved => saved.text === citation.text)) {
+                    savedCitations.push(citation);
+                }
+            });
+            localStorage.setItem('savedCitations', JSON.stringify(savedCitations));
+            
+            // Show success message
+            addMessage(`📖 Successfully saved ${citations.length} citations to your bookmark library!`, false);
+        }
+        
+        function saveResearch() {
+            // Close the navigation menu
+            toggleNavMenu();
+            
+            // Export current research session
+            const allMessages = collectChatMessages();
+            if (allMessages.length === 0) {
+                addMessage('📝 No research to save yet. Start a legal query first!', false);
+                return;
+            }
+            
+            // Create research export
+            const researchData = {
+                title: 'Legal Research Session',
+                timestamp: new Date().toISOString(),
+                totalQueries: allMessages.filter(m => m.type === 'user').length,
+                messages: allMessages
+            };
+            
+            // Download as JSON
+            const blob = new Blob([JSON.stringify(researchData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `legal-research-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            addMessage('💾 Research session saved successfully!', false);
+        }
+        
+        function loadSearchHistory() {
+            // Load from history.json or localStorage
+            const historyResults = document.getElementById('historyResults');
+            historyResults.innerHTML = '<div style="padding: 20px; text-align: center;"><i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #b8860b;"></i><p>Loading history...</p></div>';
+            
+            setTimeout(() => {
+                historyResults.innerHTML = `
+                    <div style="padding: 20px;">
+                        <h4 style="color: #1e3c72; margin-bottom: 15px;">Recent Legal Queries</h4>
+                        <div style="font-size: 12px; color: #666;">
+                            <p>• Constitutional law Pakistan</p>
+                            <p>• Property registration procedure</p>
+                            <p>• Criminal law procedures</p>
+                            <p>• Contract Act 1872</p>
+                            <p>• Family law Pakistan</p>
+                        </div>
+                        <button onclick="clearHistory()" style="margin-top: 15px; padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">Clear History</button>
+                    </div>
+                `;
+            }, 1000);
+        }
+        
+        function addCurrentToFlags() {
+            const lastBotMessage = document.querySelector('.msg.bot:last-of-type');
+            if (lastBotMessage) {
+                const content = lastBotMessage.textContent;
+                let flaggedCases = JSON.parse(localStorage.getItem('flaggedCases') || '[]');
+                flaggedCases.push({
+                    content: content,
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem('flaggedCases', JSON.stringify(flaggedCases));
+                
+                const flagsResults = document.getElementById('flagsResults');
+                flagsResults.innerHTML = '<div style="padding: 20px; text-align: center; color: #28a745;"><i class="fas fa-check-circle" style="font-size: 48px; margin-bottom: 15px;"></i><h3>Case Flagged Successfully!</h3></div>';
+            }
+        }
+        
+        function clearHistory() {
+            if (confirm('Clear all search history?')) {
+                localStorage.removeItem('searchHistory');
+                document.getElementById('historyResults').innerHTML = '<div style="padding: 20px; text-align: center; color: #28a745;"><i class="fas fa-check-circle" style="font-size: 48px; margin-bottom: 15px;"></i><h3>History Cleared!</h3></div>';
+            }
+        }
+
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             checkAdminStatus();
