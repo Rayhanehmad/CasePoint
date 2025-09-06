@@ -453,6 +453,7 @@ def index():
             line-height: 1.4;
             position: relative;
             transition: all 0.3s;
+            cursor: pointer;
         }
         
         .msg.user {
@@ -739,6 +740,214 @@ def index():
             color: #666;
             font-style: italic;
             margin-left: 8px;
+        }
+        
+        /* History Sidebar */
+        .history-sidebar {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 350px;
+            height: 100vh;
+            background: white;
+            border-left: 3px solid #b8860b;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+            transition: right 0.3s ease;
+            z-index: 1500;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .history-sidebar.open {
+            right: 0;
+        }
+        
+        .history-header {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #b8860b;
+        }
+        
+        .history-title {
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+        }
+        
+        .history-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .history-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+        
+        .history-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        .history-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .history-item:hover {
+            border-color: #b8860b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(184, 134, 11, 0.2);
+        }
+        
+        .history-question {
+            font-weight: 600;
+            color: #1e3c72;
+            font-size: 13px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .history-answer {
+            color: #2c3e50;
+            font-size: 12px;
+            line-height: 1.5;
+            max-height: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .history-answer::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 30px;
+            width: 100%;
+            background: linear-gradient(transparent, #f8f9fa);
+        }
+        
+        .history-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .history-date {
+            font-style: italic;
+        }
+        
+        .history-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .history-action-btn {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            transition: all 0.3s;
+        }
+        
+        .history-action-btn:hover {
+            background: #1e3c72;
+            color: white;
+            border-color: #1e3c72;
+        }
+        
+        /* Message Action Buttons */
+        .msg-actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: none;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 4px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .msg:hover .msg-actions {
+            display: flex;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            padding: 6px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            color: #666;
+        }
+        
+        .action-btn:hover {
+            background: #1e3c72;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .action-btn.flag-btn:hover {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .action-btn.save-btn:hover {
+            background: #28a745;
+            color: white;
+        }
+        
+        /* History Toggle Button */
+        .history-toggle {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            border: 2px solid #b8860b;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        
+        .history-toggle:hover {
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 6px 20px rgba(184, 134, 11, 0.3);
+        }
+        
+        .history-toggle i {
+            font-size: 16px;
         }
         
         /* Case Comparison Tools */
@@ -1034,6 +1243,26 @@ def index():
         </div>
     </div>
 
+    <!-- History Toggle Button -->
+    <button class="history-toggle" onclick="toggleHistorySidebar()" title="Search History">
+        <i class="fas fa-history"></i>
+    </button>
+
+    <!-- History Sidebar -->
+    <div class="history-sidebar" id="historySidebar">
+        <div class="history-header">
+            <div class="history-title">📜 Search History</div>
+            <button class="history-close" onclick="toggleHistorySidebar()">✖</button>
+        </div>
+        <div class="history-content" id="historyContent">
+            <div style="text-align: center; padding: 40px 20px; color: #666;">
+                <i class="fas fa-history" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3;"></i>
+                <p>No search history yet</p>
+                <p style="font-size: 12px; margin-top: 8px;">Your legal queries will appear here</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Case Comparison Panel -->
     <div class="comparison-panel" id="comparisonPanel">
         <div class="comparison-content">
@@ -1136,11 +1365,36 @@ def index():
             
             const checkboxHtml = '<div class="msg-checkbox"><input type="checkbox" onchange="updateSelection()"></div>';
             
+            // Add action buttons for bot messages (not user messages and not typing)
+            let actionButtonsHtml = '';
+            if (!isUser && !isTyping) {
+                actionButtonsHtml = `
+                    <div class="msg-actions">
+                        <button class="action-btn flag-btn" onclick="flagMessage('${msgId}')" title="Flag this response">
+                            <i class="fas fa-flag"></i>
+                        </button>
+                        <button class="action-btn save-btn" onclick="saveMessageToHistory('${msgId}')" title="Save to history">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
+                    </div>
+                `;
+            }
+            
             if (isTyping) {
                 messageDiv.id = 'typing';
                 messageDiv.innerHTML = checkboxHtml + content;
             } else {
-                messageDiv.innerHTML = checkboxHtml + content + '<div class="message-time">' + time + '</div>';
+                messageDiv.innerHTML = checkboxHtml + content + actionButtonsHtml + '<div class="message-time">' + time + '</div>';
+            }
+            
+            // Add click handler for saving to history (on message click)
+            if (!isUser && !isTyping) {
+                messageDiv.addEventListener('click', function(e) {
+                    // Only trigger if not clicking on action buttons
+                    if (!e.target.closest('.msg-actions') && !e.target.closest('.msg-checkbox')) {
+                        saveInteractionToHistory(content, time);
+                    }
+                });
             }
             
             msgBox.appendChild(messageDiv);
@@ -2155,6 +2409,214 @@ def index():
             }
         }
 
+        // History Management Functions
+        let searchHistory = JSON.parse(localStorage.getItem('kanoonpk_history') || '[]');
+        let flaggedMessages = JSON.parse(localStorage.getItem('kanoonpk_flags') || '[]');
+        
+        function toggleHistorySidebar() {
+            const sidebar = document.getElementById('historySidebar');
+            sidebar.classList.toggle('open');
+            
+            if (sidebar.classList.contains('open')) {
+                loadHistoryContent();
+            }
+        }
+        
+        function loadHistoryContent() {
+            const historyContent = document.getElementById('historyContent');
+            
+            if (searchHistory.length === 0) {
+                historyContent.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: #666;">
+                        <i class="fas fa-history" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3;"></i>
+                        <p>No search history yet</p>
+                        <p style="font-size: 12px; margin-top: 8px;">Your legal queries will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let historyHTML = '';
+            searchHistory.slice(-20).reverse().forEach((item, index) => {
+                const date = new Date(item.timestamp).toLocaleString();
+                const truncatedAnswer = item.answer.length > 200 ? item.answer.substring(0, 200) + '...' : item.answer;
+                
+                historyHTML += `
+                    <div class="history-item" onclick="reloadHistoryItem(${searchHistory.length - 1 - index})">
+                        <div class="history-question">${item.question}</div>
+                        <div class="history-answer">${truncatedAnswer}</div>
+                        <div class="history-meta">
+                            <div class="history-date">${date}</div>
+                            <div class="history-actions">
+                                <button class="history-action-btn" onclick="event.stopPropagation(); deleteHistoryItem(${searchHistory.length - 1 - index})">Delete</button>
+                                <button class="history-action-btn" onclick="event.stopPropagation(); flagMessage('history_${index}')">Flag</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            historyContent.innerHTML = historyHTML;
+        }
+        
+        function saveInteractionToHistory(answer, timestamp, question = null) {
+            // Get the last user message if no question provided
+            if (!question) {
+                const userMessages = document.querySelectorAll('.msg.user');
+                if (userMessages.length > 0) {
+                    const lastUserMsg = userMessages[userMessages.length - 1];
+                    question = lastUserMsg.textContent.replace(/Online$/, '').trim();
+                }
+            }
+            
+            if (question && answer) {
+                const historyItem = {
+                    question: question,
+                    answer: answer,
+                    timestamp: new Date().toISOString(),
+                    saved: true
+                };
+                
+                // Avoid duplicates
+                const exists = searchHistory.some(item => 
+                    item.question === question && item.answer === answer
+                );
+                
+                if (!exists) {
+                    searchHistory.push(historyItem);
+                    
+                    // Keep only last 100 items
+                    if (searchHistory.length > 100) {
+                        searchHistory = searchHistory.slice(-100);
+                    }
+                    
+                    localStorage.setItem('kanoonpk_history', JSON.stringify(searchHistory));
+                    
+                    // Show success message
+                    addMessage('💾 Interaction saved to history!', false);
+                }
+            }
+        }
+        
+        function saveMessageToHistory(msgId) {
+            const msgElement = document.querySelector(`[data-msg-id="${msgId}"]`);
+            if (msgElement) {
+                const content = msgElement.textContent.replace(/Online$/, '').trim();
+                
+                // Get corresponding user message
+                let question = 'Legal Query';
+                const allMessages = document.querySelectorAll('.msg');
+                let foundCurrentMsg = false;
+                
+                for (let i = allMessages.length - 1; i >= 0; i--) {
+                    if (allMessages[i] === msgElement) {
+                        foundCurrentMsg = true;
+                        continue;
+                    }
+                    
+                    if (foundCurrentMsg && allMessages[i].classList.contains('user')) {
+                        question = allMessages[i].textContent.replace(/Online$/, '').trim();
+                        break;
+                    }
+                }
+                
+                saveInteractionToHistory(content, new Date().toISOString(), question);
+            }
+        }
+        
+        function flagMessage(msgId) {
+            let content = '';
+            let question = 'Unknown';
+            
+            if (msgId.startsWith('history_')) {
+                const index = parseInt(msgId.split('_')[1]);
+                const historyItem = searchHistory[searchHistory.length - 1 - index];
+                content = historyItem.answer;
+                question = historyItem.question;
+            } else {
+                const msgElement = document.querySelector(`[data-msg-id="${msgId}"]`);
+                if (msgElement) {
+                    content = msgElement.textContent.replace(/Online$/, '').trim();
+                    
+                    // Get corresponding user message
+                    const allMessages = document.querySelectorAll('.msg');
+                    let foundCurrentMsg = false;
+                    
+                    for (let i = allMessages.length - 1; i >= 0; i--) {
+                        if (allMessages[i] === msgElement) {
+                            foundCurrentMsg = true;
+                            continue;
+                        }
+                        
+                        if (foundCurrentMsg && allMessages[i].classList.contains('user')) {
+                            question = allMessages[i].textContent.replace(/Online$/, '').trim();
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (content) {
+                const flaggedItem = {
+                    question: question,
+                    content: content,
+                    timestamp: new Date().toISOString(),
+                    flagged: true,
+                    reason: prompt('Reason for flagging (optional):') || 'No reason provided'
+                };
+                
+                flaggedMessages.push(flaggedItem);
+                localStorage.setItem('kanoonpk_flags', JSON.stringify(flaggedMessages));
+                
+                // Visual feedback
+                addMessage('🚩 Response flagged for review!', false);
+                
+                // Update the message visually
+                if (!msgId.startsWith('history_')) {
+                    const msgElement = document.querySelector(`[data-msg-id="${msgId}"]`);
+                    if (msgElement) {
+                        msgElement.style.borderLeft = '4px solid #dc3545';
+                        const flagBtn = msgElement.querySelector('.flag-btn');
+                        if (flagBtn) {
+                            flagBtn.style.background = '#dc3545';
+                            flagBtn.style.color = 'white';
+                        }
+                    }
+                }
+            }
+        }
+        
+        function reloadHistoryItem(index) {
+            const item = searchHistory[index];
+            if (item) {
+                // Add to current conversation
+                addMessage(item.question, true);
+                addMessage(item.answer, false);
+                
+                // Close sidebar
+                toggleHistorySidebar();
+            }
+        }
+        
+        function deleteHistoryItem(index) {
+            if (confirm('Delete this history item?')) {
+                searchHistory.splice(index, 1);
+                localStorage.setItem('kanoonpk_history', JSON.stringify(searchHistory));
+                loadHistoryContent();
+            }
+        }
+        
+        function clearAllHistory() {
+            if (confirm('Clear all search history? This cannot be undone.')) {
+                searchHistory = [];
+                localStorage.setItem('kanoonpk_history', JSON.stringify(searchHistory));
+                loadHistoryContent();
+            }
+        }
+        
+        // Auto-save interactions when AI responds
+        const originalSendMessage = sendMessage;
+        
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             checkAdminStatus();
@@ -3211,6 +3673,125 @@ def export_csv():
             })
     
     return send_file(filename, as_attachment=True)
+
+@app.route("/api/history", methods=["GET", "POST"])
+def api_history():
+    """Handle search history operations"""
+    if request.method == "GET":
+        # Return search history
+        try:
+            history_file = "logs/search_history.json"
+            if os.path.exists(history_file):
+                with open(history_file, "r") as f:
+                    history = json.load(f)
+                return jsonify({"history": history[-50:]})  # Return last 50 items
+            else:
+                return jsonify({"history": []})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    
+    elif request.method == "POST":
+        # Save interaction to history
+        try:
+            data = request.json
+            question = data.get("question")
+            answer = data.get("answer")
+            
+            if not question or not answer:
+                return jsonify({"error": "Question and answer are required"}), 400
+            
+            history_item = {
+                "question": question,
+                "answer": answer,
+                "timestamp": datetime.datetime.now().isoformat(),
+                "user_agent": request.headers.get("User-Agent", ""),
+                "ip_address": request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
+            }
+            
+            # Load existing history
+            os.makedirs("logs", exist_ok=True)
+            history_file = "logs/search_history.json"
+            
+            try:
+                with open(history_file, "r") as f:
+                    history = json.load(f)
+            except:
+                history = []
+            
+            # Add new item
+            history.append(history_item)
+            
+            # Keep only last 1000 items
+            if len(history) > 1000:
+                history = history[-1000:]
+            
+            # Save back to file
+            with open(history_file, "w") as f:
+                json.dump(history, f, indent=2)
+            
+            return jsonify({"message": "History saved successfully"})
+            
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+@app.route("/api/flags", methods=["GET", "POST"])
+def api_flags():
+    """Handle flagged messages operations"""
+    if request.method == "GET":
+        # Return flagged messages
+        try:
+            flags_file = "logs/flagged_messages.json"
+            if os.path.exists(flags_file):
+                with open(flags_file, "r") as f:
+                    flags = json.load(f)
+                return jsonify({"flags": flags[-100:]})  # Return last 100 items
+            else:
+                return jsonify({"flags": []})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    
+    elif request.method == "POST":
+        # Save flagged message
+        try:
+            data = request.json
+            content = data.get("content")
+            question = data.get("question", "Unknown")
+            reason = data.get("reason", "No reason provided")
+            
+            if not content:
+                return jsonify({"error": "Content is required"}), 400
+            
+            flagged_item = {
+                "question": question,
+                "content": content,
+                "reason": reason,
+                "timestamp": datetime.datetime.now().isoformat(),
+                "user_agent": request.headers.get("User-Agent", ""),
+                "ip_address": request.environ.get('HTTP_X_REAL_IP', request.remote_addr),
+                "status": "pending_review"
+            }
+            
+            # Load existing flags
+            os.makedirs("logs", exist_ok=True)
+            flags_file = "logs/flagged_messages.json"
+            
+            try:
+                with open(flags_file, "r") as f:
+                    flags = json.load(f)
+            except:
+                flags = []
+            
+            # Add new flag
+            flags.append(flagged_item)
+            
+            # Save back to file
+            with open(flags_file, "w") as f:
+                json.dump(flags, f, indent=2)
+            
+            return jsonify({"message": "Message flagged successfully"})
+            
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
