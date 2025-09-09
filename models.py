@@ -186,7 +186,7 @@ class UsageMetric(db.Model):
     # Metric details
     metric_type = db.Column(db.String(100), nullable=False)  # query, document_upload, api_call, storage_mb
     count = db.Column(db.Integer, default=1)
-    metadata = db.Column(db.JSON)  # Additional metric data
+    metric_data = db.Column(db.JSON)  # Additional metric data
     
     # Time tracking
     month_year = db.Column(db.String(7), nullable=False)  # Format: '2024-12'
@@ -357,7 +357,7 @@ def record_usage(tenant_id, user_id, metric_type, count=1, metadata=None):
     if existing_metric:
         existing_metric.count += count
         if metadata:
-            existing_metric.metadata = metadata
+            existing_metric.metric_data = metadata
     else:
         new_metric = UsageMetric(
             tenant_id=tenant_id,
@@ -365,7 +365,7 @@ def record_usage(tenant_id, user_id, metric_type, count=1, metadata=None):
             metric_type=metric_type,
             count=count,
             month_year=month_year,
-            metadata=metadata
+            metric_data=metadata
         )
         db.session.add(new_metric)
     
