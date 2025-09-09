@@ -1,7 +1,7 @@
 """
 SaaS Routes and API endpoints for KanoonPK Legal Research Platform
 """
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, g, session
+from flask import Blueprint, request, jsonify, render_template, render_template_string, redirect, url_for, flash, g, session
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
