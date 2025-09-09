@@ -230,18 +230,18 @@ def invite_user():
 # MAIN APPLICATION ROUTES
 # =============================================================================
 
-@main_bp.route('/')
-@require_tenant
-def home():
-    """Main chat interface"""
+@main_bp.route('/dashboard')
+@require_tenant  
+def dashboard():
+    """Main dashboard interface for authenticated users"""
     return render_template('saas/dashboard.html', 
                          tenant=g.tenant,
                          user=current_user if current_user.is_authenticated else None)
 
-@main_bp.route('/dashboard')
+@main_bp.route('/app')
 @login_required
 @require_tenant
-def dashboard():
+def app_dashboard():
     """User dashboard with analytics"""
     # Get user's usage statistics
     current_month = datetime.datetime.utcnow().strftime('%Y-%m')

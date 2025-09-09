@@ -99,9 +99,21 @@ def user_lookup_callback(_jwt_header, jwt_data):
 @app.before_request
 def load_tenant_context():
     """Load tenant context from subdomain and set up database schema"""
-    # Skip tenant loading for static files and certain endpoints
-    if request.endpoint and (request.endpoint.startswith('static') or 
-                            request.endpoint in ['auth.register_tenant', 'health', 'home', 'register_tenant_page', 'login_page']):
+    
+    # Debug logging
+    logger.debug(f"Request to endpoint: {request.endpoint}, path: {request.path}")
+    
+    # Skip tenant loading for ALL public routes and assets
+    if (request.path in ['/', '/health', '/api/features'] or 
+        request.path.startswith('/auth/') or 
+        request.path.startswith('/static/') or
+        request.endpoint in ['public_home', 'register_tenant_page', 'login_page', 'health', 'list_features']):
+        logger.debug(f"Skipping tenant loading for public route: {request.path}")
+        return
+    
+    # Only apply tenant logic for protected API routes
+    if not (request.path.startswith('/api/') and request.path not in ['/api/features']):
+        logger.debug(f"Skipping tenant loading for non-API route: {request.path}")
         return
     
     # Extract subdomain from host
@@ -127,11 +139,15 @@ def load_tenant_context():
             switch_tenant_schema(tenant.id)
             # Store in session for development
             session['tenant_subdomain'] = subdomain
+            logger.debug(f"Loaded tenant: {tenant.name}")
         else:
             # Tenant not found
-            if request.endpoint not in ['auth.login', 'auth.register']:
-                return jsonify({'error': 'Tenant not found'}), 404
-    # If no subdomain, allow to proceed to landing page
+            logger.error(f"Tenant not found for subdomain: {subdomain}")
+            return jsonify({'error': 'Tenant not found'}), 404
+    else:
+        # No subdomain for API routes - require tenant context
+        logger.error(f"No tenant context for API route: {request.path}")
+        return jsonify({'error': 'No tenant context'}), 400
 
 def require_tenant(f):
     """Decorator to ensure request has valid tenant context"""
