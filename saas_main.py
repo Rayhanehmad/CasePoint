@@ -35,6 +35,10 @@ def create_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(main_bp)
     
+    # Register chat interface
+    from chat_interface import chat_bp
+    app.register_blueprint(chat_bp)
+    
     # Initialize database migration
     migrate = Migrate(app, db)
     
