@@ -123,6 +123,41 @@ def chat_interface():
                 border-radius: 20px;
                 line-height: 1.5;
                 font-size: 0.95rem;
+                position: relative;
+                cursor: pointer;
+                user-select: text;
+            }
+            
+            .message-content:hover {
+                background: rgba(255,255,255,0.05);
+            }
+            
+            .copy-btn {
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                background: rgba(0,0,0,0.7);
+                border: none;
+                border-radius: 5px;
+                padding: 5px 8px;
+                color: white;
+                font-size: 0.8rem;
+                opacity: 0;
+                transition: opacity 0.3s;
+                cursor: pointer;
+                z-index: 100;
+            }
+            
+            .message-content:hover .copy-btn {
+                opacity: 1;
+            }
+            
+            .copy-btn:hover {
+                background: rgba(0,0,0,0.9);
+            }
+            
+            .copy-success {
+                background: #28a745 !important;
             }
             
             .message.user .message-content {
@@ -417,6 +452,31 @@ def chat_interface():
                 messageContent.className = 'message-content';
                 messageContent.innerHTML = formatMessage(content);
                 
+                // Add copy button
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-btn';
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                copyBtn.title = 'Copy message';
+                copyBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    copyMessage(content, copyBtn);
+                };
+                
+                messageContent.appendChild(copyBtn);
+                
+                // Add long press for mobile
+                let pressTimer;
+                messageContent.addEventListener('touchstart', function(e) {
+                    pressTimer = setTimeout(() => {
+                        copyMessage(content, copyBtn);
+                        navigator.vibrate && navigator.vibrate(50); // Haptic feedback
+                    }, 800);
+                });
+                
+                messageContent.addEventListener('touchend', function() {
+                    clearTimeout(pressTimer);
+                });
+                
                 messageDiv.appendChild(avatar);
                 messageDiv.appendChild(messageContent);
                 
@@ -425,6 +485,52 @@ def chat_interface():
                 
                 // Scroll to bottom
                 chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            function copyMessage(content, button) {
+                // Remove HTML tags for clean text copy
+                const cleanText = content.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
+                
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(cleanText).then(() => {
+                        showCopySuccess(button);
+                    }).catch(() => {
+                        fallbackCopy(cleanText, button);
+                    });
+                } else {
+                    fallbackCopy(cleanText, button);
+                }
+            }
+            
+            function fallbackCopy(text, button) {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    showCopySuccess(button);
+                } catch (err) {
+                    console.error('Copy failed:', err);
+                }
+                
+                document.body.removeChild(textArea);
+            }
+            
+            function showCopySuccess(button) {
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                button.classList.add('copy-success');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('copy-success');
+                }, 2000);
             }
             
             function formatMessage(content) {
@@ -498,15 +604,14 @@ When answering legal questions about Pakistan:
 For all other topics, respond exactly as regular ChatGPT would - be helpful, accurate, creative, and engaging. You can discuss any topic with the same quality and depth as standard ChatGPT."""
 
         # Generate response using OpenAI with optimal settings
-        # the newest OpenAI model is "gpt-5" which was released August 7, 2025.
-        # do not change this unless explicitly requested by the user
+        # Using GPT-4 for reliable responses with correct parameters
         response = client.chat.completions.create(
-            model="gpt-5",  # Latest and most capable model
+            model="gpt-4o",  # Reliable and high-quality model
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message}
             ],
-            max_tokens=2000,  # Increased for more comprehensive responses
+            max_tokens=2000,  # Comprehensive responses
             temperature=0.7,  # Balanced for accuracy and natural conversation
             top_p=0.9,  # Better response quality
             frequency_penalty=0.1,  # Reduce repetition

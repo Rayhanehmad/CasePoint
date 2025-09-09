@@ -1409,7 +1409,12 @@ def public_home():
                 } catch (error) {
                     console.error('Registration error:', error);
                     submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Try Again';
-                    alert('Setup failed: ' + error.message + '. Please try again.');
+                    
+                    let errorMessage = 'Setup failed. Please try again.';
+                    if (error.message && error.message.includes('already')) {
+                        errorMessage = 'This email or organization name is already registered. Please try different details.';
+                    }
+                    alert(errorMessage);
                 } finally {
                     setTimeout(() => {
                         submitBtn.disabled = false;
