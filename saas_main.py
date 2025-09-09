@@ -67,8 +67,8 @@ def create_app():
     def login_page():
         return render_template_string(render_template_content('auth/login.html'))
     
-    # Override the main route to use our custom dashboard
-    @app.route('/')
+    # Override the main route to use our custom dashboard  
+    @app.route('/', endpoint='public_home')
     def home():
         from flask import g
         from flask_login import current_user
