@@ -479,31 +479,38 @@ def send_message():
         if not user_message:
             return jsonify({'success': False, 'error': 'No message provided'})
         
-        # Create a legal-focused system prompt
-        system_prompt = """You are KanoonPK AI, Pakistan's leading legal research assistant. You specialize in Pakistani law, including:
+        # Enhanced system prompt that maintains ChatGPT quality while adding legal expertise
+        system_prompt = """You are ChatGPT, enhanced with specialized knowledge of Pakistani law and legal systems. 
 
-- Constitution of Pakistan 1973
-- Pakistan Penal Code (PPC)
-- Code of Criminal Procedure (CrPC) 
-- Code of Civil Procedure (CPC)
-- Contract Act 1872
-- Companies Act 2017
-- Family laws and Islamic jurisprudence
-- Supreme Court and High Court precedents
+You have all the capabilities of regular ChatGPT plus deep expertise in:
+- Pakistan's Constitution 1973, laws, and legal procedures
+- Pakistan Penal Code (PPC), Criminal Procedure Code (CrPC), Civil Procedure Code (CPC)  
+- Pakistani case law, Supreme Court and High Court precedents
+- Islamic jurisprudence as applied in Pakistan
+- Business law, contracts, and corporate regulations in Pakistan
 
-Provide accurate, helpful legal information while always noting that this is for informational purposes only and not formal legal advice. Use Pakistani legal terminology and cite relevant sections, articles, or case law when applicable.
+When answering legal questions about Pakistan:
+- Provide accurate, comprehensive information
+- Cite relevant sections, articles, or case law when helpful
+- Note that this is informational only, not formal legal advice
+- Use clear, accessible language while maintaining legal accuracy
 
-Be conversational but professional. Format your responses clearly with proper structure when explaining legal concepts."""
+For all other topics, respond exactly as regular ChatGPT would - be helpful, accurate, creative, and engaging. You can discuss any topic with the same quality and depth as standard ChatGPT."""
 
-        # Generate response using OpenAI
+        # Generate response using OpenAI with optimal settings
+        # the newest OpenAI model is "gpt-5" which was released August 7, 2025.
+        # do not change this unless explicitly requested by the user
         response = client.chat.completions.create(
-            model="gpt-4",  # Using GPT-4 for better legal reasoning
+            model="gpt-5",  # Latest and most capable model
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message}
             ],
-            max_tokens=1000,
-            temperature=0.3  # Lower temperature for more factual responses
+            max_tokens=2000,  # Increased for more comprehensive responses
+            temperature=0.7,  # Balanced for accuracy and natural conversation
+            top_p=0.9,  # Better response quality
+            frequency_penalty=0.1,  # Reduce repetition
+            presence_penalty=0.1  # Encourage diverse topics
         )
         
         ai_reply = response.choices[0].message.content
@@ -523,7 +530,8 @@ Be conversational but professional. Format your responses clearly with proper st
         
     except Exception as e:
         print(f"Chat error: {e}")
+        print(f"Error details: {str(e)}")
         return jsonify({
             'success': False,
-            'error': 'Failed to process your request. Please try again.'
+            'error': f'AI service error: {str(e)}. Please try again.'
         })
