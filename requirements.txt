@@ -13,3 +13,4 @@ flask-login
 flask-migrate
 flask-sqlalchemy
 sqlalchemy
+openai
