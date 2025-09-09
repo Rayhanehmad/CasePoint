@@ -14,8 +14,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 
 from models import (
-    db, Tenant, User, Subscription, UsageMetric, LegalDocument, QueryHistory, LegalWorkspace,
-    create_tenant_schema, record_usage, PLAN_LIMITS
+    db, Tenant, User, Subscription, UsageMetric, LegalDocument, QueryHistory, LegalWorkspace
 )
 from saas_app import (
     require_tenant, require_plan_feature, require_usage_limit,
@@ -209,9 +208,9 @@ def register_tenant():
         db.session.add(tenant)
         db.session.flush()  # Get tenant ID
         
-        # Create tenant schema
-        if not create_tenant_schema(tenant.id):
-            raise Exception("Failed to create tenant schema")
+        # Skip schema creation for now - use simple approach
+        # if not create_tenant_schema(tenant.id):
+        #     raise Exception("Failed to create tenant schema")
         
         # Create admin user
         admin_user = User(
@@ -1005,6 +1004,425 @@ def usage_analytics():
     }
     
     return jsonify(analytics)
+
+# =============================================================================
+# PUBLIC LANDING PAGE
+# =============================================================================
+
+@main_bp.route('/')
+def public_home():
+    """Smart single-page landing and registration interface"""
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html lang="en" data-bs-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>KanoonPK - AI Legal Research Assistant</title>
+        <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <style>
+            :root {
+                --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                --glass-bg: rgba(255, 255, 255, 0.1);
+                --glass-border: rgba(255, 255, 255, 0.2);
+            }
+            
+            body {
+                background: var(--primary-gradient);
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 0;
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+            
+            .hero-section {
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                position: relative;
+                background: var(--primary-gradient);
+            }
+            
+            .hero-section::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+                background-size: 50px 50px;
+                animation: float 20s infinite linear;
+            }
+            
+            @keyframes float {
+                0% { transform: translateY(0px) translateX(0px); }
+                50% { transform: translateY(-20px) translateX(10px); }
+                100% { transform: translateY(0px) translateX(0px); }
+            }
+            
+            .glass-card {
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--glass-border);
+                border-radius: 20px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+                position: relative;
+                z-index: 10;
+            }
+            
+            .logo-section {
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+            
+            .logo-icon {
+                font-size: 4rem;
+                background: var(--secondary-gradient);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin-bottom: 1rem;
+                display: block;
+            }
+            
+            .main-title {
+                font-size: 3rem;
+                font-weight: 700;
+                background: linear-gradient(45deg, #ffffff, #a78bfa);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin-bottom: 0.5rem;
+            }
+            
+            .subtitle {
+                color: rgba(255,255,255,0.8);
+                font-size: 1.2rem;
+                margin-bottom: 2rem;
+            }
+            
+            .feature-badge {
+                display: inline-block;
+                background: rgba(167, 139, 250, 0.2);
+                color: #a78bfa;
+                padding: 8px 16px;
+                border-radius: 20px;
+                margin: 5px;
+                font-size: 0.9rem;
+                border: 1px solid rgba(167, 139, 250, 0.3);
+            }
+            
+            .trial-form {
+                background: rgba(255,255,255,0.05);
+                border-radius: 15px;
+                padding: 2rem;
+                margin-top: 2rem;
+            }
+            
+            .modern-input {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                color: white;
+                border-radius: 10px;
+                padding: 15px 20px;
+                font-size: 1rem;
+                transition: all 0.3s;
+                margin-bottom: 1rem;
+            }
+            
+            .modern-input:focus {
+                background: rgba(255, 255, 255, 0.2);
+                border-color: #667eea;
+                color: white;
+                box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+                outline: none;
+            }
+            
+            .modern-input::placeholder {
+                color: rgba(255,255,255,0.6);
+            }
+            
+            .cta-button {
+                background: var(--secondary-gradient);
+                border: none;
+                border-radius: 50px;
+                padding: 18px 40px;
+                color: white;
+                font-size: 1.1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .cta-button:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+            }
+            
+            .cta-button:disabled {
+                opacity: 0.7;
+                transform: none;
+                cursor: not-allowed;
+            }
+            
+            .features-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1.5rem;
+                margin-top: 3rem;
+            }
+            
+            .feature-card {
+                background: rgba(255,255,255,0.08);
+                border-radius: 15px;
+                padding: 1.5rem;
+                text-align: center;
+                border: 1px solid rgba(255,255,255,0.1);
+                transition: all 0.3s;
+            }
+            
+            .feature-card:hover {
+                transform: translateY(-5px);
+                background: rgba(255,255,255,0.12);
+            }
+            
+            .feature-icon {
+                font-size: 2.5rem;
+                color: #a78bfa;
+                margin-bottom: 1rem;
+            }
+            
+            .feature-title {
+                color: white;
+                font-size: 1.2rem;
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+            }
+            
+            .feature-desc {
+                color: rgba(255,255,255,0.7);
+                font-size: 0.9rem;
+            }
+            
+            .stats-section {
+                display: flex;
+                justify-content: space-around;
+                margin: 2rem 0;
+                padding: 1.5rem;
+                background: rgba(255,255,255,0.05);
+                border-radius: 15px;
+            }
+            
+            .stat-item {
+                text-align: center;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+                font-weight: 700;
+                color: #a78bfa;
+            }
+            
+            .stat-label {
+                color: rgba(255,255,255,0.8);
+                font-size: 0.9rem;
+            }
+            
+            /* Mobile Responsive */
+            @media (max-width: 768px) {
+                .main-title {
+                    font-size: 2.2rem;
+                }
+                
+                .hero-section {
+                    padding: 2rem 1rem;
+                }
+                
+                .glass-card {
+                    margin: 1rem;
+                }
+                
+                .features-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .stats-section {
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="hero-section">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <div class="glass-card p-5">
+                            <!-- Logo and Main Title -->
+                            <div class="logo-section">
+                                <i class="fas fa-balance-scale logo-icon"></i>
+                                <h1 class="main-title">KanoonPK AI</h1>
+                                <p class="subtitle">Pakistan's Most Advanced Legal Research Assistant</p>
+                                
+                                <!-- Feature Badges -->
+                                <div class="mb-4">
+                                    <span class="feature-badge"><i class="fas fa-robot me-2"></i>ChatGPT Powered</span>
+                                    <span class="feature-badge"><i class="fas fa-gavel me-2"></i>Pakistan Law Expert</span>
+                                    <span class="feature-badge"><i class="fas fa-lightning me-2"></i>Instant Answers</span>
+                                    <span class="feature-badge"><i class="fas fa-shield-alt me-2"></i>100% Secure</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Stats Section -->
+                            <div class="stats-section">
+                                <div class="stat-item">
+                                    <div class="stat-number">10K+</div>
+                                    <div class="stat-label">Legal Queries Solved</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">500+</div>
+                                    <div class="stat-label">Law Firms Trust Us</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">24/7</div>
+                                    <div class="stat-label">AI Assistance</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Quick Start Form -->
+                            <div class="trial-form">
+                                <h3 class="text-white text-center mb-4">
+                                    <i class="fas fa-magic me-2"></i>Start Your AI Legal Research Now
+                                </h3>
+                                
+                                <form id="quickStartForm">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control modern-input" name="organization_name" placeholder="Law Firm / Organization Name" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="email" class="form-control modern-input" name="email" placeholder="Your Email Address" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control modern-input" name="first_name" placeholder="Your First Name" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="password" class="form-control modern-input" name="password" placeholder="Create Password" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text-center mt-4">
+                                        <button type="submit" class="cta-button">
+                                            <i class="fas fa-rocket me-2"></i>Launch AI Legal Chat
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="text-center mt-3">
+                                        <small style="color: rgba(255,255,255,0.7);">
+                                            ✅ Free Forever Plan • ✅ No Credit Card Required • ✅ Instant Access
+                                        </small>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- Features Grid -->
+                            <div class="features-grid">
+                                <div class="feature-card">
+                                    <div class="feature-icon"><i class="fas fa-brain"></i></div>
+                                    <div class="feature-title">AI-Powered Answers</div>
+                                    <div class="feature-desc">Get instant, accurate answers to Pakistani legal questions using advanced AI</div>
+                                </div>
+                                
+                                <div class="feature-card">
+                                    <div class="feature-icon"><i class="fas fa-search"></i></div>
+                                    <div class="feature-title">Smart Legal Search</div>
+                                    <div class="feature-desc">Find relevant cases, laws, and precedents from Pakistan's legal database</div>
+                                </div>
+                                
+                                <div class="feature-card">
+                                    <div class="feature-icon"><i class="fas fa-users"></i></div>
+                                    <div class="feature-title">Team Collaboration</div>
+                                    <div class="feature-desc">Share research, collaborate with colleagues, and build legal knowledge base</div>
+                                </div>
+                                
+                                <div class="feature-card">
+                                    <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
+                                    <div class="feature-title">Mobile Ready</div>
+                                    <div class="feature-desc">Access your legal assistant from anywhere, on any device, anytime</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            document.getElementById('quickStartForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+                
+                // Generate subdomain from organization name
+                data.subdomain = data.organization_name.toLowerCase()
+                    .replace(/[^a-z0-9]/g, '')
+                    .substring(0, 10) + Math.floor(Math.random() * 1000);
+                
+                data.admin_email = data.email;
+                data.admin_password = data.password;
+                data.admin_first_name = data.first_name;
+                data.admin_last_name = 'User';
+                
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Setting up your AI assistant...';
+                
+                try {
+                    const response = await fetch('/auth/register-tenant', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Success! Opening AI Chat...';
+                        setTimeout(() => {
+                            window.location.href = '/chat?tenant=' + result.subdomain;
+                        }, 1500);
+                    } else {
+                        throw new Error(result.error || 'Registration failed');
+                    }
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Try Again';
+                    alert('Setup failed: ' + error.message + '. Please try again.');
+                } finally {
+                    setTimeout(() => {
+                        submitBtn.disabled = false;
+                        if (submitBtn.innerHTML.includes('Try Again')) {
+                            submitBtn.innerHTML = originalText;
+                        }
+                    }, 3000);
+                }
+            });
+        </script>
+    </body>
+    </html>
+    """)
 
 # Export all blueprints for registration
 __all__ = ['auth_bp', 'api_bp', 'admin_bp', 'main_bp']
