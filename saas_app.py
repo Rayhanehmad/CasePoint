@@ -101,7 +101,7 @@ def load_tenant_context():
     """Load tenant context from subdomain and set up database schema"""
     # Skip tenant loading for static files and certain endpoints
     if request.endpoint and (request.endpoint.startswith('static') or 
-                            request.endpoint in ['auth.register_tenant', 'health']):
+                            request.endpoint in ['auth.register_tenant', 'health', 'home', 'register_tenant_page', 'login_page']):
         return
     
     # Extract subdomain from host
@@ -109,7 +109,7 @@ def load_tenant_context():
     subdomain = None
     
     # Handle localhost and development
-    if 'localhost' in host or '127.0.0.1' in host:
+    if 'localhost' in host or '127.0.0.1' in host or '0.0.0.0' in host:
         # For development, use subdomain from query param or session
         subdomain = request.args.get('tenant') or session.get('tenant_subdomain')
     else:
@@ -131,6 +131,7 @@ def load_tenant_context():
             # Tenant not found
             if request.endpoint not in ['auth.login', 'auth.register']:
                 return jsonify({'error': 'Tenant not found'}), 404
+    # If no subdomain, allow to proceed to landing page
 
 def require_tenant(f):
     """Decorator to ensure request has valid tenant context"""

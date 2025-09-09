@@ -73,7 +73,7 @@ def create_app():
         from flask import g
         from flask_login import current_user
         
-        # If no tenant context, redirect to registration
+        # If no tenant context, show landing page
         if not hasattr(g, 'tenant'):
             return render_template_string("""
             <!DOCTYPE html>
@@ -84,22 +84,152 @@ def create_app():
                 <title>KanoonPK SaaS - Legal Research Platform</title>
                 <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+                <style>
+                    .hero-section {
+                        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+                        min-height: 100vh;
+                        display: flex;
+                        align-items: center;
+                    }
+                    .feature-card {
+                        transition: transform 0.2s;
+                        border: none;
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    }
+                    .feature-card:hover {
+                        transform: translateY(-5px);
+                    }
+                </style>
             </head>
             <body>
-                <div class="container-fluid vh-100 d-flex align-items-center" 
-                     style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
-                    <div class="row w-100 text-center text-white">
-                        <div class="col">
-                            <i class="fas fa-balance-scale fa-5x mb-4"></i>
-                            <h1 class="display-4 mb-3">KanoonPK SaaS</h1>
-                            <p class="lead mb-4">AI-Powered Legal Research Platform for Pakistan Law</p>
-                            <div>
-                                <a href="/auth/register-tenant" class="btn btn-primary btn-lg me-3">
-                                    <i class="fas fa-building me-2"></i>Register Organization
-                                </a>
-                                <a href="/auth/login" class="btn btn-outline-light btn-lg">
-                                    <i class="fas fa-sign-in-alt me-2"></i>Login
-                                </a>
+                <div class="hero-section">
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col-lg-6 text-white">
+                                <i class="fas fa-balance-scale fa-5x mb-4"></i>
+                                <h1 class="display-3 fw-bold mb-3">KanoonPK SaaS</h1>
+                                <h2 class="h4 mb-4">AI-Powered Legal Research Platform for Pakistan Law</h2>
+                                <p class="lead mb-5">Transform your legal research with Pakistan's most advanced AI-powered platform. Multi-tenant architecture for law firms, legal departments, and legal professionals.</p>
+                                <div class="d-flex gap-3 flex-wrap">
+                                    <a href="/auth/register-tenant" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-building me-2"></i>Start Free Trial
+                                    </a>
+                                    <a href="/auth/login" class="btn btn-outline-light btn-lg">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 mt-5 mt-lg-0">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="card feature-card h-100 bg-light">
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                                                <h5>Advanced Legal Search</h5>
+                                                <p class="text-muted small">AI-powered search through Pakistan legal database with smart filters</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card feature-card h-100 bg-light">
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-users fa-3x text-success mb-3"></i>
+                                                <h5>Team Collaboration</h5>
+                                                <p class="text-muted small">Shared workspaces for collaborative legal research</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card feature-card h-100 bg-light">
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-gavel fa-3x text-warning mb-3"></i>
+                                                <h5>Precedent Analysis</h5>
+                                                <p class="text-muted small">Find similar cases and legal precedents automatically</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card feature-card h-100 bg-light">
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-chart-line fa-3x text-info mb-3"></i>
+                                                <h5>Usage Analytics</h5>
+                                                <p class="text-muted small">Track research patterns and team productivity</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Plans Section -->
+                        <div class="row mt-5 pt-5">
+                            <div class="col-12 text-center text-white mb-4">
+                                <h3>Choose Your Plan</h3>
+                                <p class="lead">Flexible pricing for every organization size</p>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card">
+                                    <div class="card-header bg-secondary text-white text-center">
+                                        <h5>Free</h5>
+                                        <h6>$0/month</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled">
+                                            <li>✓ 100 queries/month</li>
+                                            <li>✓ 10 documents</li>
+                                            <li>✓ 1 user</li>
+                                            <li>✓ Basic search</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card border-primary">
+                                    <div class="card-header bg-primary text-white text-center">
+                                        <h5>Lawyer</h5>
+                                        <h6>$29/month</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled">
+                                            <li>✓ 1,000 queries/month</li>
+                                            <li>✓ 100 documents</li>
+                                            <li>✓ 3 users</li>
+                                            <li>✓ Advanced search & precedents</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card">
+                                    <div class="card-header bg-success text-white text-center">
+                                        <h5>Firm</h5>
+                                        <h6>$99/month</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled">
+                                            <li>✓ 5,000 queries/month</li>
+                                            <li>✓ 500 documents</li>
+                                            <li>✓ 15 users</li>
+                                            <li>✓ Team analytics & API</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card">
+                                    <div class="card-header bg-warning text-dark text-center">
+                                        <h5>Enterprise</h5>
+                                        <h6>Custom</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled">
+                                            <li>✓ Unlimited queries</li>
+                                            <li>✓ Unlimited documents</li>
+                                            <li>✓ Unlimited users</li>
+                                            <li>✓ Custom integrations</li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -138,10 +268,9 @@ def create_app():
                 plan_limits=PLAN_LIMITS[g.tenant.plan]
             )
         else:
-            # Redirect to login
-            return render_template_string("""
-            <script>window.location.href = '/auth/login';</script>
-            """)
+            # Redirect to login for existing tenant
+            from flask import redirect, url_for
+            return redirect(url_for('auth.login'))
     
     # =============================================================================
     # HEALTH CHECK AND STATUS ENDPOINTS

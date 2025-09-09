@@ -1,8 +1,8 @@
-# KanoonPK - AI Legal Research Assistant
+# KanoonPK - Multi-Tenant SaaS Legal Research Platform
 
 ## Overview
 
-KanoonPK is an AI-powered legal research assistant specifically designed for Pakistan law. The application provides an intelligent chat interface where users can ask legal questions and receive answers based on Pakistani laws, case references, and uploaded legal documents. The system combines OpenAI's GPT models with ChromaDB vector search to deliver contextually relevant legal information with proper citations.
+KanoonPK has been transformed into a comprehensive multi-tenant SaaS platform specifically designed for Pakistan law research. The platform provides intelligent legal research capabilities for law firms, legal departments, and legal professionals. Each organization gets their own isolated workspace with advanced AI-powered research tools, document management, team collaboration, and usage analytics. The system combines OpenAI's GPT models with ChromaDB vector search to deliver contextually relevant legal information with proper citations and precedent analysis.
 
 ## User Preferences
 
@@ -10,43 +10,67 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
+### Multi-Tenant SaaS Architecture
+- **Tenant Isolation**: Schema-per-tenant approach for strict data separation
+- **Subdomain Routing**: Automatic tenant detection via subdomain (tenant.kanoonpk.com)
+- **Resource Isolation**: Each tenant gets isolated database schema and document storage
+- **Plan-Based Access**: Feature and usage limits based on subscription tiers
+
+### Authentication & Authorization System
+- **JWT Authentication**: Secure token-based authentication with tenant context
+- **Role-Based Access**: Owner, Admin, Member, Viewer roles with granular permissions
+- **Multi-User Support**: Team collaboration within organizations
+- **Session Management**: Secure session handling with tenant isolation
+
 ### Frontend Architecture
-- **Web Interface**: Bootstrap-based responsive design with dark theme
-- **Chat System**: Real-time messaging interface with JavaScript for dynamic interactions
-- **File Management**: Document upload interface for legal document ingestion
-- **History Tracking**: Search history display with previous queries and responses
-- **PDF Generation**: Client-side PDF download functionality for chat sessions
+- **Modern UI**: Bootstrap-based responsive dashboard with dark theme
+- **Multi-Tab Interface**: Dashboard, Research, Documents, Workspaces, Analytics
+- **Real-Time Chat**: Enhanced legal research chat with advanced filters
+- **Collaborative Tools**: Shared workspaces and team research features
+- **Usage Monitoring**: Real-time display of plan limits and current usage
 
 ### Backend Architecture
-- **Framework**: Flask web application with RESTful API design
-- **Route Structure**: Modular routing for chat, admin, and history functionalities
-- **Session Management**: Flask sessions for user state management
-- **File Processing**: Multi-format document parser supporting PDF and DOCX files
-- **Error Handling**: Comprehensive logging and error management system
+- **Modular Design**: Separate blueprints for auth, API, admin, and main routes
+- **RESTful APIs**: Comprehensive API for all platform functionality
+- **Middleware Stack**: Tenant resolution, authentication, and authorization layers
+- **Error Handling**: Comprehensive error handling with proper HTTP status codes
 
-### AI Integration
-- **Language Model**: OpenAI GPT-5 for natural language processing and legal query responses
-- **Embedding Model**: OpenAI text-embedding-3-small for document vectorization
-- **Prompt Engineering**: Specialized legal system prompt for Pakistan law focus
-- **Context Retrieval**: Similarity search for relevant document chunks
+### Enhanced Legal Research Engine
+- **Pakistan Law Filters**: Jurisdiction, legal area, document type, court level filtering
+- **Advanced Search**: Vector similarity search with metadata filtering
+- **Citation Extraction**: Automatic Pakistan legal citation recognition (PLD, SCMR, CLR, etc.)
+- **Precedent Analysis**: AI-powered similar case and precedent identification
+- **Confidence Scoring**: Relevance confidence scores for search results
 
-### Data Storage Solutions
-- **Vector Database**: ChromaDB persistent storage for document embeddings and semantic search
-- **File Storage**: Local filesystem storage for uploaded legal documents
-- **Collection Management**: Single "kanoonpk" collection for all legal document vectors
-- **Document Chunking**: Text segmentation for optimal retrieval and context management
+### Multi-Tenant Data Architecture
+- **Public Schema**: Shared tenant, user, subscription, and usage data
+- **Tenant Schemas**: Isolated legal documents, queries, and workspaces per tenant
+- **PostgreSQL Database**: Full ACID compliance with advanced indexing
+- **Vector Storage**: Tenant-isolated ChromaDB collections for document embeddings
 
-### Document Processing Pipeline
-- **Multi-format Support**: PDF and DOCX document parsing capabilities
-- **Text Extraction**: PyPDF2 and python-docx libraries for content extraction
-- **Chunking Strategy**: Document segmentation for embedding storage
-- **Metadata Handling**: File information and source tracking for citations
+### Subscription & Usage Management
+- **Multiple Plans**: Free, Lawyer, Firm, Enterprise tiers with different limits
+- **Usage Tracking**: Real-time monitoring of queries, documents, storage, users
+- **Billing Integration**: Stripe-ready subscription management infrastructure
+- **Limit Enforcement**: Automatic enforcement of plan-based usage limits
 
-### Security and Configuration
-- **Environment Variables**: Secure API key management for OpenAI integration
-- **File Upload Limits**: 16MB maximum file size restriction
-- **Secure Filenames**: Werkzeug secure filename handling
-- **Session Security**: Flask secret key configuration for session protection
+### Document Management System
+- **Multi-Format Processing**: Enhanced PDF, DOCX, TXT processing with metadata extraction
+- **Legal Classification**: Automatic document type and legal area classification
+- **Jurisdiction Detection**: Pakistan court and jurisdiction identification
+- **Advanced Chunking**: Optimized text segmentation for better search results
+
+### Collaboration Features
+- **Legal Workspaces**: Shared research environments for teams
+- **Query Sharing**: Save and share research queries across team members
+- **Document Bookmarking**: Collaborative document organization and annotation
+- **Team Analytics**: Usage patterns and research insights for teams
+
+### Security & Compliance
+- **Data Isolation**: Complete separation between tenant data
+- **Secure Authentication**: JWT tokens with tenant claims and role validation
+- **File Security**: Secure upload handling with virus scanning capabilities
+- **Audit Logging**: Comprehensive audit trails for all user actions
 
 ## External Dependencies
 
