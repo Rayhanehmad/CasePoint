@@ -204,8 +204,7 @@ def register_tenant():
         tenant = Tenant(
             name=data['organization_name'],
             subdomain=data['subdomain'].lower(),
-            plan='free',
-            **PLAN_LIMITS['free']
+            plan='free'
         )
         db.session.add(tenant)
         db.session.flush()  # Get tenant ID
