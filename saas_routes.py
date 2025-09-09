@@ -39,7 +39,147 @@ main_bp = Blueprint('main', __name__)
 def register_tenant():
     """Register new tenant organization"""
     if request.method == 'GET':
-        return render_template('auth/register_tenant.html')
+        return render_template_string("""
+        <!DOCTYPE html>
+        <html lang="en" data-bs-theme="dark">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Start Free Trial - KanoonPK</title>
+            <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+            <style>
+                .gradient-bg {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    min-height: 100vh;
+                }
+                .glass-card {
+                    background: rgba(255, 255, 255, 0.1);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 20px;
+                }
+                .modern-input {
+                    background: rgba(255, 255, 255, 0.1);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    color: white;
+                }
+                .modern-input:focus {
+                    background: rgba(255, 255, 255, 0.2);
+                    border-color: #667eea;
+                    color: white;
+                    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+                }
+                .modern-btn {
+                    background: linear-gradient(45deg, #667eea, #764ba2);
+                    border: none;
+                    border-radius: 10px;
+                    padding: 12px 30px;
+                    font-weight: 600;
+                    transition: all 0.3s;
+                }
+                .modern-btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+                }
+            </style>
+        </head>
+        <body>
+            <div class="gradient-bg d-flex align-items-center">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-md-8 col-lg-6">
+                            <div class="glass-card p-5">
+                                <div class="text-center mb-4">
+                                    <i class="fas fa-robot fa-3x text-light mb-3"></i>
+                                    <h2 class="text-white">Start Your AI Legal Research</h2>
+                                    <p class="text-light">Get instant access to Pakistan's most advanced legal AI</p>
+                                </div>
+
+                                <form id="quickStartForm">
+                                    <div class="mb-3">
+                                        <label class="form-label text-light">Organization Name</label>
+                                        <input type="text" class="form-control modern-input" name="organization_name" placeholder="Your Law Firm" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label text-light">Your Email</label>
+                                        <input type="email" class="form-control modern-input" name="email" placeholder="lawyer@firm.com" required>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label class="form-label text-light">Password</label>
+                                        <input type="password" class="form-control modern-input" name="password" placeholder="••••••••" required>
+                                    </div>
+
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn modern-btn btn-lg text-white">
+                                            <i class="fas fa-magic me-2"></i>Start Legal AI Chat
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <div class="text-center mt-4">
+                                    <small class="text-light">
+                                        Already have an account? 
+                                        <a href="/auth/login" class="text-decoration-none" style="color: #a78bfa;">Login here</a>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                document.getElementById('quickStartForm').addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData.entries());
+                    
+                    // Generate a simple subdomain from organization name
+                    data.subdomain = data.organization_name.toLowerCase()
+                        .replace(/[^a-z0-9]/g, '')
+                        .substring(0, 10) + Math.floor(Math.random() * 1000);
+                    
+                    data.admin_email = data.email;
+                    data.admin_password = data.password;
+                    data.admin_first_name = 'User';
+                    data.admin_last_name = 'Admin';
+                    
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Setting up your AI...';
+                    
+                    try {
+                        const response = await fetch('/auth/register-tenant', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            // Redirect to chat interface
+                            window.location.href = '/chat?tenant=' + result.subdomain;
+                        } else {
+                            alert('Setup failed: ' + result.error);
+                        }
+                    } catch (error) {
+                        alert('Setup failed. Please try again.');
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                });
+            </script>
+        </body>
+        </html>
+        """)
     
     data = request.get_json() if request.is_json else request.form
     
@@ -117,7 +257,95 @@ def register_tenant():
 def login():
     """User login"""
     if request.method == 'GET':
-        return render_template('auth/login.html')
+        return render_template_string("""
+        <!DOCTYPE html>
+        <html lang="en" data-bs-theme="dark">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Login - KanoonPK AI</title>
+            <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+            <style>
+                .gradient-bg {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    min-height: 100vh;
+                }
+                .glass-card {
+                    background: rgba(255, 255, 255, 0.1);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 20px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="gradient-bg d-flex align-items-center">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6 col-lg-4">
+                            <div class="glass-card p-5">
+                                <div class="text-center mb-4">
+                                    <i class="fas fa-brain fa-3x text-light mb-3"></i>
+                                    <h4 class="text-white">Welcome Back</h4>
+                                    <p class="text-light">Access your Legal AI Assistant</p>
+                                </div>
+
+                                <form id="loginForm">
+                                    <div class="mb-3">
+                                        <input type="email" class="form-control bg-light" name="email" placeholder="Email Address" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <input type="password" class="form-control bg-light" name="password" placeholder="Password" required>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="fas fa-sign-in-alt me-2"></i>Access AI Chat
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <div class="text-center mt-4">
+                                    <small class="text-light">
+                                        Need an account? 
+                                        <a href="/auth/register-tenant" class="text-decoration-none" style="color: #a78bfa;">Start Free Trial</a>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData.entries());
+                    
+                    try {
+                        const response = await fetch('/auth/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            localStorage.setItem('access_token', result.access_token);
+                            window.location.href = '/chat';
+                        } else {
+                            alert('Login failed: ' + result.error);
+                        }
+                    } catch (error) {
+                        alert('Login failed. Please try again.');
+                    }
+                });
+            </script>
+        </body>
+        </html>
+        """)
     
     data = request.get_json() if request.is_json else request.form
     email = data.get('email')
