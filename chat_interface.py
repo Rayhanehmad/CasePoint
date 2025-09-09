@@ -132,32 +132,72 @@ def chat_interface():
                 background: rgba(255,255,255,0.05);
             }
             
-            .copy-btn {
-                position: absolute;
-                top: 5px;
-                right: 5px;
-                background: rgba(0,0,0,0.7);
-                border: none;
-                border-radius: 5px;
-                padding: 5px 8px;
-                color: white;
-                font-size: 0.8rem;
+            .message-pressed {
+                transform: scale(1.02) translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+                transition: all 0.2s ease;
+            }
+            
+            .context-menu {
+                position: fixed;
+                background: rgba(30, 30, 30, 0.95);
+                backdrop-filter: blur(20px);
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                z-index: 1000;
                 opacity: 0;
-                transition: opacity 0.3s;
-                cursor: pointer;
-                z-index: 100;
+                transform: scale(0.8);
+                transition: all 0.2s ease;
+                border: 1px solid rgba(255,255,255,0.1);
             }
             
-            .message-content:hover .copy-btn {
+            .context-menu.show {
                 opacity: 1;
+                transform: scale(1);
             }
             
-            .copy-btn:hover {
-                background: rgba(0,0,0,0.9);
+            .context-menu-item {
+                display: flex;
+                align-items: center;
+                padding: 12px 16px;
+                color: white;
+                text-decoration: none;
+                font-size: 0.9rem;
+                border: none;
+                background: none;
+                width: 100%;
+                cursor: pointer;
+                transition: background 0.2s;
+                border-radius: 8px;
+                margin: 2px;
             }
             
-            .copy-success {
-                background: #28a745 !important;
+            .context-menu-item:hover {
+                background: rgba(102, 126, 234, 0.3);
+            }
+            
+            .context-menu-item i {
+                margin-right: 12px;
+                width: 16px;
+                text-align: center;
+            }
+            
+            .context-menu-item.copy {
+                color: #4CAF50;
+            }
+            
+            .context-menu-item.delete {
+                color: #f44336;
+            }
+            
+            .overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 999;
+                display: none;
             }
             
             .message.user .message-content {
@@ -452,30 +492,57 @@ def chat_interface():
                 messageContent.className = 'message-content';
                 messageContent.innerHTML = formatMessage(content);
                 
-                // Add copy button
-                const copyBtn = document.createElement('button');
-                copyBtn.className = 'copy-btn';
-                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
-                copyBtn.title = 'Copy message';
-                copyBtn.onclick = function(e) {
-                    e.stopPropagation();
-                    copyMessage(content, copyBtn);
-                };
-                
-                messageContent.appendChild(copyBtn);
-                
-                // Add long press for mobile
+                // Add long press functionality
                 let pressTimer;
-                messageContent.addEventListener('touchstart', function(e) {
-                    pressTimer = setTimeout(() => {
-                        copyMessage(content, copyBtn);
-                        navigator.vibrate && navigator.vibrate(50); // Haptic feedback
-                    }, 800);
+                let isPressed = false;
+                
+                // Mouse events (desktop)
+                messageContent.addEventListener('mousedown', function(e) {
+                    if (e.button === 0) { // Left click only
+                        startPress(e);
+                    }
                 });
                 
-                messageContent.addEventListener('touchend', function() {
-                    clearTimeout(pressTimer);
+                messageContent.addEventListener('mouseup', function(e) {
+                    endPress();
                 });
+                
+                messageContent.addEventListener('mouseleave', function(e) {
+                    endPress();
+                });
+                
+                // Touch events (mobile)
+                messageContent.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    startPress(e.touches[0]);
+                });
+                
+                messageContent.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    endPress();
+                });
+                
+                messageContent.addEventListener('touchmove', function(e) {
+                    endPress();
+                });
+                
+                function startPress(event) {
+                    isPressed = true;
+                    messageContent.classList.add('message-pressed');
+                    
+                    pressTimer = setTimeout(() => {
+                        if (isPressed) {
+                            showContextMenu(event, content, messageDiv);
+                            navigator.vibrate && navigator.vibrate([30, 10, 30]); // Double haptic feedback
+                        }
+                    }, 600); // 600ms for long press
+                }
+                
+                function endPress() {
+                    isPressed = false;
+                    clearTimeout(pressTimer);
+                    messageContent.classList.remove('message-pressed');
+                }
                 
                 messageDiv.appendChild(avatar);
                 messageDiv.appendChild(messageContent);
@@ -487,22 +554,95 @@ def chat_interface():
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
             
-            function copyMessage(content, button) {
-                // Remove HTML tags for clean text copy
-                const cleanText = content.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
+            function showContextMenu(event, content, messageElement) {
+                hideContextMenu(); // Hide any existing menu
                 
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(cleanText).then(() => {
-                        showCopySuccess(button);
-                    }).catch(() => {
-                        fallbackCopy(cleanText, button);
-                    });
-                } else {
-                    fallbackCopy(cleanText, button);
+                const menu = document.createElement('div');
+                menu.className = 'context-menu';
+                menu.id = 'contextMenu';
+                
+                // Copy option
+                const copyItem = document.createElement('button');
+                copyItem.className = 'context-menu-item copy';
+                copyItem.innerHTML = '<i class="fas fa-copy"></i>Copy';
+                copyItem.onclick = function() {
+                    copyMessage(content);
+                    hideContextMenu();
+                };
+                
+                // Delete option
+                const deleteItem = document.createElement('button');
+                deleteItem.className = 'context-menu-item delete';
+                deleteItem.innerHTML = '<i class="fas fa-trash"></i>Delete';
+                deleteItem.onclick = function() {
+                    deleteMessage(messageElement);
+                    hideContextMenu();
+                };
+                
+                menu.appendChild(copyItem);
+                menu.appendChild(deleteItem);
+                
+                // Create overlay
+                const overlay = document.createElement('div');
+                overlay.className = 'overlay';
+                overlay.onclick = hideContextMenu;
+                overlay.style.display = 'block';
+                
+                document.body.appendChild(overlay);
+                document.body.appendChild(menu);
+                
+                // Position menu
+                const rect = messageElement.getBoundingClientRect();
+                const menuRect = menu.getBoundingClientRect();
+                
+                let x = event.clientX || rect.left + rect.width / 2;
+                let y = event.clientY || rect.top;
+                
+                // Adjust position to keep menu in viewport
+                if (x + menuRect.width > window.innerWidth) {
+                    x = window.innerWidth - menuRect.width - 10;
+                }
+                if (y + menuRect.height > window.innerHeight) {
+                    y = y - menuRect.height - 10;
+                }
+                
+                menu.style.left = x + 'px';
+                menu.style.top = y + 'px';
+                
+                // Show menu with animation
+                setTimeout(() => {
+                    menu.classList.add('show');
+                }, 10);
+            }
+            
+            function hideContextMenu() {
+                const menu = document.getElementById('contextMenu');
+                const overlay = document.querySelector('.overlay');
+                
+                if (menu) {
+                    menu.remove();
+                }
+                if (overlay) {
+                    overlay.remove();
                 }
             }
             
-            function fallbackCopy(text, button) {
+            function copyMessage(content) {
+                // Remove HTML tags for clean text copy
+                const cleanText = content.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+                
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(cleanText).then(() => {
+                        showNotification('Copied to clipboard', 'success');
+                    }).catch(() => {
+                        fallbackCopy(cleanText);
+                    });
+                } else {
+                    fallbackCopy(cleanText);
+                }
+            }
+            
+            function fallbackCopy(text) {
                 const textArea = document.createElement('textarea');
                 textArea.value = text;
                 textArea.style.position = 'fixed';
@@ -514,22 +654,58 @@ def chat_interface():
                 
                 try {
                     document.execCommand('copy');
-                    showCopySuccess(button);
+                    showNotification('Copied to clipboard', 'success');
                 } catch (err) {
+                    showNotification('Copy failed', 'error');
                     console.error('Copy failed:', err);
                 }
                 
                 document.body.removeChild(textArea);
             }
             
-            function showCopySuccess(button) {
-                const originalText = button.innerHTML;
-                button.innerHTML = '<i class="fas fa-check"></i>';
-                button.classList.add('copy-success');
+            function deleteMessage(messageElement) {
+                messageElement.style.opacity = '0';
+                messageElement.style.transform = 'scale(0.8)';
+                messageElement.style.transition = 'all 0.3s ease';
                 
                 setTimeout(() => {
-                    button.innerHTML = originalText;
-                    button.classList.remove('copy-success');
+                    messageElement.remove();
+                    showNotification('Message deleted', 'info');
+                }, 300);
+            }
+            
+            function showNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    font-size: 0.9rem;
+                    z-index: 10000;
+                    opacity: 0;
+                    transform: translateX(100%);
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                `;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.opacity = '1';
+                    notification.style.transform = 'translateX(0)';
+                }, 10);
+                
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
                 }, 2000);
             }
             
