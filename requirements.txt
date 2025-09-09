@@ -7,3 +7,9 @@ reportlab
 werkzeug
 docx
 openai
+bcrypt
+flask-jwt-extended
+flask-login
+flask-migrate
+flask-sqlalchemy
+sqlalchemy
