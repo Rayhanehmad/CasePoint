@@ -31,11 +31,14 @@ def chat_interface():
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <style>
             :root {
-                --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                --chat-bg: #1a1a1a;
-                --message-user: linear-gradient(135deg, #667eea, #764ba2);
-                --message-ai: #2d2d2d;
-                --input-bg: rgba(255, 255, 255, 0.1);
+                --primary-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                --chat-bg: #ecf0f1;
+                --message-user: linear-gradient(135deg, #2c3e50, #34495e);
+                --message-ai: #ffffff;
+                --input-bg: rgba(44, 62, 80, 0.1);
+                --text-primary: #2c3e50;
+                --text-secondary: #7f8c8d;
+                --border-color: #bdc3c7;
             }
             
             body {
@@ -208,15 +211,17 @@ def chat_interface():
             
             .message.ai .message-content {
                 background: var(--message-ai);
-                color: #e0e0e0;
+                color: var(--text-primary);
                 border-bottom-left-radius: 5px;
-                border: 1px solid #3a3a3a;
+                border: 1px solid var(--border-color);
+                box-shadow: 0 2px 8px rgba(44,62,80,0.1);
             }
             
             .chat-input-container {
                 padding: 20px;
-                background: rgba(0,0,0,0.2);
-                border-top: 1px solid #3a3a3a;
+                background: var(--message-ai);
+                border-top: 1px solid var(--border-color);
+                box-shadow: 0 -2px 8px rgba(44,62,80,0.1);
             }
             
             .chat-input-wrapper {
@@ -228,14 +233,15 @@ def chat_interface():
                 border-radius: 25px;
                 padding: 15px 20px;
                 backdrop-filter: blur(10px);
-                border: 1px solid rgba(255,255,255,0.1);
+                border: 1px solid var(--border-color);
+                box-shadow: 0 2px 8px rgba(44,62,80,0.1);
             }
             
             .chat-input {
                 flex: 1;
                 border: none;
                 background: transparent;
-                color: white;
+                color: var(--text-primary);
                 font-size: 1rem;
                 resize: none;
                 outline: none;
@@ -245,7 +251,7 @@ def chat_interface():
             }
             
             .chat-input::placeholder {
-                color: rgba(255,255,255,0.5);
+                color: var(--text-secondary);
             }
             
             .send-button {
@@ -359,7 +365,9 @@ def chat_interface():
             <!-- Chat Header -->
             <div class="chat-header">
                 <div class="d-flex align-items-center justify-content-center gap-3">
-                    <i class="fas fa-balance-scale fa-2x"></i>
+                    <div class="chat-logo">
+                        <img src="/static/images/logo.jpeg" alt="KanoonPK Logo" style="width: 50px; height: 50px; border-radius: 12px; object-fit: cover;">
+                    </div>
                     <div>
                         <h1>KanoonPK AI Assistant</h1>
                         <div class="subtitle">Pakistan Legal Research • Powered by AI</div>
