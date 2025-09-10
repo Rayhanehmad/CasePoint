@@ -1011,97 +1011,188 @@ def usage_analytics():
 
 @main_bp.route('/')
 def public_home():
-    """Smart single-page landing and registration interface"""
+    """Advanced Pakistan Law Research Platform - Enhanced pakistanlawsite interface"""
     return render_template_string("""
     <!DOCTYPE html>
     <html lang="en" data-bs-theme="dark">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>KanoonPK - AI Legal Research Assistant</title>
+        <title>KanoonPK - Advanced Legal Research Platform | AI-Powered Pakistan Law Database</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
             :root {
-                --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-                --glass-bg: rgba(255, 255, 255, 0.1);
-                --glass-border: rgba(255, 255, 255, 0.2);
+                --primary-color: #1a237e;
+                --secondary-color: #3949ab;
+                --accent-color: #ff6b35;
+                --success-color: #4caf50;
+                --warning-color: #ff9800;
+                --error-color: #f44336;
+                --text-primary: #212121;
+                --text-secondary: #757575;
+                --background-main: #fafafa;
+                --background-paper: #ffffff;
+                --border-color: #e0e0e0;
+                --shadow-light: 0 2px 8px rgba(0,0,0,0.08);
+                --shadow-medium: 0 4px 16px rgba(0,0,0,0.12);
+                --shadow-heavy: 0 8px 32px rgba(0,0,0,0.16);
+            }
+            
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
             }
             
             body {
-                background: var(--primary-gradient);
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                margin: 0;
-                min-height: 100vh;
-                overflow-x: hidden;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                background: var(--background-main);
+                color: var(--text-primary);
+                line-height: 1.6;
             }
             
-            .hero-section {
-                min-height: 100vh;
+            /* Header Section */
+            .header {
+                background: var(--background-paper);
+                box-shadow: var(--shadow-light);
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                border-bottom: 1px solid var(--border-color);
+            }
+            
+            .header-container {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 0 24px;
                 display: flex;
                 align-items: center;
-                position: relative;
-                background: var(--primary-gradient);
-            }
-            
-            .hero-section::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
-                background-size: 50px 50px;
-                animation: float 20s infinite linear;
-            }
-            
-            @keyframes float {
-                0% { transform: translateY(0px) translateX(0px); }
-                50% { transform: translateY(-20px) translateX(10px); }
-                100% { transform: translateY(0px) translateX(0px); }
-            }
-            
-            .glass-card {
-                background: var(--glass-bg);
-                backdrop-filter: blur(20px);
-                border: 1px solid var(--glass-border);
-                border-radius: 20px;
-                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-                position: relative;
-                z-index: 10;
+                justify-content: space-between;
+                height: 70px;
             }
             
             .logo-section {
-                text-align: center;
-                margin-bottom: 2rem;
+                display: flex;
+                align-items: center;
+                gap: 16px;
             }
             
             .logo-icon {
-                font-size: 4rem;
-                background: var(--secondary-gradient);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                margin-bottom: 1rem;
-                display: block;
+                width: 40px;
+                height: 40px;
+                background: var(--primary-color);
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 20px;
             }
             
-            .main-title {
-                font-size: 3rem;
+            .logo-text {
+                font-size: 24px;
                 font-weight: 700;
-                background: linear-gradient(45deg, #ffffff, #a78bfa);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                margin-bottom: 0.5rem;
+                color: var(--primary-color);
             }
             
-            .subtitle {
-                color: rgba(255,255,255,0.8);
-                font-size: 1.2rem;
-                margin-bottom: 2rem;
+            .logo-subtitle {
+                font-size: 12px;
+                color: var(--text-secondary);
+                font-weight: 400;
+                margin-top: -4px;
+            }
+            
+            /* Main Content Area */
+            .main-content {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 32px 24px;
+                display: grid;
+                grid-template-columns: 300px 1fr;
+                gap: 32px;
+                min-height: calc(100vh - 70px);
+            }
+            
+            /* Sidebar */
+            .sidebar {
+                background: var(--background-paper);
+                border-radius: 12px;
+                box-shadow: var(--shadow-light);
+                padding: 24px;
+                height: fit-content;
+                position: sticky;
+                top: 102px;
+            }
+            
+            /* Search Section */
+            .search-section {
+                background: var(--background-paper);
+                border-radius: 12px;
+                box-shadow: var(--shadow-light);
+                padding: 32px;
+                margin-bottom: 24px;
+            }
+            
+            .search-header {
+                text-align: center;
+                margin-bottom: 32px;
+            }
+            
+            .search-title {
+                font-size: 28px;
+                font-weight: 600;
+                color: var(--primary-color);
+                margin-bottom: 8px;
+            }
+            
+            .search-subtitle {
+                color: var(--text-secondary);
+                font-size: 16px;
+            }
+            
+            /* Search Types Grid */
+            .search-types {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 20px;
+                margin-bottom: 32px;
+            }
+            
+            .search-type {
+                background: white;
+                border: 2px solid var(--border-color);
+                border-radius: 12px;
+                padding: 24px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-align: center;
+            }
+            
+            .search-type:hover,
+            .search-type.active {
+                border-color: var(--primary-color);
+                box-shadow: var(--shadow-medium);
+                transform: translateY(-2px);
+            }
+            
+            .search-type-icon {
+                font-size: 32px;
+                color: var(--primary-color);
+                margin-bottom: 12px;
+            }
+            
+            .search-type-title {
+                font-size: 18px;
+                font-weight: 600;
+                color: var(--text-primary);
+                margin-bottom: 8px;
+            }
+            
+            .search-type-desc {
+                font-size: 14px;
+                color: var(--text-secondary);
             }
             
             .feature-badge {
@@ -1209,13 +1300,113 @@ def public_home():
                 font-size: 0.9rem;
             }
             
+            /* Statistics Section */
             .stats-section {
+                background: var(--background-paper);
+                border-radius: 12px;
+                padding: 32px;
+                box-shadow: var(--shadow-light);
+            }
+            
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 24px;
+            }
+            
+            .stat-card {
+                text-align: center;
+                padding: 24px;
+                background: var(--background-main);
+                border-radius: 12px;
+                border: 1px solid var(--border-color);
+            }
+            
+            .stat-number {
+                font-size: 32px;
+                font-weight: 700;
+                color: var(--primary-color);
+                margin-bottom: 8px;
+            }
+            
+            .stat-label {
+                color: var(--text-secondary);
+                font-size: 14px;
+                font-weight: 500;
+            }
+            
+            /* Additional Styles */
+            .search-form-container {
+                margin-top: 32px;
+            }
+            
+            .search-form {
+                display: none;
+            }
+            
+            .search-form.active {
+                display: block;
+            }
+            
+            .input-group-large {
                 display: flex;
-                justify-content: space-around;
-                margin: 2rem 0;
-                padding: 1.5rem;
-                background: rgba(255,255,255,0.05);
-                border-radius: 15px;
+                box-shadow: var(--shadow-medium);
+                border-radius: 12px;
+                overflow: hidden;
+                margin-bottom: 24px;
+            }
+            
+            .form-control-large {
+                flex: 1;
+                padding: 20px 24px;
+                border: none;
+                font-size: 16px;
+                outline: none;
+            }
+            
+            .btn-search {
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                padding: 20px 32px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .btn-search:hover {
+                background: var(--secondary-color);
+                transform: translateY(-1px);
+            }
+            
+            /* Mobile Responsive */
+            @media (max-width: 1200px) {
+                .main-content {
+                    grid-template-columns: 1fr;
+                }
+                
+                .sidebar {
+                    position: static;
+                    order: 2;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .header-container {
+                    padding: 0 16px;
+                }
+                
+                .main-content {
+                    padding: 24px 16px;
+                }
+                
+                .search-types {
+                    grid-template-columns: 1fr;
+                }
             }
             
             .stat-item {
@@ -1259,80 +1450,325 @@ def public_home():
         </style>
     </head>
     <body>
-        <div class="hero-section">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-10">
-                        <div class="glass-card p-5">
-                            <!-- Logo and Main Title -->
-                            <div class="logo-section">
-                                <i class="fas fa-balance-scale logo-icon"></i>
-                                <h1 class="main-title">KanoonPK AI</h1>
-                                <p class="subtitle">Pakistan's Most Advanced Legal Research Assistant</p>
+        <!-- Header -->
+        <header class="header">
+            <div class="header-container">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div>
+                        <div class="logo-text">KanoonPK</div>
+                        <div class="logo-subtitle">Advanced Legal Research Platform</div>
+                    </div>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="btn btn-outline-primary me-2" onclick="showLogin()">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </button>
+                    <button class="btn btn-primary" onclick="showRegistration()">
+                        <i class="fas fa-user-plus me-2"></i>Start Free Trial
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <h3 style="color: var(--primary-color); margin-bottom: 24px; font-size: 18px; font-weight: 600;">
+                    <i class="fas fa-search me-2"></i>Research Tools
+                </h3>
+                
+                <div class="sidebar-section">
+                    <h4>Case Law Research</h4>
+                    <ul class="sidebar-menu">
+                        <li><a href="#"><i class="fas fa-gavel me-2"></i>Supreme Court Cases</a></li>
+                        <li><a href="#"><i class="fas fa-landmark me-2"></i>High Court Cases</a></li>
+                        <li><a href="#"><i class="fas fa-balance-scale-right me-2"></i>Tribunal Decisions</a></li>
+                        <li><a href="#"><i class="fas fa-search me-2"></i>Citation Search</a></li>
+                    </ul>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h4>Statutory Research</h4>
+                    <ul class="sidebar-menu">
+                        <li><a href="#"><i class="fas fa-scroll me-2"></i>Constitution 1973</a></li>
+                        <li><a href="#"><i class="fas fa-book me-2"></i>Federal Statutes</a></li>
+                        <li><a href="#"><i class="fas fa-file-alt me-2"></i>Provincial Laws</a></li>
+                        <li><a href="#"><i class="fas fa-briefcase me-2"></i>Corporate Law</a></li>
+                    </ul>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h4>AI Research Assistant</h4>
+                    <ul class="sidebar-menu">
+                        <li><a href="#" onclick="openAIChat()"><i class="fas fa-robot me-2"></i>Legal AI Chat</a></li>
+                        <li><a href="#"><i class="fas fa-magic me-2"></i>Case Analysis</a></li>
+                        <li><a href="#"><i class="fas fa-brain me-2"></i>Smart Research</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Main Research Area -->
+            <main class="research-content">
+                <!-- Welcome Section -->
+                <div class="welcome-section">
+                    <h1 class="welcome-title">Pakistan's Most Comprehensive Legal Database</h1>
+                    <p class="welcome-subtitle">Access over 200,000+ cases, statutes, and legal documents with AI-powered research assistance</p>
+                </div>
+
+                <!-- Search Section -->
+                <div class="search-section">
+                    <div class="search-header">
+                        <h2 class="search-title">Legal Research Made Simple</h2>
+                        <p class="search-subtitle">Choose your research method and start exploring Pakistan's legal landscape</p>
+                    </div>
+
+                    <!-- Search Types -->
+                    <div class="search-types">
+                        <div class="search-type active" data-type="keyword">
+                            <div class="search-type-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h3 class="search-type-title">Keyword Search</h3>
+                            <p class="search-type-desc">Search across all case law and statutes using keywords and phrases</p>
+                        </div>
+                        
+                        <div class="search-type" data-type="citation">
+                            <div class="search-type-icon">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+                            <h3 class="search-type-title">Citation Search</h3>
+                            <p class="search-type-desc">Find specific cases using PLD, SCMR, CLC, or other citation formats</p>
+                        </div>
+                        
+                        <div class="search-type" data-type="ai">
+                            <div class="search-type-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h3 class="search-type-title">AI Research</h3>
+                            <p class="search-type-desc">Ask questions in natural language and get comprehensive legal analysis</p>
+                        </div>
+                        
+                        <div class="search-type" data-type="advanced">
+                            <div class="search-type-icon">
+                                <i class="fas fa-sliders-h"></i>
+                            </div>
+                            <h3 class="search-type-title">Advanced Search</h3>
+                            <p class="search-type-desc">Use multiple filters for precise legal research and case analysis</p>
+                        </div>
+                    </div>
+                            
+                    <!-- Search Form -->
+                    <div class="search-form-container">
+                        <div class="search-form active" id="keywordSearch">
+                            <div class="input-group-large">
+                                <input type="text" class="form-control-large" placeholder="Enter keywords, case names, or legal concepts..." id="keywordInput">
+                                <button class="btn-search" type="button">
+                                    <i class="fas fa-search"></i>
+                                    Search
+                                </button>
+                            </div>
+                            
+                            <div class="search-filters">
+                                <select class="form-select-filter">
+                                    <option>All Jurisdictions</option>
+                                    <option>Supreme Court</option>
+                                    <option>Lahore High Court</option>
+                                    <option>Islamabad High Court</option>
+                                    <option>Sindh High Court</option>
+                                    <option>Peshawar High Court</option>
+                                    <option>Balochistan High Court</option>
+                                </select>
                                 
-                                <!-- Feature Badges -->
-                                <div class="mb-4">
-                                    <span class="feature-badge"><i class="fas fa-robot me-2"></i>ChatGPT Powered</span>
-                                    <span class="feature-badge"><i class="fas fa-gavel me-2"></i>Pakistan Law Expert</span>
-                                    <span class="feature-badge"><i class="fas fa-lightning me-2"></i>Instant Answers</span>
-                                    <span class="feature-badge"><i class="fas fa-shield-alt me-2"></i>100% Secure</span>
+                                <select class="form-select-filter">
+                                    <option>All Document Types</option>
+                                    <option>Judgments</option>
+                                    <option>Statutes</option>
+                                    <option>Rules</option>
+                                    <option>Notifications</option>
+                                </select>
+                                
+                                <input type="date" class="form-control-filter" placeholder="From Date">
+                                <input type="date" class="form-control-filter" placeholder="To Date">
+                            </div>
+                        </div>
+                        
+                        <div class="search-form" id="citationSearch">
+                            <div class="input-group-large">
+                                <input type="text" class="form-control-large" placeholder="Enter citation: e.g., 2023 SCMR 1234 or PLD 2023 SC 567..." id="citationInput">
+                                <button class="btn-search" type="button">
+                                    <i class="fas fa-search"></i>
+                                    Find Case
+                                </button>
+                            </div>
+                            
+                            <div class="citation-examples">
+                                <span class="citation-example">PLD 2023 SC 567</span>
+                                <span class="citation-example">2023 SCMR 1234</span>
+                                <span class="citation-example">2023 CLC 890</span>
+                                <span class="citation-example">AIR 2023 SC 456</span>
+                            </div>
+                        </div>
+                        
+                        <div class="search-form" id="aiSearch">
+                            <div class="ai-search-container">
+                                <textarea class="form-control-large ai-textarea" placeholder="Ask any legal question... e.g., 'What are the grounds for divorce under Muslim Family Law?' or 'Explain Article 25 of Pakistan Constitution'" rows="4"></textarea>
+                                <button class="btn-search btn-ai" type="button" onclick="openAIChat()">
+                                    <i class="fas fa-robot"></i>
+                                    Ask AI Assistant
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="search-form" id="advancedSearch">
+                            <div class="advanced-filters-grid">
+                                <div class="filter-group">
+                                    <label>Case Title</label>
+                                    <input type="text" class="form-control-filter" placeholder="vs., State, etc.">
+                                </div>
+                                <div class="filter-group">
+                                    <label>Judge Name</label>
+                                    <input type="text" class="form-control-filter" placeholder="Justice name">
+                                </div>
+                                <div class="filter-group">
+                                    <label>Legal Area</label>
+                                    <select class="form-select-filter">
+                                        <option>All Areas</option>
+                                        <option>Constitutional Law</option>
+                                        <option>Criminal Law</option>
+                                        <option>Civil Law</option>
+                                        <option>Family Law</option>
+                                        <option>Corporate Law</option>
+                                        <option>Tax Law</option>
+                                        <option>Labor Law</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label>Case Status</label>
+                                    <select class="form-select-filter">
+                                        <option>All Status</option>
+                                        <option>Decided</option>
+                                        <option>Pending</option>
+                                        <option>Dismissed</option>
+                                    </select>
                                 </div>
                             </div>
                             
-                            <!-- Stats Section -->
-                            <div class="stats-section">
-                                <div class="stat-item">
-                                    <div class="stat-number">10K+</div>
-                                    <div class="stat-label">Legal Queries Solved</div>
+                            <button class="btn-search btn-advanced" type="button">
+                                <i class="fas fa-search-plus"></i>
+                                Advanced Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Access Section -->
+                <div class="quick-access-section">
+                    <h3>Quick Access</h3>
+                    <div class="quick-access-grid">
+                        <div class="quick-access-item">
+                            <i class="fas fa-scroll"></i>
+                            <span>Constitution of Pakistan 1973</span>
+                        </div>
+                        <div class="quick-access-item">
+                            <i class="fas fa-gavel"></i>
+                            <span>Pakistan Penal Code</span>
+                        </div>
+                        <div class="quick-access-item">
+                            <i class="fas fa-file-contract"></i>
+                            <span>Contract Act 1872</span>
+                        </div>
+                        <div class="quick-access-item">
+                            <i class="fas fa-building"></i>
+                            <span>Companies Act 2017</span>
+                        </div>
+                        <div class="quick-access-item">
+                            <i class="fas fa-users"></i>
+                            <span>Family Laws Ordinance</span>
+                        </div>
+                        <div class="quick-access-item">
+                            <i class="fas fa-balance-scale"></i>
+                            <span>Civil Procedure Code</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Section -->
+                <div class="stats-section">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">200,000+</div>
+                            <div class="stat-label">Legal Cases</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">15,000+</div>
+                            <div class="stat-label">Statutes & Rules</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">500+</div>
+                            <div class="stat-label">Law Firms</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">24/7</div>
+                            <div class="stat-label">AI Assistant</div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Registration Modal -->
+        <div class="modal fade" id="registrationModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Start Your Free Trial</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="quickStartForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Organization Name</label>
+                                        <input type="text" class="form-control" name="organization_name" required>
+                                    </div>
                                 </div>
-                                <div class="stat-item">
-                                    <div class="stat-number">500+</div>
-                                    <div class="stat-label">Law Firms Trust Us</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-number">24/7</div>
-                                    <div class="stat-label">AI Assistance</div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Email Address</label>
+                                        <input type="email" class="form-control" name="email" required>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <!-- Quick Start Form -->
-                            <div class="trial-form">
-                                <h3 class="text-white text-center mb-4">
-                                    <i class="fas fa-magic me-2"></i>Start Your AI Legal Research Now
-                                </h3>
-                                
-                                <form id="quickStartForm">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <input type="text" class="form-control modern-input" name="organization_name" placeholder="Law Firm / Organization Name" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <input type="email" class="form-control modern-input" name="email" placeholder="Your Email Address" required>
-                                        </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">First Name</label>
+                                        <input type="text" class="form-control" name="first_name" required>
                                     </div>
-                                    
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <input type="text" class="form-control modern-input" name="first_name" placeholder="Your First Name" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <input type="password" class="form-control modern-input" name="password" placeholder="Create Password" required>
-                                        </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Password</label>
+                                        <input type="password" class="form-control" name="password" required>
                                     </div>
-                                    
-                                    <div class="text-center mt-4">
-                                        <button type="submit" class="cta-button">
-                                            <i class="fas fa-rocket me-2"></i>Launch AI Legal Chat
-                                        </button>
-                                    </div>
-                                    
-                                    <div class="text-center mt-3">
-                                        <small style="color: rgba(255,255,255,0.7);">
-                                            ✅ Free Forever Plan • ✅ No Credit Card Required • ✅ Instant Access
-                                        </small>
-                                    </div>
-                                </form>
+                                </div>
                             </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-rocket me-2"></i>Start Free Trial
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
                             
                             <!-- Features Grid -->
                             <div class="features-grid">
