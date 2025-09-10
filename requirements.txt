@@ -14,3 +14,7 @@ flask-migrate
 flask-sqlalchemy
 sqlalchemy
 openai
+flask-dance
+flask-login
+oauthlib
+pyjwt

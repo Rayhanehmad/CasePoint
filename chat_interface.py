@@ -474,22 +474,28 @@ def chat_interface():
                 sendButton.disabled = true;
                 
                 try {
-                    const response = await fetch('/chat/api/send', {
+                    const response = await fetch('/api/chat', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ message: message })
+                        body: JSON.stringify({ 
+                            message: message,
+                            filters: {}  // Can be enhanced later with search filters
+                        })
                     });
                     
                     const data = await response.json();
                     
-                    if (data.success) {
+                    if (data.reply) {
                         addMessage(data.reply, 'ai');
+                    } else if (data.error) {
+                        addMessage(`Sorry, I encountered an error: ${data.error}`, 'ai');
                     } else {
                         addMessage('Sorry, I encountered an error. Please try again.', 'ai');
                     }
                 } catch (error) {
+                    console.error('Chat error:', error);
                     addMessage('Connection error. Please check your internet and try again.', 'ai');
                 } finally {
                     hideTyping();
