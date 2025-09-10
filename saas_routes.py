@@ -163,8 +163,11 @@ def register_tenant():
                         const result = await response.json();
                         
                         if (result.success) {
-                            // Redirect to chat interface
-                            window.location.href = '/chat?tenant=' + result.subdomain;
+                            submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Success! Opening AI Chat...';
+                            setTimeout(() => {
+                                // Redirect to chat interface
+                                window.location.href = '/chat?tenant=' + result.subdomain;
+                            }, 1500);
                         } else {
                             alert('Setup failed: ' + result.error);
                         }
@@ -219,7 +222,8 @@ def register_tenant():
             last_name=data['admin_last_name'],
             tenant_id=tenant.id,
             role='owner',
-            is_verified=True
+            is_verified=True,
+            status='active'
         )
         admin_user.set_password(data['admin_password'])
         db.session.add(admin_user)
