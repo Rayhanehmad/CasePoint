@@ -1024,20 +1024,21 @@ def public_home():
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
             :root {
-                --primary-color: #1a237e;
-                --secondary-color: #3949ab;
-                --accent-color: #ff6b35;
-                --success-color: #4caf50;
-                --warning-color: #ff9800;
-                --error-color: #f44336;
-                --text-primary: #212121;
-                --text-secondary: #757575;
-                --background-main: #fafafa;
+                --primary-color: #2c3e50;
+                --secondary-color: #34495e;
+                --accent-color: #e74c3c;
+                --success-color: #27ae60;
+                --warning-color: #f39c12;
+                --error-color: #e74c3c;
+                --text-primary: #2c3e50;
+                --text-secondary: #7f8c8d;
+                --background-main: #ecf0f1;
                 --background-paper: #ffffff;
-                --border-color: #e0e0e0;
-                --shadow-light: 0 2px 8px rgba(0,0,0,0.08);
-                --shadow-medium: 0 4px 16px rgba(0,0,0,0.12);
-                --shadow-heavy: 0 8px 32px rgba(0,0,0,0.16);
+                --border-color: #bdc3c7;
+                --shadow-light: 0 2px 8px rgba(44,62,80,0.1);
+                --shadow-medium: 0 4px 16px rgba(44,62,80,0.15);
+                --shadow-heavy: 0 8px 32px rgba(44,62,80,0.2);
+                --logo-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             }
             
             * {
@@ -1079,16 +1080,20 @@ def public_home():
                 gap: 16px;
             }
             
-            .logo-icon {
-                width: 40px;
-                height: 40px;
-                background: var(--primary-color);
-                border-radius: 8px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-size: 20px;
+            .brand-logo {
+                width: 50px;
+                height: 50px;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: var(--shadow-medium);
+                border: 2px solid var(--primary-color);
+            }
+            
+            .logo-image {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                object-position: center;
             }
             
             .logo-text {
@@ -1457,6 +1462,52 @@ def public_home():
                 }
             }
             
+            /* Welcome Section Enhancements */
+            .welcome-logo {
+                margin-bottom: 24px;
+                display: flex;
+                justify-content: center;
+            }
+            
+            .welcome-logo-img {
+                width: 80px;
+                height: 80px;
+                border-radius: 20px;
+                border: 3px solid rgba(255,255,255,0.3);
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                object-fit: cover;
+            }
+            
+            .welcome-section {
+                text-align: center;
+                margin-bottom: 48px;
+                padding: 48px 32px;
+                background: var(--logo-gradient);
+                color: white;
+                border-radius: 16px;
+                margin-top: -32px;
+                position: relative;
+                overflow: hidden;
+                box-shadow: var(--shadow-heavy);
+            }
+            
+            .welcome-section::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url('/static/images/logo.jpeg') center/120px no-repeat;
+                opacity: 0.03;
+                z-index: 0;
+            }
+            
+            .welcome-section > * {
+                position: relative;
+                z-index: 1;
+            }
+            
             .stat-item {
                 text-align: center;
             }
@@ -1502,8 +1553,8 @@ def public_home():
         <header class="header">
             <div class="header-container">
                 <div class="logo-section">
-                    <div class="logo-icon">
-                        <i class="fas fa-balance-scale"></i>
+                    <div class="brand-logo">
+                        <img src="/static/images/logo.jpeg" alt="KanoonPK Logo" class="logo-image">
                     </div>
                     <div>
                         <div class="logo-text">KanoonPK</div>
@@ -1512,10 +1563,10 @@ def public_home():
                 </div>
                 
                 <div class="header-actions">
-                    <button class="btn btn-outline-primary me-2" onclick="showLogin()">
+                    <button class="btn btn-outline-primary me-2" onclick="window.showLogin()">
                         <i class="fas fa-sign-in-alt me-2"></i>Login
                     </button>
-                    <button class="btn btn-primary" onclick="showRegistration()">
+                    <button class="btn btn-primary" onclick="window.showRegistration()">
                         <i class="fas fa-user-plus me-2"></i>Start Free Trial
                     </button>
                 </div>
@@ -1564,6 +1615,9 @@ def public_home():
             <main class="research-content">
                 <!-- Welcome Section -->
                 <div class="welcome-section">
+                    <div class="welcome-logo">
+                        <img src="/static/images/logo.jpeg" alt="KanoonPK" class="welcome-logo-img">
+                    </div>
                     <h1 class="welcome-title">Pakistan's Most Comprehensive Legal Database</h1>
                     <p class="welcome-subtitle">Access over 200,000+ cases, statutes, and legal documents with AI-powered research assistance</p>
                 </div>
