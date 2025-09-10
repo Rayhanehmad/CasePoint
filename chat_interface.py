@@ -423,6 +423,16 @@ def chat_interface():
             // Hide typing indicator initially
             typingIndicator.style.display = 'none';
             
+            // Check for pending question from AI Research
+            const pendingQuestion = sessionStorage.getItem('pendingQuestion');
+            if (pendingQuestion) {
+                sessionStorage.removeItem('pendingQuestion');
+                chatInput.value = pendingQuestion;
+                setTimeout(() => {
+                    sendMessage();
+                }, 500);
+            }
+            
             // Auto-resize textarea
             chatInput.addEventListener('input', function() {
                 this.style.height = 'auto';

@@ -1383,6 +1383,45 @@ def public_home():
                 transform: translateY(-1px);
             }
             
+            /* AI Examples Styling */
+            .ai-examples {
+                margin-top: 24px;
+                padding: 20px;
+                background: var(--background-main);
+                border-radius: 12px;
+                border: 1px solid var(--border-color);
+            }
+            
+            .ai-examples p {
+                margin-bottom: 16px;
+                color: var(--text-primary);
+                font-weight: 500;
+            }
+            
+            .example-questions {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .example-question {
+                background: white;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 12px 16px;
+                cursor: pointer;
+                transition: all 0.2s;
+                color: var(--text-secondary);
+                font-size: 14px;
+            }
+            
+            .example-question:hover {
+                background: var(--primary-color);
+                color: white;
+                border-color: var(--primary-color);
+                transform: translateY(-1px);
+            }
+            
             /* Mobile Responsive */
             @media (max-width: 1200px) {
                 .main-content {
@@ -1406,6 +1445,15 @@ def public_home():
                 
                 .search-types {
                     grid-template-columns: 1fr;
+                }
+                
+                .example-questions {
+                    gap: 8px;
+                }
+                
+                .example-question {
+                    font-size: 13px;
+                    padding: 10px 12px;
                 }
             }
             
@@ -1616,11 +1664,21 @@ def public_home():
                         
                         <div class="search-form" id="aiSearch">
                             <div class="ai-search-container">
-                                <textarea class="form-control-large ai-textarea" placeholder="Ask any legal question... e.g., 'What are the grounds for divorce under Muslim Family Law?' or 'Explain Article 25 of Pakistan Constitution'" rows="4"></textarea>
-                                <button class="btn-search btn-ai" type="button" onclick="openAIChat()">
+                                <textarea class="form-control-large ai-textarea" id="aiQuestionInput" placeholder="Ask any legal question... e.g., 'What are the grounds for divorce under Muslim Family Law?' or 'Explain Article 25 of Pakistan Constitution'" rows="4"></textarea>
+                                <button class="btn-search btn-ai" type="button" onclick="askAIQuestion()">
                                     <i class="fas fa-robot"></i>
                                     Ask AI Assistant
                                 </button>
+                            </div>
+                            
+                            <div class="ai-examples">
+                                <p><strong>Example Questions:</strong></p>
+                                <div class="example-questions">
+                                    <span class="example-question" onclick="setAIQuestion(this)">What are the grounds for divorce under Muslim Family Law?</span>
+                                    <span class="example-question" onclick="setAIQuestion(this)">Explain Article 25 of Pakistan Constitution</span>
+                                    <span class="example-question" onclick="setAIQuestion(this)">What is the process for filing a civil suit?</span>
+                                    <span class="example-question" onclick="setAIQuestion(this)">Rights of accused in criminal cases under Pakistan law</span>
+                                </div>
                             </div>
                         </div>
                         
@@ -1860,6 +1918,29 @@ def public_home():
                     }, 3000);
                 }
             });
+            
+            // AI Research Functions
+            function askAIQuestion() {
+                const question = document.getElementById('aiQuestionInput').value.trim();
+                if (question) {
+                    // Store the question in session storage and redirect to chat
+                    sessionStorage.setItem('pendingQuestion', question);
+                    window.location.href = '/chat';
+                } else {
+                    alert('Please enter a question first.');
+                }
+            }
+            
+            function setAIQuestion(element) {
+                const question = element.textContent;
+                document.getElementById('aiQuestionInput').value = question;
+                // Auto-focus the textarea
+                document.getElementById('aiQuestionInput').focus();
+            }
+            
+            // Make functions globally available
+            window.askAIQuestion = askAIQuestion;
+            window.setAIQuestion = setAIQuestion;
         </script>
     </body>
     </html>
