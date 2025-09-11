@@ -1609,6 +1609,7 @@ def public_home():
                     <h4>AI Research Assistant</h4>
                     <ul class="sidebar-menu">
                         <li><a href="#" onclick="openAIChat()"><i class="fas fa-robot me-2"></i>Legal AI Chat</a></li>
+                        <li><a href="/admin"><i class="fas fa-cog me-2"></i>Admin Panel</a></li>
                         <li><a href="#"><i class="fas fa-magic me-2"></i>Case Analysis</a></li>
                         <li><a href="#"><i class="fas fa-brain me-2"></i>Smart Research</a></li>
                     </ul>
@@ -2003,6 +2004,512 @@ def public_home():
     </body>
     </html>
     """)
+
+# =============================================================================
+# ADMIN CONTROL PANEL FOR LEGAL DOCUMENT MANAGEMENT
+# =============================================================================
+
+@admin_bp.route('/')
+@login_required
+@require_tenant
+def admin_dashboard():
+    """Admin dashboard for document and citation management"""
+    if not current_user.has_permission('manage_documents'):
+        return redirect(url_for('main.public_home'))
+    
+    # Get documents count
+    documents_count = 0
+    try:
+        documents_count = LegalDocument.query.count()
+    except:
+        pass
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Control Panel - KanoonPK Legal Database</title>
+        <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <style>
+            :root {
+                --primary-color: #2c3e50;
+                --secondary-color: #34495e;
+                --accent-color: #e74c3c;
+                --success-color: #27ae60;
+                --background-main: #ecf0f1;
+                --background-paper: #ffffff;
+                --border-color: #bdc3c7;
+                --text-primary: #2c3e50;
+                --text-secondary: #7f8c8d;
+            }
+            
+            body {
+                background: var(--background-main);
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                color: var(--text-primary);
+            }
+            
+            .admin-header {
+                background: var(--primary-color);
+                color: white;
+                padding: 24px 0;
+                margin-bottom: 32px;
+                box-shadow: 0 4px 16px rgba(44,62,80,0.15);
+            }
+            
+            .upload-section {
+                background: var(--background-paper);
+                border-radius: 12px;
+                padding: 32px;
+                margin-bottom: 32px;
+                box-shadow: 0 2px 8px rgba(44,62,80,0.1);
+                border: 1px solid var(--border-color);
+            }
+            
+            .citation-fields {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                margin-top: 24px;
+            }
+            
+            .form-group label {
+                font-weight: 600;
+                color: var(--text-primary);
+                margin-bottom: 8px;
+                display: block;
+            }
+            
+            .form-control {
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 12px 16px;
+                font-size: 14px;
+                transition: all 0.2s;
+                width: 100%;
+            }
+            
+            .form-control:focus {
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(44,62,80,0.1);
+                outline: none;
+            }
+            
+            .btn-upload {
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                padding: 16px 32px;
+                border-radius: 8px;
+                font-weight: 600;
+                font-size: 16px;
+                cursor: pointer;
+                transition: all 0.3s;
+                margin-top: 24px;
+            }
+            
+            .btn-upload:hover {
+                background: var(--secondary-color);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(44,62,80,0.2);
+            }
+            
+            .documents-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 24px;
+                margin-top: 32px;
+            }
+            
+            .document-card {
+                background: var(--background-paper);
+                border-radius: 12px;
+                padding: 24px;
+                border: 1px solid var(--border-color);
+                box-shadow: 0 2px 8px rgba(44,62,80,0.1);
+                transition: all 0.3s;
+            }
+            
+            .document-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 25px rgba(44,62,80,0.15);
+            }
+            
+            .doc-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 16px;
+                padding-bottom: 12px;
+                border-bottom: 1px solid var(--border-color);
+            }
+            
+            .doc-title {
+                font-weight: 600;
+                color: var(--text-primary);
+                margin: 0;
+                flex: 1;
+            }
+            
+            .delete-btn {
+                background: var(--accent-color);
+                color: white;
+                border: none;
+                padding: 8px 12px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: all 0.2s;
+            }
+            
+            .delete-btn:hover {
+                background: #c0392b;
+            }
+            
+            .citation-info {
+                background: #f8f9fa;
+                padding: 16px;
+                border-radius: 8px;
+                margin-top: 12px;
+                border-left: 4px solid var(--primary-color);
+            }
+            
+            .citation-info strong {
+                color: var(--primary-color);
+            }
+            
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 24px;
+                margin-bottom: 32px;
+            }
+            
+            .stat-card {
+                background: var(--background-paper);
+                padding: 24px;
+                border-radius: 12px;
+                text-align: center;
+                border: 1px solid var(--border-color);
+                box-shadow: 0 2px 8px rgba(44,62,80,0.1);
+            }
+            
+            .stat-number {
+                font-size: 32px;
+                font-weight: 700;
+                color: var(--primary-color);
+                margin-bottom: 8px;
+            }
+            
+            .upload-area {
+                border: 2px dashed var(--border-color);
+                border-radius: 12px;
+                padding: 40px;
+                text-align: center;
+                margin-bottom: 24px;
+                transition: all 0.3s;
+                cursor: pointer;
+            }
+            
+            .upload-area:hover {
+                border-color: var(--primary-color);
+                background: rgba(44,62,80,0.02);
+            }
+            
+            .upload-area.dragover {
+                border-color: var(--primary-color);
+                background: rgba(44,62,80,0.05);
+            }
+            
+            .alert {
+                padding: 16px;
+                border-radius: 8px;
+                margin-bottom: 24px;
+                border-left: 4px solid;
+            }
+            
+            .alert-success {
+                background: #d4edda;
+                border-color: var(--success-color);
+                color: #155724;
+            }
+            
+            .alert-error {
+                background: #f8d7da;
+                border-color: var(--accent-color);
+                color: #721c24;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="admin-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="/static/images/logo.jpeg" alt="KanoonPK" style="width: 50px; height: 50px; border-radius: 12px; object-fit: cover;">
+                        <div>
+                            <h1 class="mb-1">Legal Database Management</h1>
+                            <p class="mb-0 opacity-75">Upload PLD, SCMR, CLC, MLD & Other Citations</p>
+                        </div>
+                    </div>
+                    <a href="/" class="btn btn-outline-light">
+                        <i class="fas fa-home me-2"></i>Back to Research
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{ documents_count }}</div>
+                    <div class="stat-label">Total Documents</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalCitations">Loading...</div>
+                    <div class="stat-label">Legal Citations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalChunks">Loading...</div>
+                    <div class="stat-label">Text Chunks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="lastUpdate">Loading...</div>
+                    <div class="stat-label">Last Upload</div>
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <h2 class="mb-4">
+                    <i class="fas fa-upload me-3"></i>Upload Legal Documents & Citations
+                </h2>
+                
+                <div id="alertContainer"></div>
+                
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                        <h4>Drop files here or click to select</h4>
+                        <p class="text-muted">Supported formats: PDF, DOCX, TXT (Max: 16MB)</p>
+                        <input type="file" id="fileInput" name="file" accept=".pdf,.docx,.txt" style="display: none;">
+                    </div>
+                    
+                    <div class="citation-fields">
+                        <div class="form-group">
+                            <label for="citation">Citation Format</label>
+                            <input type="text" class="form-control" id="citation" name="citation" 
+                                   placeholder="e.g., PLD 2023 SC 567, SCMR 2023 Vol 1 234">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="court">Court/Jurisdiction</label>
+                            <select class="form-control" id="court" name="court">
+                                <option value="">Select Court</option>
+                                <option value="Supreme Court of Pakistan">Supreme Court of Pakistan</option>
+                                <option value="Federal Shariat Court">Federal Shariat Court</option>
+                                <option value="Lahore High Court">Lahore High Court</option>
+                                <option value="Karachi High Court (Sindh)">Karachi High Court (Sindh)</option>
+                                <option value="Peshawar High Court">Peshawar High Court</option>
+                                <option value="Quetta High Court (Balochistan)">Quetta High Court (Balochistan)</option>
+                                <option value="Islamabad High Court">Islamabad High Court</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="year">Year</label>
+                            <input type="number" class="form-control" id="year" name="year" 
+                                   min="1900" max="2030" placeholder="2023">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="volume">Volume/Page</label>
+                            <input type="text" class="form-control" id="volume" name="volume" 
+                                   placeholder="Vol 1, Page 234">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="legal_area">Legal Area</label>
+                            <select class="form-control" id="legal_area" name="legal_area">
+                                <option value="">Select Area</option>
+                                <option value="Constitutional Law">Constitutional Law</option>
+                                <option value="Criminal Law">Criminal Law</option>
+                                <option value="Civil Law">Civil Law</option>
+                                <option value="Commercial Law">Commercial Law</option>
+                                <option value="Islamic Law">Islamic Law</option>
+                                <option value="Administrative Law">Administrative Law</option>
+                                <option value="Labor Law">Labor Law</option>
+                                <option value="Family Law">Family Law</option>
+                                <option value="Property Law">Property Law</option>
+                                <option value="Contract Law">Contract Law</option>
+                                <option value="Corporate Law">Corporate Law</option>
+                                <option value="Tax Law">Tax Law</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="document_type">Document Type</label>
+                            <select class="form-control" id="document_type" name="document_type">
+                                <option value="">Select Type</option>
+                                <option value="Judgment">Judgment</option>
+                                <option value="Statute">Statute</option>
+                                <option value="Rule">Rule</option>
+                                <option value="Regulation">Regulation</option>
+                                <option value="Notification">Notification</option>
+                                <option value="Ordinance">Ordinance</option>
+                                <option value="Act">Act</option>
+                                <option value="Order">Order</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-upload" id="uploadBtn">
+                        <i class="fas fa-upload me-2"></i>Upload & Process Document
+                    </button>
+                </form>
+            </div>
+
+            <!-- Documents List -->
+            <div class="upload-section">
+                <h2 class="mb-4">
+                    <i class="fas fa-database me-3"></i>Uploaded Documents
+                </h2>
+                
+                <div id="documentsContainer">
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                        <p>Loading documents...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Upload functionality
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const uploadForm = document.getElementById('uploadForm');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const alertContainer = document.getElementById('alertContainer');
+
+            // Drag and drop
+            uploadArea.addEventListener('click', () => fileInput.click());
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                fileInput.files = e.dataTransfer.files;
+                updateFileDisplay();
+            });
+
+            fileInput.addEventListener('change', updateFileDisplay);
+
+            function updateFileDisplay() {
+                const files = fileInput.files;
+                if (files.length > 0) {
+                    const fileName = files[0].name;
+                    uploadArea.innerHTML = `
+                        <i class="fas fa-file-alt fa-3x text-primary mb-3"></i>
+                        <h4>File Selected</h4>
+                        <p class="text-muted">${fileName}</p>
+                    `;
+                }
+            }
+
+            // Form submission
+            uploadForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (!fileInput.files.length) {
+                    showAlert('Please select a file to upload.', 'error');
+                    return;
+                }
+
+                const formData = new FormData(uploadForm);
+                uploadBtn.disabled = true;
+                uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+
+                try {
+                    const response = await fetch('/api/upload-document', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showAlert('Document uploaded and processed successfully!', 'success');
+                        uploadForm.reset();
+                        resetUploadArea();
+                        loadDocuments();
+                    } else {
+                        showAlert(result.error || 'Upload failed', 'error');
+                    }
+                } catch (error) {
+                    showAlert('Upload failed. Please try again.', 'error');
+                } finally {
+                    uploadBtn.disabled = false;
+                    uploadBtn.innerHTML = '<i class="fas fa-upload me-2"></i>Upload & Process Document';
+                }
+            });
+
+            function resetUploadArea() {
+                uploadArea.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                    <h4>Drop files here or click to select</h4>
+                    <p class="text-muted">Supported formats: PDF, DOCX, TXT (Max: 16MB)</p>
+                `;
+            }
+
+            function showAlert(message, type) {
+                const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+                const icon = type === 'success' ? 'check-circle' : 'exclamation-triangle';
+                
+                alertContainer.innerHTML = `
+                    <div class="alert ${alertClass}">
+                        <i class="fas fa-${icon} me-2"></i>${message}
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    alertContainer.innerHTML = '';
+                }, 5000);
+            }
+
+            // Load documents (simplified for now)
+            async function loadDocuments() {
+                try {
+                    // Since we don't have the documents API fully connected yet,
+                    // we'll show a placeholder
+                    document.getElementById('documentsContainer').innerHTML = `
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-folder-open fa-3x mb-3"></i>
+                            <h4>Documents will appear here</h4>
+                            <p>Upload your first legal document above to get started.</p>
+                        </div>
+                    `;
+                } catch (error) {
+                    console.error('Error loading documents:', error);
+                }
+            }
+
+            // Load documents on page load
+            loadDocuments();
+        </script>
+    </body>
+    </html>
+    """, documents_count=documents_count)
 
 # Export all blueprints for registration
 __all__ = ['auth_bp', 'api_bp', 'admin_bp', 'main_bp']
