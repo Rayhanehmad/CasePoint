@@ -1035,7 +1035,7 @@ def public_home():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>KanoonPK - Advanced Legal Research Platform | AI-Powered Pakistan Law Database</title>
+        <title>KanoonPK - Smart Legal Research | AI-Powered Law Search</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -1637,8 +1637,8 @@ def public_home():
                     <div class="welcome-logo">
                         <img src="/static/images/logo.jpeg" alt="KanoonPK" class="welcome-logo-img">
                     </div>
-                    <h1 class="welcome-title">Pakistan's Most Comprehensive Legal Database</h1>
-                    <p class="welcome-subtitle">Access over 200,000+ cases, statutes, and legal documents with AI-powered research assistance</p>
+                    <h1 class="welcome-title">Smart Legal Research for Pakistan</h1>
+                    <p class="welcome-subtitle">Instant AI search across PLD, SCMR, CLC & MLD citations</p>
                 </div>
 
                 <!-- Search Section -->
