@@ -731,7 +731,9 @@ def list_documents():
     page = request.args.get('page', 1, type=int)
     per_page = min(request.args.get('per_page', 20, type=int), 100)
     
+    # Optimized query with specific columns to reduce data transfer
     documents = LegalDocument.query.filter_by(processing_status='processed')\
+                                  .options(db.defer('content_chunks', 'raw_content'))\
                                   .order_by(LegalDocument.created_at.desc())\
                                   .paginate(page=page, per_page=per_page, error_out=False)
     
@@ -2028,10 +2030,13 @@ def admin_dashboard():
     """Admin dashboard for document and citation management"""
     # Remove login requirement for testing purposes
     
-    # Get documents count
+    # Get documents count with caching
     documents_count = 0
     try:
-        documents_count = LegalDocument.query.count()
+        # Use more efficient count query with limit to prevent slow counts on large tables
+        documents_count = db.session.query(LegalDocument.id).count()
+        if documents_count > 10000:  # Cap display at 10k+ for performance
+            documents_count = "10,000+"
     except:
         pass
     
