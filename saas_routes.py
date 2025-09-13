@@ -1,7 +1,7 @@
 """
 SaaS Routes and API endpoints for KanoonPK Legal Research Platform
 """
-from flask import Blueprint, request, jsonify, render_template, render_template_string, redirect, url_for, flash, g, session
+from flask import Blueprint, request, jsonify, render_template, render_template_string, redirect, url_for, flash, g, session, make_response
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -731,14 +731,33 @@ def list_documents():
     page = request.args.get('page', 1, type=int)
     per_page = min(request.args.get('per_page', 20, type=int), 100)
     
-    # Optimized query with specific columns to reduce data transfer
-    documents = LegalDocument.query.filter_by(processing_status='processed')\
-                                  .options(db.defer('content_chunks', 'raw_content'))\
-                                  .order_by(LegalDocument.created_at.desc())\
-                                  .paginate(page=page, per_page=per_page, error_out=False)
+    # Optimized query avoiding expensive COUNT and large fields
+    documents_query = LegalDocument.query.filter_by(processing_status='processed')\
+                                        .options(db.load_only(
+                                            LegalDocument.id,
+                                            LegalDocument.original_filename,
+                                            LegalDocument.document_type,
+                                            LegalDocument.legal_area,
+                                            LegalDocument.jurisdiction,
+                                            LegalDocument.file_size,
+                                            LegalDocument.total_chunks,
+                                            LegalDocument.created_at,
+                                            LegalDocument.extracted_citations
+                                        ))\
+                                        .order_by(LegalDocument.created_at.desc())\
+                                        .limit(per_page + 1)  # +1 to check for next page
+    
+    if page > 1:
+        # Use offset for pagination (can be optimized further with keyset pagination)
+        documents_query = documents_query.offset((page - 1) * per_page)
+    
+    documents_list = documents_query.all()
+    has_next = len(documents_list) > per_page
+    if has_next:
+        documents_list = documents_list[:-1]  # Remove the extra record
     
     doc_list = []
-    for doc in documents.items:
+    for doc in documents_list:
         doc_list.append({
             'id': doc.id,
             'filename': doc.original_filename,
@@ -751,17 +770,24 @@ def list_documents():
             'citations_count': len(doc.extracted_citations) if doc.extracted_citations else 0
         })
     
-    return jsonify({
+    # Create optimized response with caching headers (API-compatible)
+    response_data = {
         'documents': doc_list,
         'pagination': {
             'page': page,
             'per_page': per_page,
-            'total': documents.total,
-            'pages': documents.pages,
-            'has_next': documents.has_next,
-            'has_prev': documents.has_prev
+            'has_prev': page > 1,
+            'has_next': has_next,
+            'pages': None,  # Maintain API compatibility but avoid expensive COUNT
+            'total': None,  # Maintain API compatibility but avoid expensive COUNT
+            'current_count': len(doc_list)
         }
-    })
+    }
+    
+    response = make_response(jsonify(response_data))
+    response.headers['Cache-Control'] = 'private, max-age=300'  # Cache for 5 minutes (private to prevent tenant data leakage)
+    response.headers['ETag'] = f'docs-{page}-{len(doc_list)}'
+    return response
 
 @api_bp.route('/documents/<int:doc_id>', methods=['DELETE'])
 @login_required
