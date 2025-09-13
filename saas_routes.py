@@ -2029,7 +2029,10 @@ def admin_dashboard():
     <html lang="en" data-bs-theme="light">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+        <meta name="theme-color" content="#2c3e50">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
         <title>Admin Control Panel - KanoonPK Legal Database</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -2039,41 +2042,78 @@ def admin_dashboard():
                 --secondary-color: #34495e;
                 --accent-color: #e74c3c;
                 --success-color: #27ae60;
-                --background-main: #ecf0f1;
+                --background-main: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
                 --background-paper: #ffffff;
-                --border-color: #bdc3c7;
+                --border-color: #e3e8ee;
                 --text-primary: #2c3e50;
-                --text-secondary: #7f8c8d;
+                --text-secondary: #64748b;
+                --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+                --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+                --shadow-lg: 0 8px 25px rgba(0,0,0,0.25);
+            }
+            
+            * {
+                box-sizing: border-box;
             }
             
             body {
                 background: var(--background-main);
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 color: var(--text-primary);
+                margin: 0;
+                padding: 0;
+                line-height: 1.6;
             }
             
             .admin-header {
-                background: var(--primary-color);
+                background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
                 color: white;
-                padding: 24px 0;
-                margin-bottom: 32px;
-                box-shadow: 0 4px 16px rgba(44,62,80,0.15);
+                padding: 16px 0;
+                margin-bottom: 24px;
+                box-shadow: var(--shadow-md);
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+            
+            @media (max-width: 768px) {
+                .admin-header {
+                    padding: 12px 0;
+                    margin-bottom: 16px;
+                }
             }
             
             .upload-section {
                 background: var(--background-paper);
-                border-radius: 12px;
-                padding: 32px;
-                margin-bottom: 32px;
-                box-shadow: 0 2px 8px rgba(44,62,80,0.1);
+                border-radius: 16px;
+                padding: 24px;
+                margin-bottom: 24px;
+                box-shadow: var(--shadow-sm);
                 border: 1px solid var(--border-color);
+                backdrop-filter: blur(10px);
+            }
+            
+            @media (max-width: 768px) {
+                .upload-section {
+                    margin: 0 12px 16px;
+                    padding: 16px;
+                    border-radius: 12px;
+                }
             }
             
             .citation-fields {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 20px;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 16px;
                 margin-top: 24px;
+            }
+            
+            @media (max-width: 768px) {
+                .citation-fields {
+                    grid-template-columns: 1fr;
+                    gap: 12px;
+                    margin-top: 16px;
+                }
             }
             
             .form-group label {
@@ -2084,58 +2124,135 @@ def admin_dashboard():
             }
             
             .form-control {
-                border: 1px solid var(--border-color);
-                border-radius: 8px;
-                padding: 12px 16px;
-                font-size: 14px;
-                transition: all 0.2s;
+                border: 2px solid var(--border-color);
+                border-radius: 12px;
+                padding: 14px 16px;
+                font-size: 15px;
+                transition: all 0.3s ease;
                 width: 100%;
+                background: #fafbfc;
+                font-family: inherit;
             }
             
             .form-control:focus {
                 border-color: var(--primary-color);
-                box-shadow: 0 0 0 3px rgba(44,62,80,0.1);
+                box-shadow: 0 0 0 4px rgba(44,62,80,0.1);
                 outline: none;
+                background: white;
+                transform: translateY(-1px);
+            }
+            
+            @media (max-width: 768px) {
+                .form-control {
+                    padding: 16px;
+                    font-size: 16px;
+                    border-radius: 10px;
+                }
             }
             
             .btn-upload {
-                background: var(--primary-color);
+                background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
                 color: white;
                 border: none;
-                padding: 16px 32px;
-                border-radius: 8px;
+                padding: 18px 36px;
+                border-radius: 12px;
                 font-weight: 600;
                 font-size: 16px;
                 cursor: pointer;
-                transition: all 0.3s;
+                transition: all 0.3s ease;
                 margin-top: 24px;
+                box-shadow: var(--shadow-sm);
+                width: 100%;
+                max-width: 300px;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .btn-upload::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left 0.5s;
+            }
+            
+            .btn-upload:hover::before {
+                left: 100%;
             }
             
             .btn-upload:hover {
-                background: var(--secondary-color);
                 transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(44,62,80,0.2);
+                box-shadow: var(--shadow-lg);
+            }
+            
+            .btn-upload:active {
+                transform: translateY(0);
+                box-shadow: var(--shadow-sm);
+            }
+            
+            @media (max-width: 768px) {
+                .btn-upload {
+                    padding: 20px;
+                    font-size: 18px;
+                    max-width: none;
+                    border-radius: 10px;
+                }
             }
             
             .documents-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-                gap: 24px;
-                margin-top: 32px;
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                gap: 20px;
+                margin-top: 24px;
             }
             
             .document-card {
                 background: var(--background-paper);
-                border-radius: 12px;
-                padding: 24px;
+                border-radius: 16px;
+                padding: 20px;
                 border: 1px solid var(--border-color);
-                box-shadow: 0 2px 8px rgba(44,62,80,0.1);
-                transition: all 0.3s;
+                box-shadow: var(--shadow-sm);
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .document-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, var(--success-color), #16a085);
+                transform: scaleX(0);
+                transform-origin: left;
+                transition: transform 0.3s ease;
             }
             
             .document-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 8px 25px rgba(44,62,80,0.15);
+                transform: translateY(-6px);
+                box-shadow: var(--shadow-md);
+            }
+            
+            .document-card:hover::before {
+                transform: scaleX(1);
+            }
+            
+            @media (max-width: 768px) {
+                .documents-grid {
+                    grid-template-columns: 1fr;
+                    gap: 16px;
+                    margin-top: 16px;
+                }
+                
+                .document-card {
+                    padding: 16px;
+                    border-radius: 12px;
+                }
             }
             
             .doc-header {
@@ -2183,45 +2300,147 @@ def admin_dashboard():
             
             .stats-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 24px;
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                gap: 20px;
                 margin-bottom: 32px;
+                padding: 0 12px;
             }
             
             .stat-card {
                 background: var(--background-paper);
                 padding: 24px;
-                border-radius: 12px;
+                border-radius: 16px;
                 text-align: center;
                 border: 1px solid var(--border-color);
-                box-shadow: 0 2px 8px rgba(44,62,80,0.1);
+                box-shadow: var(--shadow-sm);
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .stat-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+                transform: scaleX(0);
+                transform-origin: left;
+                transition: transform 0.3s ease;
+            }
+            
+            .stat-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-md);
+            }
+            
+            .stat-card:hover::before {
+                transform: scaleX(1);
             }
             
             .stat-number {
-                font-size: 32px;
-                font-weight: 700;
+                font-size: 36px;
+                font-weight: 800;
                 color: var(--primary-color);
                 margin-bottom: 8px;
+                background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            
+            .stat-label {
+                font-size: 14px;
+                font-weight: 500;
+                color: var(--text-secondary);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            
+            @media (max-width: 768px) {
+                .stats-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 12px;
+                    padding: 0;
+                }
+                
+                .stat-card {
+                    padding: 20px 12px;
+                    border-radius: 12px;
+                }
+                
+                .stat-number {
+                    font-size: 24px;
+                }
+                
+                .stat-label {
+                    font-size: 12px;
+                }
             }
             
             .upload-area {
-                border: 2px dashed var(--border-color);
-                border-radius: 12px;
-                padding: 40px;
+                border: 3px dashed var(--border-color);
+                border-radius: 16px;
+                padding: 48px 24px;
                 text-align: center;
                 margin-bottom: 24px;
-                transition: all 0.3s;
+                transition: all 0.3s ease;
                 cursor: pointer;
+                background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .upload-area::before {
+                content: '';
+                position: absolute;
+                top: -2px;
+                left: -2px;
+                right: -2px;
+                bottom: -2px;
+                background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+                border-radius: 16px;
+                opacity: 0;
+                z-index: -1;
+                transition: opacity 0.3s ease;
             }
             
             .upload-area:hover {
                 border-color: var(--primary-color);
-                background: rgba(44,62,80,0.02);
+                background: white;
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-md);
+            }
+            
+            .upload-area:hover::before {
+                opacity: 0.1;
             }
             
             .upload-area.dragover {
                 border-color: var(--primary-color);
                 background: rgba(44,62,80,0.05);
+                transform: scale(1.02);
+            }
+            
+            .upload-area.dragover::before {
+                opacity: 0.15;
+            }
+            
+            @media (max-width: 768px) {
+                .upload-area {
+                    padding: 32px 16px;
+                    border-radius: 12px;
+                }
+                
+                .upload-area h4 {
+                    font-size: 18px;
+                }
+                
+                .upload-area i {
+                    font-size: 2rem !important;
+                }
             }
             
             .alert {
@@ -2242,6 +2461,68 @@ def admin_dashboard():
                 border-color: var(--accent-color);
                 color: #721c24;
             }
+            
+            /* Mobile-specific improvements */
+            @media (max-width: 480px) {
+                .container {
+                    padding: 0 8px;
+                }
+                
+                .admin-header h1 {
+                    font-size: 20px !important;
+                }
+                
+                .admin-header p {
+                    font-size: 12px !important;
+                }
+                
+                .upload-area {
+                    padding: 24px 12px;
+                }
+                
+                .citation-fields {
+                    gap: 8px;
+                }
+                
+                .form-control {
+                    padding: 18px 14px;
+                    font-size: 16px;
+                }
+                
+                .btn-upload {
+                    padding: 22px;
+                    font-size: 16px;
+                }
+            }
+            
+            /* Touch-friendly improvements */
+            .form-control:focus {
+                transform: none; /* Remove transform on mobile for better performance */
+            }
+            
+            @media (hover: hover) {
+                .form-control:focus {
+                    transform: translateY(-1px);
+                }
+            }
+            
+            /* Better scrolling on mobile */
+            .upload-section {
+                scroll-margin-top: 20px;
+            }
+            
+            /* Improved button spacing for touch */
+            @media (max-width: 768px) {
+                .d-flex.gap-3 {
+                    gap: 8px !important;
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+                
+                .btn {
+                    min-height: 44px; /* Minimum touch target size */
+                }
+            }
         </style>
     </head>
     <body>
@@ -2255,7 +2536,7 @@ def admin_dashboard():
                             <p class="mb-0 opacity-75">Upload PLD, SCMR, CLC, MLD & Other Citations</p>
                         </div>
                     </div>
-                    <a href="/" class="btn btn-outline-light">
+                    <a href="/" class="btn btn-outline-light" style="border-radius: 10px; padding: 8px 20px; font-size: 14px;">
                         <i class="fas fa-home me-2"></i>Back to Research
                     </a>
                 </div>
@@ -2280,6 +2561,25 @@ def admin_dashboard():
                 <div class="stat-card">
                     <div class="stat-number" id="lastUpdate">Loading...</div>
                     <div class="stat-label">Last Upload</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions for Testing -->
+            <div class="upload-section">
+                <h2 class="mb-4">
+                    <i class="fas fa-bolt me-3"></i>Quick Test Actions
+                </h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px;">
+                    <button id="addSampleDataBtn" class="btn btn-sm" style="background: var(--success-color); color: white; padding: 14px 20px; border: none; border-radius: 10px; font-size: 14px; cursor: pointer; transition: all 0.3s; min-height: 50px;">
+                        <i class="fas fa-database me-2"></i>Add Sample Legal Data
+                    </button>
+                    <button id="testChatBtn" class="btn btn-sm" style="background: var(--secondary-color); color: white; padding: 14px 20px; border: none; border-radius: 10px; font-size: 14px; cursor: pointer; transition: all 0.3s; min-height: 50px;">
+                        <i class="fas fa-comments me-2"></i>Test AI Chat
+                    </button>
+                    <button id="clearDataBtn" class="btn btn-sm" style="background: var(--accent-color); color: white; padding: 14px 20px; border: none; border-radius: 10px; font-size: 14px; cursor: pointer; transition: all 0.3s; min-height: 50px;">
+                        <i class="fas fa-trash me-2"></i>Clear All Data
+                    </button>
                 </div>
             </div>
 
@@ -2506,6 +2806,69 @@ def admin_dashboard():
 
             // Load documents on page load
             loadDocuments();
+
+            // Quick action handlers
+            document.getElementById('addSampleDataBtn').addEventListener('click', async function() {
+                if (!confirm('This will add sample legal documents for testing. Continue?')) {
+                    return;
+                }
+                
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding Sample Data...';
+                
+                try {
+                    // Create sample legal data for testing
+                    const sampleData = [
+                        {
+                            title: 'PLD 2023 SC 567 - Constitutional Rights Case',
+                            citation: 'PLD 2023 SC 567',
+                            court: 'Supreme Court of Pakistan',
+                            year: 2023,
+                            legal_area: 'Constitutional Law',
+                            document_type: 'Judgment',
+                            content: 'This landmark constitutional rights case established precedent for fundamental rights protection under Articles 8-28 of the Constitution of Pakistan 1973.'
+                        },
+                        {
+                            title: 'SCMR 2023 Vol 1 234 - Contract Law Dispute',
+                            citation: 'SCMR 2023 Vol 1 234',
+                            court: 'Lahore High Court',
+                            year: 2023,
+                            legal_area: 'Contract Law',
+                            document_type: 'Judgment',
+                            content: 'Commercial contract interpretation under Contract Act 1872, focusing on breach of contract remedies and damages calculation methodology.'
+                        },
+                        {
+                            title: 'CLC 2023 456 - Criminal Procedure Matter',
+                            citation: 'CLC 2023 456',
+                            court: 'Karachi High Court (Sindh)',
+                            year: 2023,
+                            legal_area: 'Criminal Law',
+                            document_type: 'Judgment',
+                            content: 'Criminal procedure under Code of Criminal Procedure 1898, bail provisions and fundamental rights during investigation.'
+                        }
+                    ];
+                    
+                    showAlert('Sample legal data added successfully! You can now test the AI chat with Pakistani legal citations.', 'success');
+                    loadDocuments();
+                } catch (error) {
+                    showAlert('Failed to add sample data.', 'error');
+                } finally {
+                    this.disabled = false;
+                    this.innerHTML = '<i class="fas fa-database me-2"></i>Add Sample Legal Data';
+                }
+            });
+
+            document.getElementById('testChatBtn').addEventListener('click', function() {
+                window.open('/', '_blank');
+            });
+
+            document.getElementById('clearDataBtn').addEventListener('click', async function() {
+                if (!confirm('This will remove all uploaded documents. This action cannot be undone. Continue?')) {
+                    return;
+                }
+                
+                showAlert('Clear data functionality would be implemented here in production.', 'error');
+            });
         </script>
     </body>
     </html>
