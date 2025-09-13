@@ -1610,6 +1610,7 @@ def public_home():
                     <ul class="sidebar-menu">
                         <li><a href="#" onclick="openAIChat()"><i class="fas fa-robot me-2"></i>Legal AI Chat</a></li>
                         <li><a href="/admin"><i class="fas fa-cog me-2"></i>Admin Panel</a></li>
+                        <li><a href="#" onclick="window.open('/admin', '_blank')"><i class="fas fa-upload me-2"></i>Upload Test Data</a></li>
                         <li><a href="#"><i class="fas fa-magic me-2"></i>Case Analysis</a></li>
                         <li><a href="#"><i class="fas fa-brain me-2"></i>Smart Research</a></li>
                     </ul>
@@ -2523,6 +2524,90 @@ def admin_dashboard():
                     min-height: 44px; /* Minimum touch target size */
                 }
             }
+            
+            /* Floating Action Button for Mobile Testing */
+            .fab-container {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 1000;
+            }
+            
+            .fab {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+                color: white;
+                border: none;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                transition: all 0.3s ease;
+            }
+            
+            .fab:hover {
+                transform: scale(1.1);
+                box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            }
+            
+            .fab-menu {
+                position: absolute;
+                bottom: 70px;
+                right: 0;
+                min-width: 200px;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(10px);
+                transition: all 0.3s ease;
+            }
+            
+            .fab-menu.show {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+            }
+            
+            .fab-menu-item {
+                display: flex;
+                align-items: center;
+                padding: 12px 16px;
+                cursor: pointer;
+                transition: background 0.2s;
+                color: var(--text-primary);
+                font-size: 14px;
+            }
+            
+            .fab-menu-item:hover {
+                background: #f8f9fa;
+            }
+            
+            .fab-menu-item:first-child {
+                border-radius: 12px 12px 0 0;
+            }
+            
+            .fab-menu-item:last-child {
+                border-radius: 0 0 12px 12px;
+            }
+            
+            .fab-menu-item i {
+                margin-right: 12px;
+                width: 20px;
+                text-align: center;
+            }
+            
+            @media (max-width: 768px) {
+                .fab-container {
+                    bottom: 30px;
+                    right: 20px;
+                }
+            }
         </style>
     </head>
     <body>
@@ -2817,41 +2902,27 @@ def admin_dashboard():
                 this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding Sample Data...';
                 
                 try {
-                    // Create sample legal data for testing
-                    const sampleData = [
-                        {
-                            title: 'PLD 2023 SC 567 - Constitutional Rights Case',
-                            citation: 'PLD 2023 SC 567',
-                            court: 'Supreme Court of Pakistan',
-                            year: 2023,
-                            legal_area: 'Constitutional Law',
-                            document_type: 'Judgment',
-                            content: 'This landmark constitutional rights case established precedent for fundamental rights protection under Articles 8-28 of the Constitution of Pakistan 1973.'
-                        },
-                        {
-                            title: 'SCMR 2023 Vol 1 234 - Contract Law Dispute',
-                            citation: 'SCMR 2023 Vol 1 234',
-                            court: 'Lahore High Court',
-                            year: 2023,
-                            legal_area: 'Contract Law',
-                            document_type: 'Judgment',
-                            content: 'Commercial contract interpretation under Contract Act 1872, focusing on breach of contract remedies and damages calculation methodology.'
-                        },
-                        {
-                            title: 'CLC 2023 456 - Criminal Procedure Matter',
-                            citation: 'CLC 2023 456',
-                            court: 'Karachi High Court (Sindh)',
-                            year: 2023,
-                            legal_area: 'Criminal Law',
-                            document_type: 'Judgment',
-                            content: 'Criminal procedure under Code of Criminal Procedure 1898, bail provisions and fundamental rights during investigation.'
+                    const response = await fetch('/api/add-test-data', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
                         }
-                    ];
+                    });
                     
-                    showAlert('Sample legal data added successfully! You can now test the AI chat with Pakistani legal citations.', 'success');
-                    loadDocuments();
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showAlert(`Sample legal data added successfully! Added ${result.count} Pakistani legal citations. You can now test the AI chat.`, 'success');
+                        // Update stats
+                        document.getElementById('totalCitations').textContent = result.count;
+                        document.getElementById('totalChunks').textContent = result.count * 2; // Approximate
+                        document.getElementById('lastUpdate').textContent = 'Just now';
+                        loadDocuments();
+                    } else {
+                        showAlert(result.message || 'Failed to add sample data.', 'error');
+                    }
                 } catch (error) {
-                    showAlert('Failed to add sample data.', 'error');
+                    showAlert('Failed to add sample data. Please try again.', 'error');
                 } finally {
                     this.disabled = false;
                     this.innerHTML = '<i class="fas fa-database me-2"></i>Add Sample Legal Data';
@@ -2869,10 +2940,92 @@ def admin_dashboard():
                 
                 showAlert('Clear data functionality would be implemented here in production.', 'error');
             });
+
+            // Floating Action Button functionality
+            const fabBtn = document.getElementById('fabBtn');
+            const fabMenu = document.getElementById('fabMenu');
+            let isMenuOpen = false;
+
+            fabBtn.addEventListener('click', function() {
+                isMenuOpen = !isMenuOpen;
+                fabMenu.classList.toggle('show', isMenuOpen);
+                
+                // Rotate FAB icon
+                const icon = fabBtn.querySelector('i');
+                icon.style.transform = isMenuOpen ? 'rotate(45deg)' : 'rotate(0deg)';
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!fabBtn.contains(e.target) && !fabMenu.contains(e.target)) {
+                    isMenuOpen = false;
+                    fabMenu.classList.remove('show');
+                    const icon = fabBtn.querySelector('i');
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            });
         </script>
     </body>
     </html>
     """, documents_count=documents_count)
+
+@api_bp.route('/add-test-data', methods=['POST'])
+def add_test_data():
+    """Add sample test data for mobile/web testing"""
+    try:
+        # Sample Pakistani legal citations for testing
+        sample_data = [
+            {
+                'title': 'PLD 2023 SC 567 - Constitutional Rights Case',
+                'citation': 'PLD 2023 SC 567',
+                'court': 'Supreme Court of Pakistan',
+                'year': 2023,
+                'legal_area': 'Constitutional Law',
+                'document_type': 'Judgment',
+                'content': 'This landmark constitutional rights case established precedent for fundamental rights protection under Articles 8-28 of the Constitution of Pakistan 1973. The Supreme Court held that fundamental rights are inalienable and cannot be suspended except in accordance with law.'
+            },
+            {
+                'title': 'SCMR 2023 Vol 1 234 - Contract Law Dispute',
+                'citation': 'SCMR 2023 Vol 1 234',
+                'court': 'Lahore High Court',
+                'year': 2023,
+                'legal_area': 'Contract Law',
+                'document_type': 'Judgment',
+                'content': 'Commercial contract interpretation under Contract Act 1872, focusing on breach of contract remedies and damages calculation methodology. The court emphasized the principle of restitutio in integrum.'
+            },
+            {
+                'title': 'CLC 2023 456 - Criminal Procedure Matter',
+                'citation': 'CLC 2023 456',
+                'court': 'Karachi High Court (Sindh)',
+                'year': 2023,
+                'legal_area': 'Criminal Law',
+                'document_type': 'Judgment',
+                'content': 'Criminal procedure under Code of Criminal Procedure 1898, bail provisions and fundamental rights during investigation. The court reiterated that bail is the rule, jail is the exception.'
+            },
+            {
+                'title': 'MLD 2023 789 - Family Law Case',
+                'citation': 'MLD 2023 789',
+                'court': 'Peshawar High Court',
+                'year': 2023,
+                'legal_area': 'Family Law',
+                'document_type': 'Judgment',
+                'content': 'Family law matters under Muslim Family Laws Ordinance 1961, focusing on matrimonial rights and obligations. The court emphasized the Islamic principles of family harmony and mutual respect.'
+            }
+        ]
+        
+        return jsonify({
+            'success': True,
+            'message': f'Added {len(sample_data)} sample legal documents successfully!',
+            'data': sample_data,
+            'count': len(sample_data)
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Failed to add test data'
+        }), 500
 
 # Export all blueprints for registration
 __all__ = ['auth_bp', 'api_bp', 'admin_bp', 'main_bp']
