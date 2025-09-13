@@ -1664,15 +1664,26 @@ def public_home():
                     <div class="welcome-logo">
                         <img src="/static/images/logo.jpeg" alt="KanoonPK" class="welcome-logo-img">
                     </div>
-                    <h1 class="welcome-title">Smart Legal Research for Pakistan</h1>
-                    <p class="welcome-subtitle">Instant AI search across PLD, SCMR, CLC & MLD citations</p>
+                    <h1 class="welcome-title">Smart Legal Research</h1>
+                    <p class="welcome-subtitle">Instant AI search through Pakistan's Leading Law Reports</p>
                 </div>
 
                 <!-- Search Section -->
                 <div class="search-section">
                     <div class="search-header">
-                        <h2 class="search-title">Legal Research Made Simple</h2>
-                        <p class="search-subtitle">Choose your research method and start exploring Pakistan's legal landscape</p>
+                        <div class="smart-header-content">
+                            <div class="ai-badge">
+                                <i class="fas fa-brain"></i>
+                                <span>AI-Powered</span>
+                            </div>
+                            <h2 class="search-title">Legal Research Made Simple</h2>
+                            <p class="search-subtitle">Ask questions in plain English - our AI understands legal context and provides accurate answers with citations</p>
+                            <div class="smart-features">
+                                <span class="feature-tag"><i class="fas fa-bolt"></i> Instant Results</span>
+                                <span class="feature-tag"><i class="fas fa-shield-alt"></i> Verified Sources</span>
+                                <span class="feature-tag"><i class="fas fa-quote-right"></i> Auto Citations</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Search Types -->
@@ -1824,33 +1835,72 @@ def public_home():
                     </div>
                 </div>
 
-                <!-- Quick Access Section -->
+                <!-- Smart Quick Access Section -->
                 <div class="quick-access-section">
-                    <h3>Quick Access</h3>
-                    <div class="quick-access-grid">
-                        <div class="quick-access-item">
-                            <i class="fas fa-scroll"></i>
-                            <span>Constitution of Pakistan 1973</span>
+                    <div class="section-header">
+                        <h3><i class="fas fa-bolt me-2"></i>Smart Legal Shortcuts</h3>
+                        <p class="section-subtitle">Quick access to Pakistan's key legal documents</p>
+                    </div>
+                    <div class="smart-access-grid">
+                        <div class="smart-access-item" onclick="askAIQuestion('Explain Article 25 of Constitution of Pakistan 1973 regarding equality')">
+                            <div class="item-icon">
+                                <i class="fas fa-scroll"></i>
+                            </div>
+                            <div class="item-content">
+                                <h5>Constitution 1973</h5>
+                                <p>Fundamental rights & principles</p>
+                                <span class="item-badge">Click to search</span>
+                            </div>
                         </div>
-                        <div class="quick-access-item">
-                            <i class="fas fa-gavel"></i>
-                            <span>Pakistan Penal Code</span>
+                        <div class="smart-access-item" onclick="askAIQuestion('Show me recent amendments and interpretations of Pakistan Penal Code')">
+                            <div class="item-icon">
+                                <i class="fas fa-gavel"></i>
+                            </div>
+                            <div class="item-content">
+                                <h5>Pakistan Penal Code</h5>
+                                <p>Criminal law & procedures</p>
+                                <span class="item-badge">Click to search</span>
+                            </div>
                         </div>
-                        <div class="quick-access-item">
-                            <i class="fas fa-file-contract"></i>
-                            <span>Contract Act 1872</span>
+                        <div class="smart-access-item" onclick="askAIQuestion('Find Contract Act 1872 provisions on breach of contract and remedies')">
+                            <div class="item-icon">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            <div class="item-content">
+                                <h5>Contract Act 1872</h5>
+                                <p>Contract law & agreements</p>
+                                <span class="item-badge">Click to search</span>
+                            </div>
                         </div>
-                        <div class="quick-access-item">
-                            <i class="fas fa-building"></i>
-                            <span>Companies Act 2017</span>
+                        <div class="smart-access-item" onclick="askAIQuestion('Explain Companies Act 2017 requirements for corporate governance')">
+                            <div class="item-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="item-content">
+                                <h5>Companies Act 2017</h5>
+                                <p>Corporate law & governance</p>
+                                <span class="item-badge">Click to search</span>
+                            </div>
                         </div>
-                        <div class="quick-access-item">
-                            <i class="fas fa-users"></i>
-                            <span>Family Laws Ordinance</span>
+                        <div class="smart-access-item" onclick="askAIQuestion('Show Family Laws Ordinance provisions on marriage, divorce and custody')">
+                            <div class="item-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="item-content">
+                                <h5>Family Laws Ordinance</h5>
+                                <p>Family & matrimonial law</p>
+                                <span class="item-badge">Click to search</span>
+                            </div>
                         </div>
-                        <div class="quick-access-item">
-                            <i class="fas fa-balance-scale"></i>
-                            <span>Civil Procedure Code</span>
+                        <div class="smart-access-item" onclick="askAIQuestion('Find Civil Procedure Code rules on court proceedings and appeals')">
+                            <div class="item-icon">
+                                <i class="fas fa-balance-scale"></i>
+                            </div>
+                            <div class="item-content">
+                                <h5>Civil Procedure Code</h5>
+                                <p>Court procedures & appeals</p>
+                                <span class="item-badge">Click to search</span>
+                            </div>
                         </div>
                     </div>
                 </div>
