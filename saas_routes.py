@@ -1609,8 +1609,8 @@ def public_home():
                     <h4>AI Research Assistant</h4>
                     <ul class="sidebar-menu">
                         <li><a href="#" onclick="openAIChat()"><i class="fas fa-robot me-2"></i>Legal AI Chat</a></li>
+                        <li><a href="#" onclick="addSampleData()"><i class="fas fa-database me-2"></i>Add Sample Data</a></li>
                         <li><a href="/admin"><i class="fas fa-cog me-2"></i>Admin Panel</a></li>
-                        <li><a href="#" onclick="window.open('/admin', '_blank')"><i class="fas fa-upload me-2"></i>Upload Test Data</a></li>
                         <li><a href="#"><i class="fas fa-magic me-2"></i>Case Analysis</a></li>
                         <li><a href="#"><i class="fas fa-brain me-2"></i>Smart Research</a></li>
                     </ul>
@@ -2001,6 +2001,46 @@ def public_home():
             // Make functions globally available
             window.askAIQuestion = askAIQuestion;
             window.setAIQuestion = setAIQuestion;
+            
+            // Add sample data function
+            async function addSampleData() {
+                if (!confirm('This will add sample Pakistani legal documents for testing. Continue?')) {
+                    return;
+                }
+                
+                const button = document.querySelector('a[onclick*="addSampleData"]');
+                const originalHTML = button ? button.innerHTML : '';
+                
+                try {
+                    if (button) {
+                        button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding Data...';
+                    }
+                    
+                    const response = await fetch('/api/add-test-data', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert(`✅ SUCCESS! Added ${result.count} Pakistani legal citations:\n\n📚 PLD 2023 SC 567 - Constitutional Rights\n📚 SCMR 2023 Vol 1 234 - Contract Law  \n📚 CLC 2023 456 - Criminal Procedure\n📚 MLD 2023 789 - Family Law\n\n🤖 You can now test the AI chat with these legal documents!`);
+                    } else {
+                        alert('❌ Failed to add sample data: ' + (result.message || 'Unknown error'));
+                    }
+                } catch (error) {
+                    alert('❌ Error: Could not add sample data. Please try again.');
+                    console.error('Sample data error:', error);
+                } finally {
+                    if (button && originalHTML) {
+                        button.innerHTML = originalHTML;
+                    }
+                }
+            }
+            
+            window.addSampleData = addSampleData;
         </script>
     </body>
     </html>
