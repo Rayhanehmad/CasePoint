@@ -2867,32 +2867,7 @@ def admin_dashboard():
                 }
             }
 
-            /* Mobile App View - Performance Optimizations */
-            @media (max-width: 768px) {
-                /* Optimize animations for mobile */
-                * {
-                    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease !important;
-                }
-                
-                /* Better touch targets */
-                .smart-access-item {
-                    cursor: pointer;
-                    min-height: 44px; /* Apple's recommended minimum touch target */
-                }
-                
-                /* Prevent zoom on input focus */
-                input[type="text"], 
-                input[type="email"], 
-                input[type="password"], 
-                textarea {
-                    font-size: 16px !important;
-                }
-                
-                /* Smooth scrolling on mobile */
-                body {
-                    -webkit-overflow-scrolling: touch;
-                }
-            }
+            /* Note: Global mobile responsive fixes now injected via /static/responsive.css */
         </style>
     </head>
     <body>
