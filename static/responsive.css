@@ -12,10 +12,28 @@
     /* Targeted overflow prevention for mobile */
     html {
         overflow-x: hidden;
+        width: 100%;
     }
     
     body {
         -webkit-overflow-scrolling: touch;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* CRITICAL: Force full width on mobile by overriding ALL container max-widths */
+    .container, 
+    .container-fluid, 
+    .header-container, 
+    .search-form-container,
+    .main-container,
+    .content-container,
+    [class*="container"] {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
     }
     
     /* Responsive media elements */
