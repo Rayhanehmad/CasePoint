@@ -1,0 +1,155 @@
+/* Global Mobile Responsive Fixes for KanoonPK */
+
+/* Ensure proper viewport meta tag is working */
+@viewport {
+    width: device-width;
+    initial-scale: 1;
+    user-scalable: yes;
+}
+
+/* Mobile App View - Targeted Responsive Fixes (App-wide) */
+@media (max-width: 768px) {
+    /* Targeted overflow prevention for mobile */
+    html {
+        overflow-x: hidden;
+    }
+    
+    body {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Responsive media elements */
+    img, video, iframe, object, embed {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    /* Responsive text content */
+    pre, code {
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+    
+    /* Better touch targets */
+    .smart-access-item, .btn, .form-control {
+        min-height: 44px; /* Apple's recommended minimum touch target */
+    }
+    
+    /* Prevent zoom on input focus (iOS Safari) */
+    input[type="text"], 
+    input[type="email"], 
+    input[type="password"], 
+    input[type="search"],
+    textarea, 
+    select {
+        font-size: 16px;
+    }
+    
+    /* Responsive table wrapper */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    table {
+        word-break: break-word;
+    }
+    
+    /* Flexible container spacing */
+    .container, .container-fluid {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    /* Text wrapping for long content */
+    .citation-text, .legal-text, .search-result {
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+    
+    /* Responsive flex children */
+    .d-flex > *, .flex > * {
+        min-width: 0;
+    }
+    
+    /* Fix Bootstrap grid overflow - be more conservative */
+    .row {
+        margin-left: -12px;
+        margin-right: -12px;
+    }
+    
+    .col, [class*="col-"] {
+        padding-left: 12px;
+        padding-right: 12px;
+        word-wrap: break-word;
+    }
+    
+    /* Responsive utility classes */
+    .text-truncate-mobile {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    /* Fix modal responsiveness */
+    .modal-dialog {
+        margin: 10px;
+        max-width: calc(100% - 20px);
+    }
+    
+    /* Fix dropdown menus */
+    .dropdown-menu {
+        max-width: 100%;
+        word-wrap: break-word;
+    }
+}
+
+/* Small mobile devices (phones) */
+@media (max-width: 480px) {
+    /* More aggressive spacing for tiny screens */
+    .container, .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    /* Stack buttons vertically */
+    .btn-group-mobile .btn {
+        display: block;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    /* Smaller text for space efficiency */
+    .small-mobile {
+        font-size: 0.875rem;
+    }
+    
+    /* Hide non-essential elements on very small screens */
+    .hide-mobile {
+        display: none !important;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Remove hover effects on touch devices */
+    .hover-desktop:hover {
+        transform: none !important;
+        box-shadow: inherit !important;
+    }
+    
+    /* Better tap targets */
+    button, .btn, a, input, select, textarea {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* High DPI/Retina displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Crisp images on retina displays */
+    img {
+        image-rendering: -webkit-optimize-contrast;
+    }
+}

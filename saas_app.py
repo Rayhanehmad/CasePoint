@@ -93,6 +93,64 @@ def user_lookup_callback(_jwt_header, jwt_data):
     return User.query.filter_by(id=identity).one_or_none()
 
 # =============================================================================
+# GLOBAL RESPONSIVE CSS INJECTION
+# =============================================================================
+
+@app.after_request
+def inject_mobile_fixes(response):
+    """Inject responsive CSS and viewport meta tag into all HTML responses"""
+    if (response.mimetype == 'text/html' and 
+        response.status_code == 200 and 
+        response.data):
+        
+        try:
+            data = response.data.decode('utf-8')
+            modifications_made = False
+            
+            # Find </head> tag (case-insensitive)
+            import re
+            head_match = re.search(r'</head>', data, re.IGNORECASE)
+            
+            if head_match:
+                head_pos = head_match.start()
+                before_head = data[:head_pos]
+                after_head = data[head_pos:]
+                
+                injections = []
+                
+                # Check and inject viewport meta tag if missing
+                if not re.search(r'<meta[^>]*name=["\']viewport["\']', before_head, re.IGNORECASE):
+                    injections.append('    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">')
+                    modifications_made = True
+                
+                # Check and inject responsive CSS if missing
+                if ('/static/responsive.css' not in data and 
+                    'responsive.css' not in data):
+                    injections.append('    <link rel="stylesheet" href="/static/responsive.css">')
+                    modifications_made = True
+                
+                # Apply injections
+                if injections:
+                    injection_text = '\n'.join(injections) + '\n'
+                    data = before_head + injection_text + after_head
+            
+            elif modifications_made:
+                # Fallback: prepend at start of HTML if no </head> found
+                viewport_meta = '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+                css_link = '<link rel="stylesheet" href="/static/responsive.css">\n'
+                data = viewport_meta + css_link + data
+            
+            if modifications_made:
+                response.data = data.encode('utf-8')
+                response.content_length = len(response.data)
+                
+        except Exception as e:
+            # Log error but don't break the response
+            logger.error(f"Mobile fixes injection error: {e}")
+    
+    return response
+
+# =============================================================================
 # TENANT MIDDLEWARE
 # =============================================================================
 
