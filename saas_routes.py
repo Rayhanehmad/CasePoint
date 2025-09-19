@@ -2699,6 +2699,200 @@ def admin_dashboard():
                     right: 20px;
                 }
             }
+
+            /* Enhanced Mobile App View - Smart Interface */
+            @media (max-width: 768px) {
+                /* Smart Legal Shortcuts Mobile Optimization */
+                .smart-access-grid {
+                    grid-template-columns: 1fr 1fr !important;
+                    gap: 12px !important;
+                }
+                
+                .smart-access-item {
+                    padding: 16px 12px !important;
+                    min-height: 120px;
+                    border-radius: 12px;
+                    -webkit-tap-highlight-color: rgba(77, 208, 183, 0.2);
+                    touch-action: manipulation;
+                }
+                
+                .smart-access-item:active {
+                    transform: scale(0.98);
+                    background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.15));
+                }
+                
+                .item-icon i {
+                    font-size: 1.8rem !important;
+                    margin-bottom: 8px;
+                }
+                
+                .item-content h5 {
+                    font-size: 0.85rem !important;
+                    margin-bottom: 4px;
+                }
+                
+                .item-content p {
+                    font-size: 0.75rem !important;
+                    margin-bottom: 8px !important;
+                    line-height: 1.2;
+                }
+                
+                .item-badge {
+                    font-size: 0.7rem !important;
+                    padding: 3px 8px !important;
+                }
+                
+                /* AI Features Mobile Enhancement */
+                .ai-badge {
+                    padding: 8px 14px !important;
+                    font-size: 0.8rem !important;
+                    margin-bottom: 12px;
+                }
+                
+                .smart-features {
+                    flex-direction: row !important;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                    gap: 6px !important;
+                }
+                
+                .feature-tag {
+                    padding: 5px 10px !important;
+                    font-size: 0.7rem !important;
+                    border-radius: 12px;
+                }
+                
+                /* Mobile Search Enhancement */
+                .search-section {
+                    padding: 20px !important;
+                    margin-bottom: 20px !important;
+                }
+                
+                .search-title {
+                    font-size: 1.4rem !important;
+                }
+                
+                .search-subtitle {
+                    font-size: 0.9rem !important;
+                }
+                
+                /* Enhanced Mobile Navigation */
+                .hero-section {
+                    padding: 30px 0 !important;
+                }
+                
+                .hero-title {
+                    font-size: 1.8rem !important;
+                    line-height: 1.2;
+                }
+                
+                .hero-subtitle {
+                    font-size: 0.95rem !important;
+                }
+                
+                .btn-primary {
+                    padding: 14px 24px !important;
+                    font-size: 1rem !important;
+                    min-height: 48px;
+                    width: 100%;
+                    margin-bottom: 10px;
+                }
+            }
+
+            /* Mobile App View - Small Devices */
+            @media (max-width: 480px) {
+                /* Single Column Layout */
+                .smart-access-grid {
+                    grid-template-columns: 1fr !important;
+                    gap: 10px !important;
+                }
+                
+                .smart-access-item {
+                    padding: 14px !important;
+                    min-height: 100px;
+                }
+                
+                .quick-access-section {
+                    padding: 16px !important;
+                    margin: 16px 0 !important;
+                }
+                
+                .section-header h3 {
+                    font-size: 1.2rem !important;
+                }
+                
+                .section-subtitle {
+                    font-size: 0.85rem !important;
+                }
+                
+                .search-title {
+                    font-size: 1.3rem !important;
+                }
+                
+                .search-subtitle {
+                    font-size: 0.85rem !important;
+                }
+                
+                .hero-title {
+                    font-size: 1.6rem !important;
+                }
+                
+                .hero-subtitle {
+                    font-size: 0.9rem !important;
+                }
+                
+                /* Touch Optimization */
+                .smart-access-item:hover::before {
+                    display: none; /* Remove shine effect on mobile for performance */
+                }
+                
+                .smart-access-item:active {
+                    transition: transform 0.1s ease;
+                }
+                
+                /* Form Improvements for Mobile */
+                .form-control {
+                    font-size: 16px !important; /* Prevents zoom on iOS */
+                    min-height: 48px;
+                }
+                
+                .btn {
+                    min-height: 48px;
+                    font-size: 16px !important;
+                }
+                
+                /* Container Spacing */
+                .container {
+                    padding: 0 12px !important;
+                }
+            }
+
+            /* Mobile App View - Performance Optimizations */
+            @media (max-width: 768px) {
+                /* Optimize animations for mobile */
+                * {
+                    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease !important;
+                }
+                
+                /* Better touch targets */
+                .smart-access-item {
+                    cursor: pointer;
+                    min-height: 44px; /* Apple's recommended minimum touch target */
+                }
+                
+                /* Prevent zoom on input focus */
+                input[type="text"], 
+                input[type="email"], 
+                input[type="password"], 
+                textarea {
+                    font-size: 16px !important;
+                }
+                
+                /* Smooth scrolling on mobile */
+                body {
+                    -webkit-overflow-scrolling: touch;
+                }
+            }
         </style>
     </head>
     <body>
