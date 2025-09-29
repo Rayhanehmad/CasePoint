@@ -68,7 +68,7 @@ class BaseModel(db.Model):
 class TenantMixin:
     """Mixin for tenant-aware models"""
     
-    tenant_id = db.Column(UUID(as_uuid=True), nullable=False, index=True)
+    tenant_id = db.Column(UUID(as_uuid=True), db.ForeignKey('tenant.id'), nullable=False, index=True)
     
     @classmethod
     def for_tenant(cls, tenant_id):

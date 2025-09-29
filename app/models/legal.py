@@ -176,9 +176,8 @@ class SearchQuery(BaseModel, TenantMixin):
     # Search context
     search_context = db.Column(JSON, default=dict)  # Additional context for AI searches
     
-    # Relationships
-    user = db.relationship('User', backref='search_history')
-    results = db.relationship('SearchResult', backref='query', lazy='dynamic')
+    # Relationships  
+    results = db.relationship('SearchResult', backref='search_query', lazy='dynamic')
     
     def __repr__(self):
         return f'<SearchQuery {self.query_text[:50]}>'
