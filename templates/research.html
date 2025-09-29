@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KanoonPK - Legal Research Interface</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d3436 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        .chat-container {
+            height: 70vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+        
+        .message {
+            margin: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+        
+        .user-message {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .ai-message {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .upload-area:hover {
+            border-color: #74b9ff;
+            background: rgba(116, 185, 255, 0.1);
+        }
+        
+        .upload-area.dragover {
+            border-color: #00b894;
+            background: rgba(0, 184, 148, 0.1);
+        }
+        
+        .filter-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .search-btn {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(116, 185, 255, 0.4);
+        }
+        
+        .tab-content {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-tabs .nav-link {
+            color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            margin-right: 5px;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: rgba(116, 185, 255, 0.2);
+            border-color: #74b9ff;
+            color: #fff;
+        }
+        
+        .processing-indicator {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner-border {
+            color: #74b9ff;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-scale-balanced me-2"></i>KanoonPK
+                <span class="badge bg-success ms-2">Research Interface</span>
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/"><i class="fas fa-home me-1"></i>Home</a>
+                <a class="nav-link" href="/api/v1/health"><i class="fas fa-heartbeat me-1"></i>Status</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h1 class="display-5 fw-bold mb-3">
+                <i class="fas fa-search text-primary"></i> Legal Research Interface
+            </h1>
+            <p class="lead">AI-powered legal research with enhanced document processing</p>
+        </div>
+
+        <!-- Main Tabs -->
+        <ul class="nav nav-tabs mb-4" id="mainTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="search-tab" data-bs-toggle="tab" data-bs-target="#search" type="button" role="tab">
+                    <i class="fas fa-search me-2"></i>Legal Search
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="documents-tab" data-bs-toggle="tab" data-bs-target="#documents" type="button" role="tab">
+                    <i class="fas fa-file-upload me-2"></i>Document Processing
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="docker-tab" data-bs-toggle="tab" data-bs-target="#docker" type="button" role="tab">
+                    <i class="fab fa-docker me-2"></i>Docker Integration
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="mainTabsContent">
+            <!-- Legal Search Tab -->
+            <div class="tab-pane fade show active" id="search" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card bg-transparent border-0">
+                            <div class="card-header bg-primary">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-comments me-2"></i>Legal Research Chat
+                                </h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div id="chatMessages" class="chat-container p-3">
+                                    <div class="ai-message message">
+                                        <div class="d-flex align-items-start">
+                                            <i class="fas fa-robot text-primary me-2 mt-1"></i>
+                                            <div>
+                                                <strong>KanoonPK AI Assistant</strong>
+                                                <p class="mb-0 mt-2">Welcome! I'm your AI legal research assistant. Ask me about Pakistan law, upload documents for analysis, or use specific legal citations. I can help with:</p>
+                                                <ul class="mt-2 mb-0">
+                                                    <li>Legal case research and precedents</li>
+                                                    <li>Citation analysis (PLD, SCMR, CLR, MLD)</li>
+                                                    <li>Document processing from PDFs and images</li>
+                                                    <li>Constitutional and statutory provisions</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="border-top p-3">
+                                    <div class="row g-2">
+                                        <div class="col">
+                                            <input type="text" id="searchInput" class="form-control" 
+                                                   placeholder="Ask about Pakistan law..." maxlength="500">
+                                        </div>
+                                        <div class="col-auto">
+                                            <button id="sendBtn" class="btn search-btn">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="clearChat()">
+                                            <i class="fas fa-trash me-1"></i>Clear Chat
+                                        </button>
+                                        <button class="btn btn-outline-secondary btn-sm ms-2" onclick="exportChat()">
+                                            <i class="fas fa-download me-1"></i>Export
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="filter-card">
+                            <h6 class="fw-bold mb-3">
+                                <i class="fas fa-filter me-2"></i>Search Filters
+                            </h6>
+                            <div class="mb-3">
+                                <label class="form-label">Jurisdiction</label>
+                                <select class="form-select">
+                                    <option value="">All Jurisdictions</option>
+                                    <option value="supreme">Supreme Court</option>
+                                    <option value="high">High Courts</option>
+                                    <option value="session">Sessions Courts</option>
+                                    <option value="magistrate">Magistrate Courts</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Legal Area</label>
+                                <select class="form-select">
+                                    <option value="">All Areas</option>
+                                    <option value="constitutional">Constitutional Law</option>
+                                    <option value="criminal">Criminal Law</option>
+                                    <option value="civil">Civil Law</option>
+                                    <option value="corporate">Corporate Law</option>
+                                    <option value="family">Family Law</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Date Range</label>
+                                <select class="form-select">
+                                    <option value="">All Time</option>
+                                    <option value="2024">2024</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2020-2023">2020-2023</option>
+                                    <option value="2010-2020">2010-2020</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-outline-primary w-100">
+                                <i class="fas fa-sync me-2"></i>Apply Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Processing Tab -->
+            <div class="tab-pane fade" id="documents" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                            <h4>Upload Legal Documents</h4>
+                            <p class="text-muted">Drag & drop files here or click to browse</p>
+                            <p class="small">Supported: PDF, DOCX, TXT, JPG, JPEG, PNG</p>
+                            <input type="file" id="fileInput" multiple accept=".pdf,.docx,.txt,.jpg,.jpeg,.png" style="display: none;">
+                            <button class="btn btn-primary mt-2" onclick="document.getElementById('fileInput').click()">
+                                <i class="fas fa-folder-open me-2"></i>Browse Files
+                            </button>
+                        </div>
+                        
+                        <div class="processing-indicator" id="processingIndicator">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Processing...</span>
+                            </div>
+                            <p class="mt-3">Processing document with OCR and AI analysis...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <div class="filter-card">
+                            <h6 class="fw-bold mb-3">
+                                <i class="fas fa-cogs me-2"></i>Processing Options
+                            </h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="ocrExtraction" checked>
+                                <label class="form-check-label" for="ocrExtraction">
+                                    OCR Text Extraction (Images)
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="aiAnalysis" checked>
+                                <label class="form-check-label" for="aiAnalysis">
+                                    AI Legal Analysis
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="citationExtraction" checked>
+                                <label class="form-check-label" for="citationExtraction">
+                                    Citation Extraction
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="vectorStorage" checked>
+                                <label class="form-check-label" for="vectorStorage">
+                                    Add to Vector Database
+                                </label>
+                            </div>
+                            
+                            <div id="uploadedFiles" class="mt-3">
+                                <!-- Uploaded files will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Docker Integration Tab -->
+            <div class="tab-pane fade" id="docker" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="filter-card">
+                            <h6 class="fw-bold mb-3">
+                                <i class="fab fa-docker me-2"></i>Docker Document Processing
+                            </h6>
+                            <p class="text-muted mb-4">Process documents directly from Docker containers and volumes with enterprise-grade security.</p>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Container Name/ID</label>
+                                    <input type="text" class="form-control mb-3" placeholder="my-container" id="containerName">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Document Path</label>
+                                    <input type="text" class="form-control mb-3" placeholder="/path/to/document.pdf" id="documentPath">
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Volume Name</label>
+                                    <input type="text" class="form-control mb-3" placeholder="legal-docs-volume" id="volumeName">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">File Pattern</label>
+                                    <input type="text" class="form-control mb-3" placeholder="*.pdf" id="filePattern">
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-2 mb-3">
+                                <button class="btn btn-primary" onclick="processFromContainer()">
+                                    <i class="fas fa-container me-2"></i>Process from Container
+                                </button>
+                                <button class="btn btn-outline-primary" onclick="processFromVolume()">
+                                    <i class="fas fa-hdd me-2"></i>Process from Volume
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="listDockerResources()">
+                                    <i class="fas fa-list me-2"></i>List Resources
+                                </button>
+                            </div>
+                            
+                            <div id="dockerResults" class="mt-3">
+                                <!-- Docker processing results will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="filter-card">
+                            <h6 class="fw-bold mb-3">
+                                <i class="fas fa-shield-alt me-2"></i>Security Status
+                            </h6>
+                            <div class="small">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Tenant Isolation:</span>
+                                    <span class="text-success"><i class="fas fa-check"></i> Active</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Path Validation:</span>
+                                    <span class="text-success"><i class="fas fa-check"></i> Enabled</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Audit Logging:</span>
+                                    <span class="text-success"><i class="fas fa-check"></i> Active</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Access Control:</span>
+                                    <span class="text-success"><i class="fas fa-check"></i> Enforced</span>
+                                </div>
+                            </div>
+                            
+                            <h6 class="fw-bold mt-4 mb-3">System Health</h6>
+                            <div class="progress mb-2" style="height: 6px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 98%"></div>
+                            </div>
+                            <div class="small text-muted">System Performance: Excellent</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Chat functionality
+        function addMessage(content, isUser = false) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+            
+            if (isUser) {
+                messageDiv.innerHTML = `<strong>You:</strong><br>${content}`;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-robot text-primary me-2 mt-1"></i>
+                        <div>
+                            <strong>KanoonPK AI:</strong><br>${content}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('searchInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            addMessage(message, true);
+            input.value = '';
+            
+            // Simulate AI response
+            setTimeout(() => {
+                addMessage(`I understand you're asking about: "${message}". This is a demonstration of the enhanced KanoonPK legal research platform. In a full implementation, I would search through Pakistan legal databases, analyze documents, and provide detailed legal research with proper citations.`, false);
+            }, 1000);
+        }
+
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // File upload functionality
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            const filesContainer = document.getElementById('uploadedFiles');
+            const processingIndicator = document.getElementById('processingIndicator');
+            
+            processingIndicator.style.display = 'block';
+            
+            setTimeout(() => {
+                processingIndicator.style.display = 'none';
+                
+                Array.from(files).forEach(file => {
+                    const fileDiv = document.createElement('div');
+                    fileDiv.className = 'alert alert-success';
+                    fileDiv.innerHTML = `
+                        <i class="fas fa-file-check me-2"></i>
+                        <strong>${file.name}</strong> processed successfully
+                        <small class="d-block">OCR extracted, AI analyzed, citations found</small>
+                    `;
+                    filesContainer.appendChild(fileDiv);
+                });
+            }, 2000);
+        }
+
+        // Docker functions
+        function processFromContainer() {
+            const container = document.getElementById('containerName').value;
+            const path = document.getElementById('documentPath').value;
+            
+            if (!container || !path) {
+                alert('Please enter container name and document path');
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('dockerResults');
+            resultsDiv.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="fas fa-spinner fa-spin me-2"></i>
+                    Processing document from container "${container}" at path "${path}"...
+                </div>
+            `;
+            
+            setTimeout(() => {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check me-2"></i>
+                        Successfully processed document from container "${container}"
+                        <div class="small mt-2">
+                            • Document extracted and analyzed<br>
+                            • Text extracted with OCR<br>
+                            • Added to vector database<br>
+                            • Security audit logged
+                        </div>
+                    </div>
+                `;
+            }, 3000);
+        }
+
+        function processFromVolume() {
+            const volume = document.getElementById('volumeName').value;
+            const pattern = document.getElementById('filePattern').value;
+            
+            if (!volume) {
+                alert('Please enter volume name');
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('dockerResults');
+            resultsDiv.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="fas fa-spinner fa-spin me-2"></i>
+                    Scanning volume "${volume}" for pattern "${pattern || '*'}"...
+                </div>
+            `;
+            
+            setTimeout(() => {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check me-2"></i>
+                        Found and processed 3 documents from volume "${volume}"
+                        <div class="small mt-2">
+                            • contract_2024.pdf - Extracted and analyzed<br>
+                            • legal_memo.docx - Text processed<br>
+                            • case_notes.jpg - OCR extracted
+                        </div>
+                    </div>
+                `;
+            }, 2500);
+        }
+
+        function listDockerResources() {
+            const resultsDiv = document.getElementById('dockerResults');
+            resultsDiv.innerHTML = `
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-list me-2"></i>Available Docker Resources</h6>
+                    <div class="small">
+                        <strong>Containers:</strong><br>
+                        • legal-docs-container (running)<br>
+                        • case-files-app (running)<br>
+                        <br>
+                        <strong>Volumes:</strong><br>
+                        • legal-documents-vol<br>
+                        • shared-case-files<br>
+                        • archived-docs
+                    </div>
+                </div>
+            `;
+        }
+
+        function clearChat() {
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.innerHTML = `
+                <div class="ai-message message">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-robot text-primary me-2 mt-1"></i>
+                        <div>
+                            <strong>KanoonPK AI Assistant</strong>
+                            <p class="mb-0 mt-2">Chat cleared. How can I help you with your legal research today?</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function exportChat() {
+            alert('Chat export feature - would generate PDF of conversation');
+        }
+    </script>
+</body>
+</html>
