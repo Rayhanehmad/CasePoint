@@ -28,7 +28,13 @@ class Config:
     # File upload settings
     UPLOAD_FOLDER = 'uploads'
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
-    ALLOWED_EXTENSIONS = {'pdf', 'docx', 'txt'}
+    ALLOWED_EXTENSIONS = {'pdf', 'docx', 'txt', 'jpg', 'jpeg', 'png'}
+    
+    # Docker and OCR settings
+    DOCKER_VOLUMES_PATH = os.environ.get('DOCKER_VOLUMES_PATH') or '/docker_volumes'
+    OCR_ENABLED = True
+    OCR_LANGUAGE = 'eng'  # Default Tesseract language
+    OCR_CONFIG = '--psm 6'  # Page segmentation mode for documents
     
     # External service settings
     OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')

@@ -147,11 +147,15 @@ def register_blueprints(app):
     from app.billing import billing_bp
     from app.search import search_bp
     from app.analytics import analytics_bp
+    from app.api.documents import documents_bp
+    from app.api.health import health_bp
     
     # Register blueprints with URL prefixes
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(api_bp, url_prefix='/api/v1')
+    app.register_blueprint(documents_bp, url_prefix='/api/v1/documents')
+    app.register_blueprint(health_bp, url_prefix='/api/v1')
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(billing_bp, url_prefix='/billing')
     app.register_blueprint(search_bp, url_prefix='/search')
