@@ -21,3 +21,5 @@ pyjwt
 flask-migrate
 redis
 flask-migrate
+pillow
+pytesseract
