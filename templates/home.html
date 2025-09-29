@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+
+{% block title %}KanoonPK - Pakistan's Premier Legal Research Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Search Section -->
+<section class="search-hero">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="text-center mb-5">
+                    <h1 class="display-4 fw-bold mb-3">
+                        <i class="fas fa-balance-scale me-3"></i>KanoonPK
+                    </h1>
+                    <p class="lead mb-4">Pakistan's Most Comprehensive Legal Research Platform</p>
+                    <p class="mb-0">Search through cases, statutes, rules, and get AI-powered legal analysis</p>
+                </div>
+                
+                <div class="search-box">
+                    <!-- Search Tabs -->
+                    <ul class="nav nav-tabs search-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" href="#" data-category="all" role="tab">
+                                <i class="fas fa-search me-2"></i>All Legal Content
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" href="#" data-category="cases" role="tab">
+                                <i class="fas fa-gavel me-2"></i>Cases
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" href="#" data-category="statutes" role="tab">
+                                <i class="fas fa-book me-2"></i>Statutes
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" href="#" data-category="rules" role="tab">
+                                <i class="fas fa-list-ul me-2"></i>Rules
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" href="#" data-category="ai" role="tab">
+                                <i class="fas fa-robot me-2"></i>AI Analysis
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <!-- Search Form -->
+                    <form class="search-form" id="searchForm" action="{{ url_for('search_results') }}" method="GET">
+                        <div class="row g-3">
+                            <div class="col-lg-9">
+                                <input type="text" 
+                                       class="form-control form-control-lg" 
+                                       id="searchQuery" 
+                                       name="q"
+                                       placeholder="Search cases, statutes, rules, and more..."
+                                       required>
+                                <input type="hidden" id="searchCategory" name="category" value="all">
+                            </div>
+                            <div class="col-lg-3">
+                                <button type="submit" class="btn btn-search btn-lg w-100" id="searchSubmitBtn">
+                                    <i class="fas fa-search me-2"></i>Search
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Advanced Search Toggle -->
+                        <div class="text-center mt-3">
+                            <a href="#" class="advanced-search-toggle" id="advancedSearchToggle">
+                                <i class="fas fa-chevron-down me-2"></i>Advanced Search
+                            </a>
+                        </div>
+                        
+                        <!-- Advanced Search Panel -->
+                        <div class="advanced-search-panel" id="advancedSearchPanel" style="display: none;">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="court" class="form-label">Court</label>
+                                    <select class="form-select" id="court" name="court">
+                                        <option value="">All Courts</option>
+                                        <option value="sc">Supreme Court</option>
+                                        <option value="shc">Sindh High Court</option>
+                                        <option value="lhc">Lahore High Court</option>
+                                        <option value="phc">Peshawar High Court</option>
+                                        <option value="bhc">Balochistan High Court</option>
+                                        <option value="ihc">Islamabad High Court</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="year" class="form-label">Year</label>
+                                    <select class="form-select" id="year" name="year">
+                                        <option value="">All Years</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2023">2023</option>
+                                        <option value="2022">2022</option>
+                                        <option value="2021">2021</option>
+                                        <option value="2020">2020</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="jurisdiction" class="form-label">Jurisdiction</label>
+                                    <select class="form-select" id="jurisdiction" name="jurisdiction">
+                                        <option value="">All Jurisdictions</option>
+                                        <option value="federal">Federal</option>
+                                        <option value="punjab">Punjab</option>
+                                        <option value="sindh">Sindh</option>
+                                        <option value="kpk">Khyber Pakhtunkhwa</option>
+                                        <option value="balochistan">Balochistan</option>
+                                        <option value="islamabad">Islamabad</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="citation" class="form-label">Citation Contains</label>
+                                    <input type="text" class="form-control" id="citation" name="citation" placeholder="e.g., PLD, SCMR, CLC">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Access Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-center mb-5">Quick Access to Legal Resources</h2>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <i class="fas fa-gavel fa-3x text-primary-custom"></i>
+                        </div>
+                        <h5 class="card-title">Supreme Court Cases</h5>
+                        <p class="card-text">Search through landmark Supreme Court judgments and precedents</p>
+                        <a href="{{ url_for('search_cases') }}" class="btn btn-outline-primary">Browse Cases</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <i class="fas fa-book fa-3x text-primary-custom"></i>
+                        </div>
+                        <h5 class="card-title">Federal Statutes</h5>
+                        <p class="card-text">Access comprehensive federal and provincial legislation</p>
+                        <a href="{{ url_for('search_statutes') }}" class="btn btn-outline-primary">Browse Acts</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <i class="fas fa-list-ul fa-3x text-primary-custom"></i>
+                        </div>
+                        <h5 class="card-title">Rules & Regulations</h5>
+                        <p class="card-text">Find specific rules, regulations, and procedural guidelines</p>
+                        <a href="{{ url_for('search_rules') }}" class="btn btn-outline-primary">Browse Rules</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <i class="fas fa-robot fa-3x text-primary-custom"></i>
+                        </div>
+                        <h5 class="card-title">AI Legal Analysis</h5>
+                        <p class="card-text">Get intelligent legal research assistance powered by AI</p>
+                        <a href="{{ url_for('ai_analysis') }}" class="btn btn-outline-primary">Try AI Analysis</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-center mb-5">Why Choose KanoonPK?</h2>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-database fa-2x text-primary-custom"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5>Comprehensive Database</h5>
+                        <p class="mb-0">Access to Pakistan's most extensive collection of legal documents, cases, and statutes.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-search fa-2x text-primary-custom"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5>Advanced Search</h5>
+                        <p class="mb-0">Powerful search capabilities with filters for courts, years, jurisdictions, and citation types.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-magic fa-2x text-primary-custom"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5>AI-Powered Analysis</h5>
+                        <p class="mb-0">Get intelligent legal research assistance and case analysis using advanced AI technology.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-clock fa-2x text-primary-custom"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5>Regular Updates</h5>
+                        <p class="mb-0">Stay current with the latest judgments, amendments, and legal developments.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-mobile-alt fa-2x text-primary-custom"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5>Mobile Friendly</h5>
+                        <p class="mb-0">Access legal research tools anywhere with our responsive design and mobile optimization.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-shield-alt fa-2x text-primary-custom"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5>Secure & Reliable</h5>
+                        <p class="mb-0">Professional-grade security and reliability for law firms and legal professionals.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle search tab switching
+    const searchTabs = document.querySelectorAll('.search-tabs .nav-link');
+    const searchInput = document.getElementById('searchQuery');
+    const categoryInput = document.getElementById('searchCategory');
+    const searchForm = document.getElementById('searchForm');
+    
+    // Tab switching logic
+    searchTabs.forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active from all tabs
+            searchTabs.forEach(t => t.classList.remove('active'));
+            // Add active to clicked tab
+            this.classList.add('active');
+            
+            const category = this.getAttribute('data-category');
+            categoryInput.value = category;
+            
+            // Update placeholder and form action based on category
+            const placeholders = {
+                'all': 'Search cases, statutes, rules, and more...',
+                'cases': 'Search case law and judgments...',
+                'statutes': 'Search statutes and acts...',
+                'rules': 'Search rules and regulations...',
+                'ai': 'Ask AI a legal question...'
+            };
+            
+            if (placeholders[category]) {
+                searchInput.setAttribute('placeholder', placeholders[category]);
+            }
+            
+            // Change form action for AI tab
+            if (category === 'ai') {
+                searchForm.action = '{{ url_for("ai_analysis") }}';
+                searchInput.name = 'query';
+            } else {
+                searchForm.action = '{{ url_for("search_results") }}';
+                searchInput.name = 'q';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

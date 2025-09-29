@@ -19,157 +19,40 @@ app.secret_key = os.environ.get("SESSION_SECRET", "kanoonpk-dev-secret-2024")
 # Configure OpenAI with legacy API
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Simple HTML template for the frontend
-HTML_TEMPLATE = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KanoonPK - Legal Research with OpenAI</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            text-align: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
-        }
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            resize: vertical;
-            min-height: 100px;
-        }
-        button {
-            background: #667eea;
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background: #5a6fd8;
-        }
-        .result {
-            margin-top: 20px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 5px;
-            border-left: 4px solid #667eea;
-        }
-        .loading {
-            text-align: center;
-            color: #666;
-        }
-        .error {
-            color: #dc3545;
-            background: #f8d7da;
-            border-color: #dc3545;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>🏛️ KanoonPK Legal Research</h1>
-        <p>AI-Powered Legal Analysis for Pakistan Law</p>
-    </div>
-    
-    <div class="container">
-        <form id="legalForm">
-            <div class="form-group">
-                <label for="query">Legal Question:</label>
-                <textarea id="query" name="query" placeholder="Enter your legal question or case details..." required></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="context">Legal Context (Optional):</label>
-                <textarea id="context" name="context" placeholder="Provide any relevant case law, statutes, or legal documents..."></textarea>
-            </div>
-            
-            <button type="submit" id="submitBtn">Analyze with AI</button>
-        </form>
-        
-        <div id="result" style="display: none;"></div>
-    </div>
+# Sample legal data for demonstration
+SAMPLE_CASES = [
+    {
+        'title': 'Federation of Pakistan v. Gul Hassan Khan',
+        'citation': 'PLD 1976 SC 57',
+        'court': 'Supreme Court',
+        'year': '1976',
+        'snippet': 'Important case regarding constitutional principles and separation of powers...'
+    },
+    {
+        'title': 'Malik Asad Ali v. Federation of Pakistan', 
+        'citation': 'PLD 1998 SC 161',
+        'court': 'Supreme Court',
+        'year': '1998',
+        'snippet': 'Landmark judgment on fundamental rights and judicial review...'
+    }
+]
 
-    <script>
-        document.getElementById('legalForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('submitBtn');
-            const resultDiv = document.getElementById('result');
-            const query = document.getElementById('query').value;
-            const context = document.getElementById('context').value;
-            
-            // Show loading state
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Analyzing...';
-            resultDiv.style.display = 'block';
-            resultDiv.className = 'result loading';
-            resultDiv.innerHTML = '🤖 AI is analyzing your legal question...';
-            
-            try {
-                const response = await fetch('/api/analyze', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        query: query,
-                        context: context
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    resultDiv.className = 'result';
-                    resultDiv.innerHTML = '<h3>AI Legal Analysis:</h3><div>' + data.answer.replace(/\\n/g, '<br>') + '</div>';
-                } else {
-                    resultDiv.className = 'result error';
-                    resultDiv.innerHTML = '<h3>Error:</h3><div>' + data.error + '</div>';
-                }
-            } catch (error) {
-                resultDiv.className = 'result error';
-                resultDiv.innerHTML = '<h3>Error:</h3><div>Failed to connect to AI service</div>';
-            }
-            
-            // Reset button
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Analyze with AI';
-        });
-    </script>
-</body>
-</html>
-"""
+SAMPLE_STATUTES = [
+    {
+        'title': 'Pakistan Penal Code, 1860',
+        'citation': 'Act XLV of 1860',
+        'type': 'Federal Statute',
+        'year': '1860',
+        'snippet': 'The main criminal law statute of Pakistan...'
+    },
+    {
+        'title': 'Code of Civil Procedure, 1908',
+        'citation': 'Act V of 1908', 
+        'type': 'Federal Statute',
+        'year': '1908',
+        'snippet': 'Governs civil court procedures in Pakistan...'
+    }
+]
 
 def generate_legal_analysis(query, context=""):
     """Generate AI-powered legal analysis using legacy OpenAI API"""
@@ -224,8 +107,101 @@ Response should be professional and accurate."""
 
 @app.route('/')
 def home():
-    """Main page with legal research interface"""
-    return render_template_string(HTML_TEMPLATE)
+    """Homepage with search interface"""
+    return render_template('home.html')
+
+@app.route('/search/cases')
+def search_cases():
+    """Search cases page"""
+    query = request.args.get('q', '')
+    results = []
+    
+    if query:
+        # Filter sample cases based on query
+        results = [case for case in SAMPLE_CASES if query.lower() in case['title'].lower() or query.lower() in case['snippet'].lower()]
+    
+    breadcrumbs = [{'text': 'Cases', 'url': url_for('search_cases')}]
+    return render_template('search_results.html', 
+                         results=results, 
+                         query=query, 
+                         category='cases',
+                         breadcrumbs=breadcrumbs)
+
+@app.route('/search/statutes')
+def search_statutes():
+    """Search statutes page"""
+    query = request.args.get('q', '')
+    results = []
+    
+    if query:
+        # Filter sample statutes based on query
+        results = [statute for statute in SAMPLE_STATUTES if query.lower() in statute['title'].lower() or query.lower() in statute['snippet'].lower()]
+    
+    breadcrumbs = [{'text': 'Statutes & Acts', 'url': url_for('search_statutes')}]
+    return render_template('search_results.html', 
+                         results=results, 
+                         query=query, 
+                         category='statutes',
+                         breadcrumbs=breadcrumbs)
+
+@app.route('/search/rules')
+def search_rules():
+    """Search rules page"""
+    query = request.args.get('q', '')
+    breadcrumbs = [{'text': 'Rules', 'url': url_for('search_rules')}]
+    return render_template('search_results.html', 
+                         results=[], 
+                         query=query, 
+                         category='rules',
+                         breadcrumbs=breadcrumbs)
+
+@app.route('/search/results')
+def search_results():
+    """General search results page"""
+    query = request.args.get('q', '')
+    category = request.args.get('category', 'all')
+    
+    results = []
+    if query:
+        if category == 'all' or category == 'cases':
+            results.extend([{**case, 'type': 'case'} for case in SAMPLE_CASES if query.lower() in case['title'].lower() or query.lower() in case['snippet'].lower()])
+        if category == 'all' or category == 'statutes':
+            results.extend([{**statute, 'type': 'statute'} for statute in SAMPLE_STATUTES if query.lower() in statute['title'].lower() or query.lower() in statute['snippet'].lower()])
+    
+    breadcrumbs = [{'text': 'Search Results', 'url': url_for('search_results')}]
+    return render_template('search_results.html', 
+                         results=results, 
+                         query=query, 
+                         category=category,
+                         breadcrumbs=breadcrumbs)
+
+@app.route('/ai', methods=['GET', 'POST'])
+def ai_analysis():
+    """AI Analysis page with server-side rendering"""
+    if request.method == 'POST':
+        query = request.form.get('query', '').strip()
+        context = request.form.get('context', '').strip()
+        
+        if not query:
+            flash('Please enter a legal question', 'error')
+            return redirect(url_for('ai_analysis'))
+        
+        # Generate AI analysis
+        analysis = generate_legal_analysis(query, context)
+        
+        if analysis and "temporarily unavailable" not in analysis:
+            return render_template('ai_analysis.html', 
+                                 analysis=analysis, 
+                                 query=query, 
+                                 context=context,
+                                 breadcrumbs=[{'text': 'AI Analysis', 'url': url_for('ai_analysis')}])
+        else:
+            flash(analysis or 'AI service unavailable', 'error')
+            return redirect(url_for('ai_analysis'))
+    
+    # GET request - show the form
+    breadcrumbs = [{'text': 'AI Analysis', 'url': url_for('ai_analysis')}]
+    return render_template('ai_analysis.html', breadcrumbs=breadcrumbs)
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze_legal_query():
