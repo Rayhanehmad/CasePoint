@@ -1,126 +1,301 @@
 #!/usr/bin/env python3
 """
-KanoonPK SaaS - WSGI/ASGI Application for Replit
+KanoonPK SaaS - Flask Backend with Legacy OpenAI Integration
 """
 
-import sys
 import os
+import openai
+from flask import Flask, request, jsonify, render_template_string
+from flask_cors import CORS
 
-# Add backend directory to path
-sys.path.insert(0, 'backend')
+# Initialize Flask app
+app = Flask(__name__)
+CORS(app)
 
-try:
-    # Import the FastAPI app
-    from backend.main import app as fastapi_app
-    print("✅ KanoonPK FastAPI backend loaded successfully!")
-        
-except ImportError as e:
-    print(f"❌ Failed to import backend: {e}")
-    print("Please ensure the backend dependencies are installed.")
-    sys.exit(1)
+# Configure OpenAI with legacy API
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Create WSGI adapter for gunicorn compatibility
-try:
-    from asgiref.wsgi import WsgiToAsgi
-    from asgiref.sync import iscoroutinefunction
+# Simple HTML template for the frontend
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KanoonPK - Legal Research with OpenAI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+            min-height: 100px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #5a6fd8;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+        }
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏛️ KanoonPK Legal Research</h1>
+        <p>AI-Powered Legal Analysis for Pakistan Law</p>
+    </div>
     
-    # Simple ASGI to WSGI adapter
-    class ASGItoWSGI:
-        def __init__(self, asgi_app):
-            self.asgi_app = asgi_app
+    <div class="container">
+        <form id="legalForm">
+            <div class="form-group">
+                <label for="query">Legal Question:</label>
+                <textarea id="query" name="query" placeholder="Enter your legal question or case details..." required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="context">Legal Context (Optional):</label>
+                <textarea id="context" name="context" placeholder="Provide any relevant case law, statutes, or legal documents..."></textarea>
+            </div>
+            
+            <button type="submit" id="submitBtn">Analyze with AI</button>
+        </form>
         
-        def __call__(self, environ, start_response):
-            import asyncio
-            import threading
-            from concurrent.futures import ThreadPoolExecutor
+        <div id="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('legalForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            loop = None
-            try:
-                loop = asyncio.get_event_loop()
-            except RuntimeError:
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
+            const submitBtn = document.getElementById('submitBtn');
+            const resultDiv = document.getElementById('result');
+            const query = document.getElementById('query').value;
+            const context = document.getElementById('context').value;
             
-            # Create a simple ASGI scope from WSGI environ
-            scope = {
-                'type': 'http',
-                'method': environ['REQUEST_METHOD'],
-                'path': environ['PATH_INFO'],
-                'query_string': environ.get('QUERY_STRING', '').encode(),
-                'headers': [(key.lower().replace('_', '-').encode(), value.encode()) 
-                           for key, value in environ.items() 
-                           if key.startswith('HTTP_')],
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Analyzing...';
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result loading';
+            resultDiv.innerHTML = '🤖 AI is analyzing your legal question...';
+            
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        context: context
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result';
+                    resultDiv.innerHTML = '<h3>AI Legal Analysis:</h3><div>' + data.answer.replace(/\\n/g, '<br>') + '</div>';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = '<h3>Error:</h3><div>' + data.error + '</div>';
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '<h3>Error:</h3><div>Failed to connect to AI service</div>';
             }
             
-            response_data = {'status': 500, 'headers': [], 'body': b'Internal Server Error'}
-            
-            async def receive():
-                return {'type': 'http.request', 'body': b''}
-            
-            async def send(message):
-                if message['type'] == 'http.response.start':
-                    response_data['status'] = message['status']
-                    response_data['headers'] = message.get('headers', [])
-                elif message['type'] == 'http.response.body':
-                    response_data['body'] = message.get('body', b'')
-            
-            async def run_asgi():
-                await self.asgi_app(scope, receive, send)
-            
-            # Run the ASGI app
-            if loop.is_running():
-                # If we're in an async context, we need to use a thread
-                import concurrent.futures
-                with concurrent.futures.ThreadPoolExecutor() as executor:
-                    future = executor.submit(asyncio.run, run_asgi())
-                    future.result()
-            else:
-                loop.run_until_complete(run_asgi())
-            
-            # Send WSGI response
-            status = f"{response_data['status']} OK"
-            headers = [(key.decode() if isinstance(key, bytes) else key, 
-                       value.decode() if isinstance(value, bytes) else value) 
-                      for key, value in response_data['headers']]
-            start_response(status, headers)
-            
-            return [response_data['body']]
-    
-    # Create WSGI-compatible app
-    app = ASGItoWSGI(fastapi_app)
-    
-except ImportError:
-    print("❌ asgiref not available, using basic wrapper")
-    # Fallback: Create a simple Flask app
-    from flask import Flask, jsonify
-    
-    app = Flask(__name__)
-    
-    @app.route('/')
-    def root():
-        return jsonify({
-            "message": "🏛️ KanoonPK SaaS API",
-            "version": "1.0.0", 
-            "status": "active",
-            "docs": "/api/docs",
-            "note": "FastAPI backend running via WSGI adapter"
-        })
-    
-    @app.route('/health')
-    def health():
-        return jsonify({
-            "status": "healthy",
-            "service": "kanoonpk-backend",
-            "version": "1.0.0"
-        })
-    
-    print("🔄 Using Flask fallback for WSGI compatibility")
+            // Reset button
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Analyze with AI';
+        });
+    </script>
+</body>
+</html>
+"""
 
-# Export the app for WSGI servers
+def generate_legal_analysis(query, context=""):
+    """Generate AI-powered legal analysis using legacy OpenAI API"""
+    if not openai.api_key:
+        return "AI analysis requires OpenAI API key configuration. Please set OPENAI_API_KEY environment variable."
+    
+    try:
+        # Create prompt for legal analysis
+        if context:
+            prompt = f"""As a legal research assistant specializing in Pakistan law, analyze the following query with the provided context:
+
+Query: {query}
+
+Context: {context}
+
+Please provide:
+1. A direct answer to the legal question
+2. Relevant legal principles and precedents under Pakistan law
+3. Citations to relevant statutes, cases, or legal authorities
+4. Important considerations or limitations
+
+Response should be professional and accurate."""
+        else:
+            prompt = f"""As a legal research assistant specializing in Pakistan law, provide a comprehensive analysis of the following legal query:
+
+Query: {query}
+
+Please provide:
+1. A direct answer to the legal question
+2. Relevant legal principles and precedents under Pakistan law
+3. Citations to relevant statutes, cases, or legal authorities
+4. Important considerations or limitations
+
+Response should be professional and accurate."""
+        
+        # Use legacy OpenAI ChatCompletion API
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are an expert legal research assistant specializing in Pakistan law. Provide accurate, well-cited legal analysis."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=1000,
+            temperature=0.2
+        )
+        
+        return response.choices[0].message.content
+        
+    except Exception as e:
+        print(f"Legacy OpenAI API error: {e}")
+        return f"AI analysis temporarily unavailable. Error: {str(e)}"
+
+@app.route('/')
+def home():
+    """Main page with legal research interface"""
+    return render_template_string(HTML_TEMPLATE)
+
+@app.route('/api/analyze', methods=['POST'])
+def analyze_legal_query():
+    """Analyze legal query using legacy OpenAI API"""
+    try:
+        data = request.get_json()
+        
+        if not data or not data.get('query'):
+            return jsonify({'error': 'Query is required'}), 400
+        
+        query = data.get('query', '')
+        context = data.get('context', '')
+        
+        # Generate analysis using legacy OpenAI API
+        analysis = generate_legal_analysis(query, context)
+        
+        if analysis and "temporarily unavailable" not in analysis:
+            return jsonify({
+                'answer': analysis,
+                'query': query,
+                'status': 'success'
+            })
+        else:
+            return jsonify({'error': analysis or 'AI service unavailable'}), 503
+        
+    except Exception as e:
+        return jsonify({'error': f'AI analysis failed: {str(e)}'}), 500
+
+@app.route('/api/status')
+def ai_status():
+    """Check AI service status"""
+    try:
+        if not openai.api_key:
+            return jsonify({
+                'status': 'error',
+                'service': 'legacy-openai',
+                'message': 'OpenAI API key not configured'
+            })
+        
+        # Test with a simple query
+        test_result = generate_legal_analysis("Test connection", "")
+        
+        if test_result and "temporarily unavailable" not in test_result:
+            return jsonify({
+                'status': 'healthy',
+                'service': 'legacy-openai',
+                'message': 'AI service is operational'
+            })
+        else:
+            return jsonify({
+                'status': 'degraded',
+                'service': 'legacy-openai',
+                'message': 'AI service may be experiencing issues'
+            })
+            
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'service': 'legacy-openai',
+            'message': f'AI service error: {str(e)}'
+        })
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint"""
+    return jsonify({
+        'status': 'healthy',
+        'service': 'kanoonpk-openai',
+        'version': '1.0.0'
+    })
+
+# Export the Flask app
 application = app
 
 if __name__ == "__main__":
-    print("🚀 Starting KanoonPK SaaS...")
-    # Use the original FastAPI app with uvicorn when run directly
-    import uvicorn
-    uvicorn.run(fastapi_app, host="0.0.0.0", port=5000, reload=True)
+    print("🚀 Starting KanoonPK with Legacy OpenAI Integration...")
+    app.run(host="0.0.0.0", port=5000, debug=True)

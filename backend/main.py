@@ -55,6 +55,10 @@ app.include_router(documents.router, prefix="/api/documents", tags=["Documents"]
 app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
 app.include_router(subscriptions.router, prefix="/api/subscriptions", tags=["Subscriptions"])
 
+# Add AI routes for legacy OpenAI integration
+from app.api.routes import ai
+app.include_router(ai.router, prefix="/api/ai", tags=["AI Analysis"])
+
 # Mount static files
 import os
 static_dir = os.path.join(os.path.dirname(__file__), "static")

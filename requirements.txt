@@ -44,3 +44,5 @@ PyMuPDF
 pydantic-settings
 asyncpg
 asgiref
+openai==0.28.1
+flask-cors
