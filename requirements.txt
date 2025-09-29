@@ -18,3 +18,5 @@ flask-dance
 flask-login
 oauthlib
 pyjwt
+flask-migrate
+redis
