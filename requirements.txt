@@ -20,3 +20,4 @@ oauthlib
 pyjwt
 flask-migrate
 redis
+flask-migrate

@@ -1,15 +1,70 @@
 """
 Modern Multi-Tenant Management System
-Enhanced tenant isolation and context management
+Enhanced tenant isolation and context management with bulletproof connection pooling
 """
 import logging
+import contextvars
 from flask import g, request, session, current_app
 from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
 
+# Context variable for tenant schema across connection pool
+_tenant_schema_context = contextvars.ContextVar('tenant_schema', default='public')
+
+def setup_bulletproof_tenant_isolation(app):
+    """Setup bulletproof multi-tenant isolation with connection pooling protection"""
+    
+    def configure_events():
+        """Configure SQLAlchemy events after database initialization"""
+        from sqlalchemy import event
+        from app import db
+        
+        # Only set up events once
+        if hasattr(app, '_tenant_events_configured'):
+            return
+        
+        @event.listens_for(db.engine, "checkout")
+        def set_tenant_schema_on_checkout(dbapi_connection, connection_record, connection_proxy):
+            """Ensure every connection checkout has the correct tenant schema (FAIL-CLOSED)"""
+            try:
+                # Validate PostgreSQL backend
+                if not hasattr(dbapi_connection, 'cursor'):
+                    app.logger.error("CRITICAL: Non-PostgreSQL connection - tenant isolation requires PostgreSQL")
+                    # Should cause the request to fail rather than proceeding unsafely
+                    raise Exception("PostgreSQL required for tenant isolation")
+                
+                schema = _tenant_schema_context.get('public')
+                # Use quoted identifier for security
+                with dbapi_connection.cursor() as cursor:
+                    cursor.execute(f'SET search_path = "{schema}", public')
+                    
+            except Exception as e:
+                # FAIL CLOSED: This is critical for tenant isolation
+                app.logger.error(f"CRITICAL: Failed to set tenant schema on checkout: {e}")
+                # Raise exception to prevent unsafe database access
+                raise Exception(f"Tenant isolation checkout failure: {e}")
+        
+        @event.listens_for(db.engine, "checkin")  
+        def reset_schema_on_checkin(dbapi_connection, connection_record):
+            """Reset schema to public when connection returns to pool"""
+            try:
+                if hasattr(dbapi_connection, 'cursor'):
+                    with dbapi_connection.cursor() as cursor:
+                        cursor.execute("SET search_path = public")
+            except Exception as e:
+                # Log but don't fail - this is pool management
+                app.logger.error(f"Failed to reset schema on checkin: {e}")
+        
+        app._tenant_events_configured = True
+        app.logger.info("Bulletproof multi-tenant isolation configured")
+    
+    # Configure events when app context is available
+    with app.app_context():
+        configure_events()
+
 class TenantManager:
-    """Modern tenant management with enhanced features"""
+    """Modern tenant management with bulletproof isolation"""
     
     @staticmethod
     def load_tenant_context():
@@ -33,11 +88,22 @@ class TenantManager:
             tenant = TenantManager._get_tenant_by_subdomain(tenant_subdomain)
             tenant_source = 'subdomain'
         
-        # Method 2: Check API header
+        # Method 2: Check API header (REQUIRES AUTHENTICATION)
         if not tenant and request.headers.get('X-Tenant-ID'):
-            tenant_id = request.headers.get('X-Tenant-ID')
-            tenant = TenantManager._get_tenant_by_id(tenant_id)
-            tenant_source = 'header'
+            from flask_login import current_user
+            
+            # SECURITY: Only honor X-Tenant-ID for authenticated users
+            if current_user and current_user.is_authenticated:
+                tenant_id = request.headers.get('X-Tenant-ID')
+                tenant = TenantManager._get_tenant_by_id(tenant_id)
+                # Validate user has access to this tenant
+                if tenant and TenantManager._validate_user_tenant_access(tenant):
+                    tenant_source = 'header'
+                else:
+                    logger.warning(f"Unauthorized tenant access attempt by user {current_user.id}: {tenant_id}")
+                    tenant = None
+            else:
+                logger.warning(f"Unauthenticated X-Tenant-ID header ignored: {request.headers.get('X-Tenant-ID')}")
         
         # Method 3: Check custom domain
         if not tenant:
@@ -62,9 +128,11 @@ class TenantManager:
             
             logger.debug(f"Loaded tenant: {tenant.name} (source: {tenant_source})")
         else:
-            # No tenant found for protected route
+            # FAIL CLOSED: No tenant found for protected route
             if not TenantManager._is_public_route():
-                logger.warning(f"No tenant context for route: {request.path}")
+                logger.error(f"CRITICAL: No tenant context for protected route: {request.path}")
+                from flask import abort
+                abort(403, "Tenant context required for this resource")
     
     @staticmethod
     def _is_public_route():
@@ -162,15 +230,86 @@ class TenantManager:
     
     @staticmethod
     def _switch_tenant_schema(tenant_id):
-        """Switch database schema for tenant isolation"""
+        """Switch database schema with FAIL-CLOSED protection (no fallback to public)"""
         try:
             from app import db
-            # For PostgreSQL: SET search_path TO tenant_schema
-            schema_name = f"tenant_{tenant_id}"
-            db.session.execute(f"SET search_path TO {schema_name}, public")
+            from flask import current_app, abort
+            from sqlalchemy import text
+            
+            # Convert UUID to safe schema name  
+            safe_tenant_id = str(tenant_id).replace('-', '_')
+            schema_name = f"tenant_{safe_tenant_id}"
+            
+            # CRITICAL: Ensure tenant schema AND tables exist (idempotent)
+            success = TenantManager._ensure_tenant_schema_and_tables(tenant_id, schema_name)
+            if not success:
+                logger.error(f"CRITICAL: Failed to ensure tenant schema {schema_name}")
+                abort(503, "Tenant isolation failure - service unavailable")
+            
+            # Store schema in both Flask context and ContextVar for connection events
             g.tenant_schema = schema_name
+            _tenant_schema_context.set(schema_name)
+            
+            # IMMEDIATELY set search path for current session with quoted identifiers
+            try:
+                db.session.execute(text(f'SET search_path = "{schema_name}", public'))
+                db.session.commit()
+                
+                # VERIFY search_path was actually set (runtime validation)
+                result = db.session.execute(text("SHOW search_path")).fetchone()
+                if result and schema_name not in result[0]:
+                    logger.error(f"CRITICAL: search_path verification failed for {schema_name}")
+                    abort(503, "Tenant isolation verification failed")
+                    
+            except Exception as e:
+                logger.error(f"CRITICAL: Failed to set search_path to {schema_name}: {e}")
+                abort(503, "Tenant isolation failure - service unavailable")
+            
+            current_app.logger.debug(f"Tenant schema isolation verified: {schema_name}")
+            
         except Exception as e:
-            logger.error(f"Error switching tenant schema: {e}")
+            logger.error(f"CRITICAL: Tenant schema switch failed for {tenant_id}: {e}")
+            # FAIL CLOSED - Never fall back to public schema
+            abort(503, "Tenant isolation failure - service unavailable")
+    
+    @staticmethod
+    def _validate_user_tenant_access(tenant):
+        """Validate that current user has access to the specified tenant"""
+        try:
+            from flask_login import current_user
+            from app.models import TenantUser
+            
+            # REQUIRE authentication for tenant access validation
+            if not current_user or not current_user.is_authenticated:
+                logger.warning("Tenant access validation requires authentication")
+                return False
+                
+            # Check if user is associated with this tenant
+            tenant_user = TenantUser.query.filter_by(
+                tenant_id=tenant.id,
+                user_id=current_user.id,
+                is_active=True
+            ).first()
+            
+            return tenant_user is not None
+            
+        except Exception as e:
+            logger.error(f"Error validating tenant access: {e}")
+            return False
+    
+    @staticmethod
+    def reset_tenant_context():
+        """Reset tenant context (rely on checkin events for connection reset)"""
+        try:
+            # Reset context variables only - connection reset handled by checkin event
+            _tenant_schema_context.set('public')
+            if hasattr(g, 'tenant_schema'):
+                delattr(g, 'tenant_schema')
+            if hasattr(g, 'tenant'):
+                delattr(g, 'tenant')
+                
+        except Exception as e:
+            logger.error(f"Error resetting tenant context: {e}")
     
     @staticmethod
     def get_current_tenant():
@@ -194,30 +333,49 @@ class TenantManager:
         return decorator
     
     @staticmethod
-    def create_tenant_schema(tenant_id):
-        """Create isolated schema for new tenant"""
+    def _ensure_tenant_schema_and_tables(tenant_id, schema_name):
+        """IDEMPOTENT: Ensure tenant schema and ALL required tables exist"""
         try:
             from app import db
-            schema_name = f"tenant_{tenant_id}"
+            from app.models import LegalDocument, SearchQuery, SearchResult, AnalyticsEvent, UsageMetric
+            from sqlalchemy import text
             
-            # Create schema
-            db.session.execute(f"CREATE SCHEMA IF NOT EXISTS {schema_name}")
+            # Validate PostgreSQL backend (required for schema isolation)
+            if 'postgresql' not in str(db.engine.url).lower():
+                logger.error("CRITICAL: Schema-based isolation requires PostgreSQL")
+                return False
             
-            # Set search path and create tables
-            db.session.execute(f"SET search_path TO {schema_name}")
-            db.create_all()
+            # Create schema and tables in single transaction
+            with db.engine.begin() as connection:
+                # Create the schema
+                connection.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{schema_name}"'))
+                
+                # Set search path to tenant schema
+                connection.execute(text(f'SET search_path = "{schema_name}", public'))
+                
+                # Create tenant-specific tables (only tenant-scoped models)
+                tenant_models = [LegalDocument, SearchQuery, SearchResult, AnalyticsEvent, UsageMetric]
+                for model in tenant_models:
+                    # Create table in tenant schema with proper error handling
+                    try:
+                        model.__table__.create(bind=connection, checkfirst=True)
+                    except Exception as table_error:
+                        logger.error(f"Failed to create table {model.__tablename__} in {schema_name}: {table_error}")
+                        return False
             
-            # Reset search path
-            db.session.execute("SET search_path TO public")
-            db.session.commit()
-            
-            logger.info(f"Created schema for tenant: {tenant_id}")
+            logger.debug(f"Tenant schema and tables ensured: {schema_name}")
             return True
             
         except Exception as e:
-            logger.error(f"Error creating tenant schema: {e}")
-            db.session.rollback()
+            logger.error(f"CRITICAL: Failed to ensure tenant schema {schema_name}: {e}")
             return False
+    
+    @staticmethod
+    def create_tenant_schema(tenant_id):
+        """Create isolated schema for new tenant (wrapper for _ensure_tenant_schema_and_tables)"""
+        safe_tenant_id = str(tenant_id).replace('-', '_')
+        schema_name = f"tenant_{safe_tenant_id}"
+        return TenantManager._ensure_tenant_schema_and_tables(tenant_id, schema_name)
 
 class TenantContext:
     """Context manager for tenant operations"""

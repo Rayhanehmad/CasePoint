@@ -160,11 +160,21 @@ def register_blueprints(app):
 def register_middleware(app):
     """Register middleware functions"""
     
+    # Setup bulletproof multi-tenant isolation first
+    from app.core.tenant import setup_bulletproof_tenant_isolation
+    setup_bulletproof_tenant_isolation(app)
+    
     @app.before_request
     def load_tenant_context():
         """Load tenant context from subdomain or header"""
         from app.core.tenant import TenantManager
         TenantManager.load_tenant_context()
+    
+    @app.teardown_appcontext
+    def reset_tenant_context(exception):
+        """Reset tenant context to prevent cross-tenant leakage"""
+        from app.core.tenant import TenantManager
+        TenantManager.reset_tenant_context()
     
     @app.before_request
     def setup_request_logging():
