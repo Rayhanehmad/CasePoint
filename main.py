@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 """
-KanoonPK SaaS - Flask Backend with Legacy OpenAI Integration
+KanoonPK - Professional Legal Research Platform
+Replicating pakistanlawsite.com design with OpenAI integration
 """
 
 import os
 import openai
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 from flask_cors import CORS
 
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)
+
+# Configure Flask secret key (required for sessions and CSRF)
+app.secret_key = os.environ.get("SESSION_SECRET", "kanoonpk-dev-secret-2024")
 
 # Configure OpenAI with legacy API
 openai.api_key = os.getenv("OPENAI_API_KEY")
