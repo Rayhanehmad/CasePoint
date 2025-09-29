@@ -43,3 +43,4 @@ uvicorn[standard]
 PyMuPDF
 pydantic-settings
 asyncpg
+asgiref
