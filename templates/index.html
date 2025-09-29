@@ -1,114 +1,336 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KanoonPK - AI Legal Research Assistant</title>
-    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>KanoonPK - Smart Legal Research Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c5aa0;
+            --secondary-color: #34495e;
+            --accent-color: #e74c3c;
+            --text-light: #ecf0f1;
+            --bg-dark: #1a1a1a;
+            --bg-darker: #141414;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            padding: 100px 0;
+            text-align: center;
+            border-radius: 0 0 50px 50px;
+            margin-bottom: 50px;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 15px 30px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(231, 76, 60, 0.4);
+        }
+
+        .stats-section {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 50px 0;
+            margin: 50px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            opacity: 0.8;
+        }
+
+        .navbar {
+            background: rgba(26, 26, 26, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .footer {
+            background: var(--bg-darker);
+            padding: 50px 0;
+            margin-top: 100px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('home') }}">
-                <i class="fas fa-balance-scale me-2"></i>KanoonPK
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-scale-balanced me-2"></i>
+                KanoonPK
             </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="{{ url_for('admin') }}">
-                    <i class="fas fa-upload me-1"></i>Admin
-                </a>
-                <a class="nav-link" href="{{ url_for('history') }}">
-                    <i class="fas fa-history me-1"></i>History
-                </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/register">Register</a>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container my-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="text-center mb-4">
-                    <h1 class="display-4 mb-3">
-                        <i class="fas fa-balance-scale text-primary"></i>
-                        KanoonPK
-                    </h1>
-                    <p class="lead">AI Legal Research Assistant for Pakistan Law</p>
-                    <p class="text-muted">Get accurate legal information with proper citations from Pakistani law</p>
-                </div>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="hero-title">KanoonPK</h1>
+            <p class="hero-subtitle">Smart Legal Research Platform</p>
+            <p class="lead mb-4">Instant AI search through Pakistan's Leading Law Reports</p>
+            <a href="/auth/register" class="btn btn-primary btn-lg me-3">Get Started</a>
+            <a href="#features" class="btn btn-outline-light btn-lg">Learn More</a>
+        </div>
+    </section>
 
-                <!-- Chat Interface -->
-                <div class="card shadow-lg">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-comments me-2"></i>Legal Research Chat
-                        </h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div id="messages" class="chat-messages p-3"></div>
-                        <div class="border-top p-3">
-                            <div class="row g-2">
-                                <div class="col">
-                                    <input 
-                                        type="text" 
-                                        id="userInput" 
-                                        class="form-control" 
-                                        placeholder="Ask about Pakistan law..."
-                                        maxlength="500"
-                                    >
-                                </div>
-                                <div class="col-auto">
-                                    <button id="sendBtn" class="btn btn-primary">
-                                        <i class="fas fa-paper-plane"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <button id="downloadPdfBtn" class="btn btn-outline-secondary btn-sm" disabled>
-                                    <i class="fas fa-file-pdf me-1"></i>Download Last Answer as PDF
-                                </button>
-                                <button id="clearChatBtn" class="btn btn-outline-secondary btn-sm ms-2">
-                                    <i class="fas fa-trash me-1"></i>Clear Chat
-                                </button>
-                            </div>
-                        </div>
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number">10K+</span>
+                        <span class="stat-label">Legal Documents</span>
                     </div>
                 </div>
-
-                <!-- Welcome Message -->
-                <div id="welcomeCard" class="card mt-4">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Welcome to KanoonPK</h5>
-                        <p class="card-text">
-                            Start by asking a question about Pakistan law. Our AI assistant will search through 
-                            uploaded legal documents to provide accurate answers with proper citations.
-                        </p>
-                        <div class="row text-start">
-                            <div class="col-md-6">
-                                <h6 class="text-primary">Example Questions:</h6>
-                                <ul class="list-unstyled small">
-                                    <li class="mb-1">• What are the requirements for a valid contract in Pakistan?</li>
-                                    <li class="mb-1">• Explain the procedure for filing a civil suit</li>
-                                    <li class="mb-1">• What are the grounds for divorce under Pakistan law?</li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="text-primary">Features:</h6>
-                                <ul class="list-unstyled small">
-                                    <li class="mb-1">• Accurate legal research</li>
-                                    <li class="mb-1">• Proper citations included</li>
-                                    <li class="mb-1">• PDF export of answers</li>
-                                    <li class="mb-1">• Search history tracking</li>
-                                </ul>
-                            </div>
-                        </div>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number">500+</span>
+                        <span class="stat-label">Law Firms</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number">1M+</span>
+                        <span class="stat-label">Searches</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number">99.9%</span>
+                        <span class="stat-label">Uptime</span>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-12">
+                    <h2 class="display-4 mb-3">Powerful Features</h2>
+                    <p class="lead">Everything you need for comprehensive legal research</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card">
+                        <i class="fas fa-robot feature-icon"></i>
+                        <h4>AI-Powered Search</h4>
+                        <p>Advanced AI algorithms provide intelligent search results with contextual relevance.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card">
+                        <i class="fas fa-quote-left feature-icon"></i>
+                        <h4>Citation Search</h4>
+                        <p>Search through PLD, SCMR, CLR, MLD and other Pakistan legal databases with precision.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card">
+                        <i class="fas fa-filter feature-icon"></i>
+                        <h4>Advanced Filters</h4>
+                        <p>Filter by jurisdiction, court level, legal area, and document type for targeted results.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card">
+                        <i class="fas fa-users feature-icon"></i>
+                        <h4>Team Collaboration</h4>
+                        <p>Multi-user tenants with role-based access and shared research workspaces.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-4 mt-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card">
+                        <i class="fas fa-file-pdf feature-icon"></i>
+                        <h4>Document Processing</h4>
+                        <p>Upload and process PDF, DOCX, and image files with OCR text extraction.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card">
+                        <i class="fab fa-docker feature-icon"></i>
+                        <h4>Docker Integration</h4>
+                        <p>Process documents directly from Docker containers and volumes.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card">
+                        <i class="fas fa-chart-bar feature-icon"></i>
+                        <h4>Analytics Dashboard</h4>
+                        <p>Track usage patterns, search insights, and performance metrics.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card">
+                        <i class="fas fa-shield-alt feature-icon"></i>
+                        <h4>Enterprise Security</h4>
+                        <p>Bulletproof multi-tenant isolation with enterprise-grade security.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5 text-center">
+        <div class="container">
+            <h2 class="display-5 mb-3">Ready to transform your legal research?</h2>
+            <p class="lead mb-4">Join thousands of legal professionals using KanoonPK</p>
+            <a href="/auth/register" class="btn btn-primary btn-lg me-3">Start Free Trial</a>
+            <a href="/features" class="btn btn-outline-light btn-lg">View All Features</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h5><i class="fas fa-scale-balanced me-2"></i>KanoonPK</h5>
+                    <p>Pakistan's leading smart legal research platform powered by AI technology.</p>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6>Platform</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="/features" class="text-muted">Features</a></li>
+                        <li><a href="/api/v1/health" class="text-muted">API Status</a></li>
+                        <li><a href="/auth/register" class="text-muted">Sign Up</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6>Resources</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted">Documentation</a></li>
+                        <li><a href="#" class="text-muted">Support</a></li>
+                        <li><a href="#" class="text-muted">Legal</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <h6>System Status</h6>
+                    <p class="text-muted">
+                        <i class="fas fa-circle text-success me-2"></i>
+                        All systems operational
+                    </p>
+                    <p class="text-muted small">Version 2.0.0 - Enhanced with Docker & OCR</p>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p class="text-muted">&copy; 2025 KanoonPK. Smart Legal Research Platform.</p>
+            </div>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
 </body>
 </html>
