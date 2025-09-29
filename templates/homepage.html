@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KanoonPK - Smart Legal Research Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d3436 100%);
+            color: #fff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            padding: 80px 0;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            height: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: #74b9ff;
+            margin-bottom: 20px;
+        }
+        
+        .enhanced-badge {
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stats-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #74b9ff;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(116, 185, 255, 0.4);
+        }
+        
+        .navbar {
+            background: rgba(26, 26, 26, 0.95) !important;
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="d-flex flex-column h-100">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-3" href="#">
+                <i class="fas fa-scale-balanced me-2"></i>
+                KanoonPK
+                <span class="enhanced-badge ms-2">Enhanced</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/api/v1/health">
+                            <i class="fas fa-heartbeat me-1"></i>System Status
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/features">
+                            <i class="fas fa-star me-1"></i>Features
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="display-3 fw-bold mb-4">KanoonPK</h1>
+            <h2 class="fs-2 mb-4">Smart Legal Research Platform</h2>
+            <p class="lead fs-4 mb-4">Instant AI search through Pakistan's Leading Law Reports</p>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <p class="fs-5 opacity-90">Enhanced with advanced document processing, Docker integration, and OCR capabilities for comprehensive legal research.</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="/api/v1/health" class="btn btn-primary btn-lg me-3">
+                    <i class="fas fa-play me-2"></i>Check System Status
+                </a>
+                <a href="/features" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-list me-2"></i>View Features
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="stats-card">
+                        <div class="stat-number">2.0</div>
+                        <div class="text-muted">Platform Version</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stats-card">
+                        <div class="stat-number">6+</div>
+                        <div class="text-muted">File Formats</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stats-card">
+                        <div class="stat-number">100%</div>
+                        <div class="text-muted">Secure</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stats-card">
+                        <div class="stat-number">AI</div>
+                        <div class="text-muted">Powered</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-4 fw-bold mb-3">Enhanced Features</h2>
+                <p class="lead">Comprehensive legal research tools with advanced processing capabilities</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <i class="fas fa-robot feature-icon"></i>
+                        <h4 class="fw-bold">AI-Powered Search</h4>
+                        <p>Advanced AI algorithms with OpenAI integration for intelligent legal research and contextual answers.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <i class="fas fa-quote-left feature-icon"></i>
+                        <h4 class="fw-bold">Citation & Judgment Search</h4>
+                        <p>Search through PLD, SCMR, CLR, MLD and other Pakistan legal databases with precision filtering.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <i class="fas fa-file-pdf feature-icon"></i>
+                        <h4 class="fw-bold">Enhanced Document Processing</h4>
+                        <p><strong>NEW:</strong> Process PDF, DOCX, TXT, JPG, JPEG, PNG files with OCR text extraction capabilities.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <i class="fab fa-docker feature-icon"></i>
+                        <h4 class="fw-bold">Docker Integration</h4>
+                        <p><strong>NEW:</strong> Process documents directly from Docker containers and volumes with bulletproof security.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <i class="fas fa-eye feature-icon"></i>
+                        <h4 class="fw-bold">OCR Text Extraction</h4>
+                        <p><strong>NEW:</strong> Extract text from images using tesseract OCR with confidence scoring and preprocessing.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <i class="fas fa-shield-alt feature-icon"></i>
+                        <h4 class="fw-bold">Bulletproof Security</h4>
+                        <p>Enterprise-grade multi-tenant isolation with fail-closed security and comprehensive audit logging.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technical Details Section -->
+    <section class="py-5 bg-dark bg-opacity-50">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">Technical Capabilities</h2>
+                <p class="lead">Powered by cutting-edge technology for legal professionals</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <h5 class="fw-bold mb-3">
+                            <i class="fas fa-cogs me-2"></i>Document Processing Engine
+                        </h5>
+                        <ul class="list-unstyled text-start">
+                            <li><i class="fas fa-check text-success me-2"></i>PDF text extraction (PyPDF2)</li>
+                            <li><i class="fas fa-check text-success me-2"></i>DOCX document processing</li>
+                            <li><i class="fas fa-check text-success me-2"></i>OCR for images (tesseract)</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Multi-format support</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Hash verification & integrity</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <h5 class="fw-bold mb-3">
+                            <i class="fas fa-database me-2"></i>Infrastructure & Security
+                        </h5>
+                        <ul class="list-unstyled text-start">
+                            <li><i class="fas fa-check text-success me-2"></i>PostgreSQL with tenant isolation</li>
+                            <li><i class="fas fa-check text-success me-2"></i>ChromaDB vector search</li>
+                            <li><i class="fas fa-check text-success me-2"></i>OpenAI GPT integration</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Docker volume processing</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Real-time health monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark py-5 mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-scale-balanced me-2"></i>KanoonPK
+                        <span class="enhanced-badge ms-2">v2.0</span>
+                    </h5>
+                    <p class="text-muted">Pakistan's most advanced legal research platform with AI-powered search, enhanced document processing, and enterprise-grade security. Now with Docker integration and OCR capabilities.</p>
+                </div>
+                <div class="col-lg-4">
+                    <h6 class="fw-bold mb-3">System Status</h6>
+                    <p class="text-muted">
+                        <i class="fas fa-circle text-success me-2"></i>
+                        <span class="text-success">Operational</span>
+                    </p>
+                    <div class="small text-muted">
+                        <div>✅ Enhanced Document Processing</div>
+                        <div>✅ Docker Integration</div>
+                        <div>✅ OCR Text Extraction</div>
+                        <div>✅ Bulletproof Security</div>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p class="text-muted mb-0">&copy; 2025 KanoonPK - Smart Legal Research Platform with Enhanced Capabilities</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Add smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
