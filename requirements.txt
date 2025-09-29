@@ -42,3 +42,4 @@ stripe
 uvicorn[standard]
 PyMuPDF
 pydantic-settings
+asyncpg
