@@ -40,3 +40,5 @@ redis
 sqlalchemy
 stripe
 uvicorn[standard]
+PyMuPDF
+pydantic-settings
