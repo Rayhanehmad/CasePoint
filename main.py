@@ -610,6 +610,18 @@ def view_citation(id):
     citation = LegalCitation.query.get_or_404(id)
     return render_template('citation_detail.html', citation=citation)
 
+@app.route('/download-citation/<int:id>')
+def download_citation(id):
+    """Download citation document file"""
+    from flask import send_file
+    citation = LegalCitation.query.get_or_404(id)
+    
+    if not citation.file_path or not os.path.exists(citation.file_path):
+        flash('Document file not found', 'error')
+        return redirect(url_for('view_citation', id=id))
+    
+    return send_file(citation.file_path, as_attachment=True)
+
 # Export the Flask app
 application = app
 

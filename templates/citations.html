@@ -83,9 +83,14 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <a href="{{ url_for('view_citation', id=citation.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <a href="{{ url_for('view_citation', id=citation.id) }}" class="btn btn-sm btn-outline-primary" title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </a>
+                                        {% if citation.file_path %}
+                                        <a href="{{ url_for('download_citation', id=citation.id) }}" class="btn btn-sm btn-outline-success ms-1" title="Download Document">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}
