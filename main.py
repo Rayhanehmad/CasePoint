@@ -8,7 +8,7 @@ import os
 import openai
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, session
 from flask_cors import CORS
-from models import db, User
+from models import db, User, LegalCitation
 from functools import wraps
 from werkzeug.utils import secure_filename
 from ocr_utils import ocr_service
@@ -483,6 +483,125 @@ def upload_document():
 def test_ocr_page():
     """Test page for OCR functionality"""
     return render_template('test_ocr.html')
+
+# Citation Management Routes
+@app.route('/upload-citation', methods=['GET', 'POST'])
+@login_required
+def upload_citation():
+    """Upload single citation to database"""
+    if request.method == 'POST':
+        try:
+            # Extract form data
+            citation_data = {
+                'title': request.form.get('title'),
+                'citation': request.form.get('citation'),
+                'court': request.form.get('court'),
+                'jurisdiction': request.form.get('jurisdiction'),
+                'date_decided': datetime.strptime(request.form.get('date_decided'), '%Y-%m-%d').date() if request.form.get('date_decided') else None,
+                'year': int(request.form.get('year')) if request.form.get('year') else None,
+                'legal_area': request.form.get('legal_area'),
+                'case_type': request.form.get('case_type'),
+                'judges': request.form.get('judges'),
+                'summary': request.form.get('summary'),
+                'full_text': request.form.get('full_text'),
+                'headnotes': request.form.get('headnotes'),
+                'keywords': request.form.get('keywords'),
+                'citations_referred': request.form.get('citations_referred'),
+                'statutes_referred': request.form.get('statutes_referred'),
+                'uploaded_by': session['user_id']
+            }
+            
+            # Create new citation
+            citation = LegalCitation(**citation_data)
+            db.session.add(citation)
+            db.session.commit()
+            
+            flash(f'Citation {citation.citation} uploaded successfully!', 'success')
+            return redirect(url_for('upload_citation'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error uploading citation: {str(e)}', 'error')
+            return redirect(url_for('upload_citation'))
+    
+    return render_template('upload_citation.html')
+
+@app.route('/upload-citation-file', methods=['POST'])
+@login_required
+def upload_citation_file():
+    """Upload citation from document file with OCR"""
+    
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+    
+    file = request.files['file']
+    
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+    
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        
+        # Get file extension
+        file_ext = filename.rsplit('.', 1)[1].lower()
+        
+        # Extract text using OCR
+        extracted_text, confidence = ocr_service.extract_text_from_file(filepath, file_ext)
+        
+        if extracted_text:
+            # Parse citation data from extracted text (basic implementation)
+            citation_data = {
+                'title': request.form.get('title', filename.rsplit('.', 1)[0]),
+                'citation': request.form.get('citation', ''),
+                'court': request.form.get('court', ''),
+                'jurisdiction': request.form.get('jurisdiction', ''),
+                'year': int(request.form.get('year')) if request.form.get('year') else None,
+                'legal_area': request.form.get('legal_area', ''),
+                'full_text': extracted_text,
+                'file_path': filepath,
+                'file_type': file_ext,
+                'ocr_confidence': confidence,
+                'uploaded_by': session['user_id']
+            }
+            
+            # Create citation
+            citation = LegalCitation(**citation_data)
+            db.session.add(citation)
+            db.session.commit()
+            
+            return jsonify({
+                'success': True,
+                'citation_id': citation.id,
+                'citation': citation.citation,
+                'message': f'Citation uploaded successfully with {confidence:.1f}% confidence'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Could not extract text from document'
+            }), 400
+    
+    return jsonify({'error': 'File type not allowed'}), 400
+
+@app.route('/citations')
+def view_citations():
+    """View all citations"""
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    
+    citations = LegalCitation.query.order_by(LegalCitation.created_at.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    
+    return render_template('citations.html', citations=citations)
+
+@app.route('/citation/<int:id>')
+def view_citation(id):
+    """View single citation details"""
+    citation = LegalCitation.query.get_or_404(id)
+    return render_template('citation_detail.html', citation=citation)
 
 # Export the Flask app
 application = app
