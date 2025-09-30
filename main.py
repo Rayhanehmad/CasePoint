@@ -529,15 +529,17 @@ def upload_citation():
 @app.route('/upload-citation-file', methods=['POST'])
 @admin_required
 def upload_citation_file():
-    """Upload citation from document file with OCR"""
+    """Upload citation document file directly to database"""
     
     if 'file' not in request.files:
-        return jsonify({'error': 'No file provided'}), 400
+        flash('No file provided', 'error')
+        return redirect(url_for('upload_citation'))
     
     file = request.files['file']
     
     if file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
+        flash('No file selected', 'error')
+        return redirect(url_for('upload_citation'))
     
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
@@ -546,56 +548,61 @@ def upload_citation_file():
         
         # Get file extension
         file_ext = filename.rsplit('.', 1)[1].lower()
+        file_size = os.path.getsize(filepath)
         
-        # Extract text using OCR
-        extracted_text, confidence = ocr_service.extract_text_from_file(filepath, file_ext)
+        # Store document directly without extraction
+        citation_data = {
+            'title': request.form.get('title', filename.rsplit('.', 1)[0]),
+            'citation': request.form.get('citation', filename),
+            'court': request.form.get('court', ''),
+            'jurisdiction': request.form.get('jurisdiction', ''),
+            'year': int(request.form.get('year')) if request.form.get('year') else None,
+            'legal_area': request.form.get('legal_area', ''),
+            'summary': request.form.get('summary', ''),
+            'file_path': filepath,
+            'file_type': file_ext,
+            'uploaded_by': session['user_id']
+        }
         
-        if extracted_text:
-            # Parse citation data from extracted text (basic implementation)
-            citation_data = {
-                'title': request.form.get('title', filename.rsplit('.', 1)[0]),
-                'citation': request.form.get('citation', ''),
-                'court': request.form.get('court', ''),
-                'jurisdiction': request.form.get('jurisdiction', ''),
-                'year': int(request.form.get('year')) if request.form.get('year') else None,
-                'legal_area': request.form.get('legal_area', ''),
-                'full_text': extracted_text,
-                'file_path': filepath,
-                'file_type': file_ext,
-                'ocr_confidence': confidence,
-                'uploaded_by': session['user_id']
-            }
-            
-            # Create citation
-            citation = LegalCitation(**citation_data)
-            db.session.add(citation)
-            db.session.commit()
-            
-            return jsonify({
-                'success': True,
-                'citation_id': citation.id,
-                'citation': citation.citation,
-                'message': f'Citation uploaded successfully with {confidence:.1f}% confidence'
-            })
-        else:
-            return jsonify({
-                'success': False,
-                'error': 'Could not extract text from document'
-            }), 400
+        # Create citation
+        citation = LegalCitation(**citation_data)
+        db.session.add(citation)
+        db.session.commit()
+        
+        flash(f'Document "{filename}" uploaded successfully!', 'success')
+        return redirect(url_for('view_citations'))
     
-    return jsonify({'error': 'File type not allowed'}), 400
+    flash('File type not allowed', 'error')
+    return redirect(url_for('upload_citation'))
 
 @app.route('/citations')
 def view_citations():
-    """View all citations"""
+    """View and search all citations - accessible to all users"""
     page = request.args.get('page', 1, type=int)
     per_page = 20
+    search_query = request.args.get('q', '').strip()
     
-    citations = LegalCitation.query.order_by(LegalCitation.created_at.desc()).paginate(
+    # Build query
+    query = LegalCitation.query
+    
+    # Apply search filters if query provided
+    if search_query:
+        search_term = f"%{search_query}%"
+        query = query.filter(
+            db.or_(
+                LegalCitation.title.ilike(search_term),
+                LegalCitation.citation.ilike(search_term),
+                LegalCitation.court.ilike(search_term),
+                LegalCitation.summary.ilike(search_term),
+                LegalCitation.keywords.ilike(search_term)
+            )
+        )
+    
+    citations = query.order_by(LegalCitation.created_at.desc()).paginate(
         page=page, per_page=per_page, error_out=False
     )
     
-    return render_template('citations.html', citations=citations)
+    return render_template('citations.html', citations=citations, search_query=search_query)
 
 @app.route('/citation/<int:id>')
 def view_citation(id):
