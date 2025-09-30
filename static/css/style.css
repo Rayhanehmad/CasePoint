@@ -1,9 +1,9 @@
 /* KanoonPK - Professional Legal Research Platform Styles */
 
 :root {
-    --primary-color: #1f3a72;
-    --secondary-color: #2c5282;
-    --accent-color: #3182ce;
+    --primary-color: #3abf9f;
+    --secondary-color: #40c9a2;
+    --accent-color: #5ed9bd;
     --light-bg: #f8fafc;
     --border-color: #e2e8f0;
     --text-muted: #64748b;
@@ -24,14 +24,37 @@ body {
     font-weight: 700;
 }
 
-.navbar-dark .navbar-nav .nav-link {
-    color: rgba(255, 255, 255, 0.9);
+/* Header Styles */
+.navbar-light .navbar-nav .nav-link {
+    color: #374151;
     font-weight: 500;
     transition: color 0.3s ease;
 }
 
-.navbar-dark .navbar-nav .nav-link:hover {
-    color: #ffffff;
+.navbar-light .navbar-nav .nav-link:hover {
+    color: var(--primary-color);
+}
+
+.navbar-brand-text {
+    color: var(--primary-color) !important;
+}
+
+.bg-white-custom {
+    background-color: white !important;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.navbar-light .dropdown-menu {
+    border: 1px solid var(--border-color);
+}
+
+.navbar-light .navbar-toggler {
+    border-color: var(--border-color);
+}
+
+.navbar-light .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(55, 65, 81, 0.75)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
 /* Search Components */
@@ -84,7 +107,7 @@ body {
 
 .search-form .form-control:focus {
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 0.2rem rgba(49, 130, 206, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(58, 191, 159, 0.25);
 }
 
 .btn-search {
@@ -98,7 +121,7 @@ body {
 
 .btn-search:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(49, 130, 206, 0.3);
+    box-shadow: 0 5px 15px rgba(58, 191, 159, 0.3);
 }
 
 /* Advanced Search */
@@ -295,7 +318,7 @@ body {
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(49, 130, 206, 0.3);
+    box-shadow: 0 5px 15px rgba(58, 191, 159, 0.3);
 }
 
 .btn-outline-primary {
