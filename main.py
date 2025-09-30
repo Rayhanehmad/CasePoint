@@ -13,6 +13,7 @@ from functools import wraps
 from werkzeug.utils import secure_filename
 from ocr_utils import ocr_service
 import logging
+from datetime import datetime, timedelta
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -53,6 +54,16 @@ with app.app_context():
 
 # Configure OpenAI with legacy API
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Track user activity
+@app.before_request
+def track_user_activity():
+    """Update last_seen timestamp for logged-in users"""
+    if 'user_id' in session:
+        user = User.query.get(session['user_id'])
+        if user:
+            user.last_seen = datetime.utcnow()
+            db.session.commit()
 
 # Login required decorator
 def login_required(f):
@@ -621,6 +632,109 @@ def download_citation(id):
         return redirect(url_for('view_citation', id=id))
     
     return send_file(citation.file_path, as_attachment=True)
+
+# Admin Panel Routes
+@app.route('/admin')
+@admin_required
+def admin_panel():
+    """Admin panel with database management and statistics"""
+    # Get statistics
+    total_users = User.query.count()
+    total_citations = LegalCitation.query.count()
+    
+    # Count online users (active in last 5 minutes)
+    five_minutes_ago = datetime.utcnow() - timedelta(minutes=5)
+    online_users = User.query.filter(User.last_seen >= five_minutes_ago).count()
+    
+    # Get recent users
+    recent_users = User.query.order_by(User.created_at.desc()).limit(10).all()
+    
+    # Get recent citations
+    recent_citations = LegalCitation.query.order_by(LegalCitation.created_at.desc()).limit(10).all()
+    
+    # Citations by legal area
+    from sqlalchemy import func
+    citations_by_area = db.session.query(
+        LegalCitation.legal_area,
+        func.count(LegalCitation.id).label('count')
+    ).filter(LegalCitation.legal_area.isnot(None)).group_by(LegalCitation.legal_area).all()
+    
+    # Admin users count
+    admin_count = User.query.filter(User.role == 'admin').count()
+    regular_count = User.query.filter(User.role == 'user').count()
+    
+    return render_template('admin_panel.html',
+        total_users=total_users,
+        total_citations=total_citations,
+        online_users=online_users,
+        admin_count=admin_count,
+        regular_count=regular_count,
+        recent_users=recent_users,
+        recent_citations=recent_citations,
+        citations_by_area=citations_by_area
+    )
+
+@app.route('/admin/users')
+@admin_required
+def admin_users():
+    """Admin page to view and manage all users"""
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    
+    users = User.query.order_by(User.created_at.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    
+    return render_template('admin_users.html', users=users)
+
+@app.route('/admin/citations')
+@admin_required
+def admin_citations():
+    """Admin page to view and manage all citations"""
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    
+    citations = LegalCitation.query.order_by(LegalCitation.created_at.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    
+    return render_template('admin_citations.html', citations=citations)
+
+@app.route('/admin/delete-citation/<int:id>', methods=['POST'])
+@admin_required
+def admin_delete_citation(id):
+    """Delete a citation from database"""
+    citation = LegalCitation.query.get_or_404(id)
+    
+    # Delete file if exists
+    if citation.file_path and os.path.exists(citation.file_path):
+        try:
+            os.remove(citation.file_path)
+        except:
+            pass
+    
+    db.session.delete(citation)
+    db.session.commit()
+    
+    flash(f'Citation "{citation.citation}" deleted successfully', 'success')
+    return redirect(url_for('admin_citations'))
+
+@app.route('/admin/delete-user/<int:id>', methods=['POST'])
+@admin_required
+def admin_delete_user(id):
+    """Delete a user from database"""
+    user = User.query.get_or_404(id)
+    
+    # Prevent deleting yourself
+    if user.id == session['user_id']:
+        flash('You cannot delete your own account', 'error')
+        return redirect(url_for('admin_users'))
+    
+    db.session.delete(user)
+    db.session.commit()
+    
+    flash(f'User "{user.username}" deleted successfully', 'success')
+    return redirect(url_for('admin_users'))
 
 # Export the Flask app
 application = app

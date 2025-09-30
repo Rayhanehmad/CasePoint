@@ -81,6 +81,7 @@ class User(db.Model):
     password_hash = db.Column(db.Text, nullable=False)
     role = db.Column(db.String(20), nullable=False, default='user')
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     
     def __repr__(self):
         return f'<User {self.username}>'
@@ -97,6 +98,12 @@ class User(db.Model):
         """Check if user has admin role"""
         return self.role == 'admin'
     
+    def is_online(self):
+        """Check if user is currently online (active in last 5 minutes)"""
+        if not self.last_seen:
+            return False
+        return (datetime.utcnow() - self.last_seen).total_seconds() < 300
+    
     def to_dict(self):
         """Convert user to dictionary (excluding password)"""
         return {
@@ -104,7 +111,9 @@ class User(db.Model):
             'username': self.username,
             'email': self.email,
             'role': self.role,
-            'created_at': self.created_at.isoformat() if self.created_at else None
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'last_seen': self.last_seen.isoformat() if self.last_seen else None,
+            'is_online': self.is_online()
         }
     
     # Relationship to uploaded citations
