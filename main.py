@@ -10,6 +10,12 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, f
 from flask_cors import CORS
 from models import db, User
 from functools import wraps
+from werkzeug.utils import secure_filename
+from ocr_utils import ocr_service
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -17,6 +23,18 @@ CORS(app)
 
 # Configure Flask secret key (required for sessions and CSRF)
 app.secret_key = os.environ.get("SESSION_SECRET", "kanoonpk-dev-secret-2024")
+
+# Configure upload folder
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'tiff', 'tif', 'bmp', 'docx', 'doc', 'txt'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+
+# Ensure upload folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Configure PostgreSQL Database
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
@@ -419,6 +437,52 @@ def admin_dashboard():
     users = User.query.all()
     breadcrumbs = [{'text': 'Admin Dashboard', 'url': url_for('admin_dashboard')}]
     return render_template('admin.html', users=users, breadcrumbs=breadcrumbs)
+
+# OCR Document Upload Route
+@app.route('/upload-document', methods=['POST'])
+def upload_document():
+    """Upload and process document with OCR"""
+    
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+    
+    file = request.files['file']
+    
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+    
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        
+        # Get file extension
+        file_ext = filename.rsplit('.', 1)[1].lower()
+        
+        # Extract text using OCR
+        extracted_text, confidence = ocr_service.extract_text_from_file(filepath, file_ext)
+        
+        if extracted_text:
+            return jsonify({
+                'success': True,
+                'filename': filename,
+                'text': extracted_text,
+                'confidence': confidence,
+                'file_type': file_ext,
+                'message': f'Successfully extracted text with {confidence:.1f}% confidence'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Could not extract text from document'
+            }), 400
+    
+    return jsonify({'error': 'File type not allowed'}), 400
+
+@app.route('/test-ocr')
+def test_ocr_page():
+    """Test page for OCR functionality"""
+    return render_template('test_ocr.html')
 
 # Export the Flask app
 application = app
