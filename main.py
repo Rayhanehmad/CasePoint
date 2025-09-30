@@ -6,8 +6,10 @@ Replicating pakistanlawsite.com design with OpenAI integration
 
 import os
 import openai
-from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, session
 from flask_cors import CORS
+from models import db, User
+from functools import wraps
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -16,8 +18,48 @@ CORS(app)
 # Configure Flask secret key (required for sessions and CSRF)
 app.secret_key = os.environ.get("SESSION_SECRET", "kanoonpk-dev-secret-2024")
 
+# Configure PostgreSQL Database
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_recycle": 300,
+    "pool_pre_ping": True,
+}
+
+# Initialize database
+db.init_app(app)
+
+# Create tables
+with app.app_context():
+    db.create_all()
+
 # Configure OpenAI with legacy API
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Login required decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Please login to access this page', 'error')
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Admin required decorator
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Please login to access this page', 'error')
+            return redirect(url_for('login'))
+        
+        user = User.query.get(session['user_id'])
+        if not user or not user.is_admin():
+            flash('Admin access required', 'error')
+            return redirect(url_for('home'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # Sample legal data for demonstration
 SAMPLE_CASES = [
@@ -272,6 +314,111 @@ def health_check():
         'service': 'kanoonpk-openai',
         'version': '1.0.0'
     })
+
+# Authentication Routes
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """User registration"""
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
+        
+        # Validation
+        if not username or not email or not password:
+            flash('All fields are required', 'error')
+            return redirect(url_for('register'))
+        
+        if password != confirm_password:
+            flash('Passwords do not match', 'error')
+            return redirect(url_for('register'))
+        
+        if len(password) < 6:
+            flash('Password must be at least 6 characters long', 'error')
+            return redirect(url_for('register'))
+        
+        # Check if user already exists
+        if User.query.filter_by(username=username).first():
+            flash('Username already exists', 'error')
+            return redirect(url_for('register'))
+        
+        if User.query.filter_by(email=email).first():
+            flash('Email already registered', 'error')
+            return redirect(url_for('register'))
+        
+        # Create new user
+        user = User(username=username, email=email, role='user')
+        user.set_password(password)
+        
+        try:
+            db.session.add(user)
+            db.session.commit()
+            flash('Registration successful! Please login.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            flash('Registration failed. Please try again.', 'error')
+            return redirect(url_for('register'))
+    
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """User login"""
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
+        remember = request.form.get('remember') == 'on'
+        
+        if not username or not password:
+            flash('Username and password are required', 'error')
+            return redirect(url_for('login'))
+        
+        # Find user by username or email
+        user = User.query.filter(
+            (User.username == username) | (User.email == username)
+        ).first()
+        
+        if user and user.check_password(password):
+            session['user_id'] = user.id
+            session['username'] = user.username
+            session['role'] = user.role
+            session.permanent = remember
+            
+            flash(f'Welcome back, {user.username}!', 'success')
+            
+            # Redirect to next page or home
+            next_page = request.args.get('next')
+            return redirect(next_page if next_page else url_for('home'))
+        else:
+            flash('Invalid username or password', 'error')
+            return redirect(url_for('login'))
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    """User logout"""
+    session.clear()
+    flash('You have been logged out', 'success')
+    return redirect(url_for('home'))
+
+@app.route('/profile')
+@login_required
+def profile():
+    """User profile page"""
+    user = User.query.get(session['user_id'])
+    breadcrumbs = [{'text': 'My Profile', 'url': url_for('profile')}]
+    return render_template('profile.html', user=user, breadcrumbs=breadcrumbs)
+
+@app.route('/admin')
+@admin_required
+def admin_dashboard():
+    """Admin dashboard"""
+    users = User.query.all()
+    breadcrumbs = [{'text': 'Admin Dashboard', 'url': url_for('admin_dashboard')}]
+    return render_template('admin.html', users=users, breadcrumbs=breadcrumbs)
 
 # Export the Flask app
 application = app
