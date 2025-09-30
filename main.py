@@ -441,14 +441,6 @@ def profile():
     breadcrumbs = [{'text': 'My Profile', 'url': url_for('profile')}]
     return render_template('profile.html', user=user, breadcrumbs=breadcrumbs)
 
-@app.route('/admin')
-@admin_required
-def admin_dashboard():
-    """Admin dashboard"""
-    users = User.query.all()
-    breadcrumbs = [{'text': 'Admin Dashboard', 'url': url_for('admin_dashboard')}]
-    return render_template('admin.html', users=users, breadcrumbs=breadcrumbs)
-
 # OCR Document Upload Route
 @app.route('/upload-document', methods=['POST'])
 def upload_document():
