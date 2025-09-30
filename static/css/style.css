@@ -122,6 +122,11 @@ body {
     margin-top: 1rem;
 }
 
+.advanced-search-panel .form-label {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
 /* Results Page */
 .results-container {
     background: white;
