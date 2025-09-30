@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}{{ citation.citation }} - KanoonPK{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12 mb-3">
+            <a href="{{ url_for('view_citations') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Citations
+            </a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-custom mb-4">
+                <div class="card-header bg-primary-custom text-white">
+                    <h4 class="mb-0">{{ citation.title }}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Citation:</strong> {{ citation.citation }}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Court:</strong> {{ citation.court or 'N/A' }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Jurisdiction:</strong> {{ citation.jurisdiction or 'N/A' }}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Date Decided:</strong> {{ citation.date_decided.strftime('%B %d, %Y') if citation.date_decided else 'N/A' }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Legal Area:</strong> 
+                            {% if citation.legal_area %}
+                            <span class="badge bg-info">{{ citation.legal_area }}</span>
+                            {% else %}
+                            N/A
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Case Type:</strong> {{ citation.case_type or 'N/A' }}
+                        </div>
+                    </div>
+                    
+                    {% if citation.judges %}
+                    <div class="mb-3">
+                        <strong>Judges:</strong> {{ citation.judges }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if citation.keywords %}
+                    <div class="mb-3">
+                        <strong>Keywords:</strong>
+                        {% for keyword in citation.keywords.split(',') %}
+                        <span class="badge bg-secondary me-1">{{ keyword.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if citation.summary %}
+                    <div class="mb-3">
+                        <h6>Summary</h6>
+                        <p>{{ citation.summary }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if citation.headnotes %}
+                    <div class="mb-3">
+                        <h6>Headnotes</h6>
+                        <p>{{ citation.headnotes }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if citation.full_text %}
+                    <div class="mb-3">
+                        <h6>Full Text</h6>
+                        <div class="border p-3 bg-light" style="max-height: 400px; overflow-y: auto;">
+                            <pre style="white-space: pre-wrap; font-family: inherit;">{{ citation.full_text }}</pre>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if citation.citations_referred %}
+                    <div class="mb-3">
+                        <h6>Citations Referred</h6>
+                        <p>{{ citation.citations_referred }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if citation.statutes_referred %}
+                    <div class="mb-3">
+                        <h6>Statutes Referred</h6>
+                        <p>{{ citation.statutes_referred }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-custom mb-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Document Info</h6>
+                </div>
+                <div class="card-body">
+                    {% if citation.file_path %}
+                    <p><strong>File:</strong> {{ citation.file_path.split('/')[-1] }}</p>
+                    <p><strong>Type:</strong> {{ citation.file_type or 'N/A' }}</p>
+                    {% if citation.ocr_confidence %}
+                    <p><strong>OCR Confidence:</strong> {{ "%.1f"|format(citation.ocr_confidence) }}%</p>
+                    {% endif %}
+                    {% else %}
+                    <p class="text-muted">Manually entered citation</p>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <p class="mb-1"><strong>Uploaded:</strong><br>
+                    <small>{{ citation.created_at.strftime('%B %d, %Y at %I:%M %p') if citation.created_at else 'N/A' }}</small></p>
+                    
+                    {% if citation.updated_at and citation.updated_at != citation.created_at %}
+                    <p class="mb-0"><strong>Updated:</strong><br>
+                    <small>{{ citation.updated_at.strftime('%B %d, %Y at %I:%M %p') }}</small></p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card shadow-custom">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-tools me-2"></i>Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Print
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="copyToClipboard()">
+                            <i class="fas fa-copy me-2"></i>Copy Citation
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function copyToClipboard() {
+    const citation = "{{ citation.citation }}";
+    navigator.clipboard.writeText(citation).then(() => {
+        alert('Citation copied to clipboard!');
+    });
+}
+</script>
+{% endblock %}
