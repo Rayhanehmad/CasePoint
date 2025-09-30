@@ -10,7 +10,7 @@
             <p class="text-muted">Browse uploaded Pakistan law cases and judgments</p>
         </div>
         <div class="col-md-4 text-md-end">
-            {% if session.get('user_id') %}
+            {% if session.get('role') == 'admin' %}
             <a href="{{ url_for('upload_citation') }}" class="btn btn-primary">
                 <i class="fas fa-plus me-2"></i>Upload Citation
             </a>
@@ -95,10 +95,10 @@
     <div class="alert alert-info">
         <i class="fas fa-info-circle me-2"></i>
         <strong>No citations found.</strong> 
-        {% if session.get('user_id') %}
+        {% if session.get('role') == 'admin' %}
         <a href="{{ url_for('upload_citation') }}" class="alert-link">Upload your first citation</a>
         {% else %}
-        Please login to upload citations.
+        Only administrators can upload citations.
         {% endif %}
     </div>
     {% endif %}
