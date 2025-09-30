@@ -486,7 +486,7 @@ def test_ocr_page():
 
 # Citation Management Routes
 @app.route('/upload-citation', methods=['GET', 'POST'])
-@login_required
+@admin_required
 def upload_citation():
     """Upload single citation to database"""
     if request.method == 'POST':
@@ -527,7 +527,7 @@ def upload_citation():
     return render_template('upload_citation.html')
 
 @app.route('/upload-citation-file', methods=['POST'])
-@login_required
+@admin_required
 def upload_citation_file():
     """Upload citation from document file with OCR"""
     
