@@ -553,7 +553,20 @@ def upload_citation_file():
         file_ext = filename.rsplit('.', 1)[1].lower()
         file_size = os.path.getsize(filepath)
         
-        # Store document directly without extraction
+        # Extract text using OCR for supported file types
+        extracted_text = None
+        ocr_confidence = None
+        
+        if file_ext in ['pdf', 'jpg', 'jpeg', 'png', 'tiff', 'tif', 'bmp', 'txt', 'docx']:
+            logging.info(f"Extracting text from {filename} using OCR...")
+            extracted_text, ocr_confidence = ocr_service.extract_text_from_file(filepath, file_ext)
+            
+            if extracted_text:
+                logging.info(f"Successfully extracted {len(extracted_text)} characters with {ocr_confidence:.1f}% confidence")
+            else:
+                logging.warning(f"No text could be extracted from {filename}")
+        
+        # Store document with extracted text
         citation_data = {
             'title': request.form.get('title', filename.rsplit('.', 1)[0]),
             'citation': request.form.get('citation', filename),
@@ -564,6 +577,8 @@ def upload_citation_file():
             'summary': request.form.get('summary', ''),
             'file_path': filepath,
             'file_type': file_ext,
+            'full_text': extracted_text,
+            'ocr_confidence': ocr_confidence,
             'uploaded_by': session['user_id']
         }
         
@@ -572,7 +587,11 @@ def upload_citation_file():
         db.session.add(citation)
         db.session.commit()
         
-        flash(f'Document "{filename}" uploaded successfully!', 'success')
+        if extracted_text:
+            flash(f'Document "{filename}" uploaded and text extracted successfully!', 'success')
+        else:
+            flash(f'Document "{filename}" uploaded (text extraction unavailable)', 'warning')
+        
         return redirect(url_for('view_citations'))
     
     flash('File type not allowed', 'error')
@@ -646,6 +665,41 @@ def preview_citation(id):
     
     # For other file types, download instead
     return send_file(citation.file_path, as_attachment=True)
+
+@app.route('/citation/<int:id>/retry-ocr', methods=['POST'])
+@admin_required
+def retry_ocr(id):
+    """Retry OCR text extraction for a citation document"""
+    citation = LegalCitation.query.get_or_404(id)
+    
+    if not citation.file_path or not os.path.exists(citation.file_path):
+        flash('Document file not found', 'error')
+        return redirect(url_for('view_citation', id=id))
+    
+    try:
+        # Extract text using OCR
+        logging.info(f"Re-extracting text from citation ID {id}...")
+        extracted_text, ocr_confidence = ocr_service.extract_text_from_file(
+            citation.file_path, 
+            citation.file_type or citation.file_path.rsplit('.', 1)[1].lower()
+        )
+        
+        if extracted_text:
+            citation.full_text = extracted_text
+            citation.ocr_confidence = ocr_confidence
+            db.session.commit()
+            
+            flash(f'Text extracted successfully! Confidence: {ocr_confidence:.1f}%', 'success')
+            logging.info(f"Successfully extracted {len(extracted_text)} characters with {ocr_confidence:.1f}% confidence")
+        else:
+            flash('Could not extract text from this document', 'warning')
+            logging.warning(f"Failed to extract text from citation ID {id}")
+            
+    except Exception as e:
+        logging.error(f"OCR retry failed: {str(e)}")
+        flash(f'Error during text extraction: {str(e)}', 'error')
+    
+    return redirect(url_for('view_citation', id=id))
 
 # Admin Panel Routes
 @app.route('/admin')
