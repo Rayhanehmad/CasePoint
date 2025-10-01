@@ -59,6 +59,13 @@
                             <i class="fas fa-search me-1"></i>Citation Search
                         </a>
                     </li>
+                    {% if session.get('role') == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link text-success" href="{{ url_for('upload_citation') }}">
+                            <i class="fas fa-upload me-1"></i>Upload Data
+                        </a>
+                    </li>
+                    {% endif %}
                 </ul>
                 
                 <ul class="navbar-nav">
