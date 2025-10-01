@@ -65,13 +65,25 @@
                 <div class="card-body">
                     <form action="{{ url_for('upload_citation') }}" method="POST" enctype="multipart/form-data">
                         <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-bold">Document Type *</label>
+                                <select class="form-select" name="document_type" required onchange="updateFormLabels(this.value)">
+                                    <option value="case" selected>Case / Judgment</option>
+                                    <option value="act">Act / Statute</option>
+                                    <option value="rule">Rules / Regulations</option>
+                                    <option value="ordinance">Ordinance</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Citation Reference *</label>
-                                <input type="text" class="form-control" name="citation" required placeholder="e.g., PLD 2023 SC 456">
+                                <label class="form-label fw-bold" id="citation-label">Citation Reference *</label>
+                                <input type="text" class="form-control" name="citation" required placeholder="e.g., PLD 2023 SC 456" id="citation-input">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Case Title *</label>
-                                <input type="text" class="form-control" name="title" required placeholder="e.g., Muhammad Ali vs State">
+                                <label class="form-label fw-bold" id="title-label">Case Title *</label>
+                                <input type="text" class="form-control" name="title" required placeholder="e.g., Muhammad Ali vs State" id="title-input">
                             </div>
                         </div>
                         
@@ -296,4 +308,37 @@
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function updateFormLabels(docType) {
+    const citationLabel = document.getElementById('citation-label');
+    const titleLabel = document.getElementById('title-label');
+    const citationInput = document.getElementById('citation-input');
+    const titleInput = document.getElementById('title-input');
+    
+    if (docType === 'case') {
+        citationLabel.textContent = 'Citation Reference *';
+        titleLabel.textContent = 'Case Title *';
+        citationInput.placeholder = 'e.g., PLD 2023 SC 456';
+        titleInput.placeholder = 'e.g., Muhammad Ali vs State';
+    } else if (docType === 'act') {
+        citationLabel.textContent = 'Act Reference *';
+        titleLabel.textContent = 'Act Title *';
+        citationInput.placeholder = 'e.g., Act XLV of 1860';
+        titleInput.placeholder = 'e.g., Pakistan Penal Code 1860';
+    } else if (docType === 'rule') {
+        citationLabel.textContent = 'Rule Reference *';
+        titleLabel.textContent = 'Rule Title *';
+        citationInput.placeholder = 'e.g., Rule 2024-R-123';
+        titleInput.placeholder = 'e.g., Code of Civil Procedure Rules';
+    } else if (docType === 'ordinance') {
+        citationLabel.textContent = 'Ordinance Reference *';
+        titleLabel.textContent = 'Ordinance Title *';
+        citationInput.placeholder = 'e.g., Ordinance II of 2020';
+        titleInput.placeholder = 'e.g., National Accountability Ordinance';
+    }
+}
+</script>
 {% endblock %}
