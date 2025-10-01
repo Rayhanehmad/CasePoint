@@ -12,6 +12,7 @@ from models import db, User, LegalCitation
 from functools import wraps
 from werkzeug.utils import secure_filename
 from ocr_utils import ocr_service
+import vector_search
 import logging
 from datetime import datetime, timedelta
 
@@ -125,24 +126,44 @@ SAMPLE_STATUTES = [
     }
 ]
 
-def generate_legal_analysis(query, context=""):
-    """Generate AI-powered legal analysis using legacy OpenAI API"""
+def generate_legal_analysis(query, context="", use_semantic_search=True):
+    """Generate AI-powered legal analysis using legacy OpenAI API with ChromaDB semantic search"""
     if not openai.api_key:
         return "AI analysis requires OpenAI API key configuration. Please set OPENAI_API_KEY environment variable."
     
     try:
+        # Search for relevant documents using ChromaDB if enabled
+        relevant_docs = []
+        if use_semantic_search:
+            relevant_docs = vector_search.search_similar_documents(query, n_results=3)
+        
+        # Build context from relevant documents
+        doc_context = ""
+        if relevant_docs:
+            doc_context = "\n\nRelevant Legal Documents:\n"
+            for i, doc in enumerate(relevant_docs, 1):
+                metadata = doc.get('metadata', {})
+                doc_text = doc.get('text', '')[:500]  # First 500 chars
+                doc_context += f"\n{i}. {metadata.get('title', 'Document')}"
+                if metadata.get('citation'):
+                    doc_context += f" ({metadata.get('citation')})"
+                if metadata.get('court'):
+                    doc_context += f" - {metadata.get('court')}"
+                doc_context += f"\n   {doc_text}...\n"
+        
         # Create prompt for legal analysis
-        if context:
+        if context or doc_context:
+            full_context = (context + doc_context) if context else doc_context
             prompt = f"""As a legal research assistant specializing in Pakistan law, analyze the following query with the provided context:
 
 Query: {query}
 
-Context: {context}
+Context: {full_context}
 
 Please provide:
 1. A direct answer to the legal question
 2. Relevant legal principles and precedents under Pakistan law
-3. Citations to relevant statutes, cases, or legal authorities
+3. Citations to relevant statutes, cases, or legal authorities from the context
 4. Important considerations or limitations
 
 Response should be professional and accurate."""
@@ -163,7 +184,7 @@ Response should be professional and accurate."""
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are an expert legal research assistant specializing in Pakistan law. Provide accurate, well-cited legal analysis."},
+                {"role": "system", "content": "You are an expert legal research assistant specializing in Pakistan law. Provide accurate, well-cited legal analysis based on the provided context."},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=1000,
@@ -589,8 +610,31 @@ def upload_citation_file():
         db.session.add(citation)
         db.session.commit()
         
+        # Add to vector database if text was extracted
         if extracted_text:
-            flash(f'Document "{filename}" uploaded and text extracted successfully!', 'success')
+            metadata = {
+                'document_type': citation_data.get('document_type', 'case'),
+                'title': citation_data.get('title', ''),
+                'citation': citation_data.get('citation', ''),
+                'court': citation_data.get('court', ''),
+                'legal_area': citation_data.get('legal_area', ''),
+                'year': str(citation_data.get('year', ''))
+            }
+            
+            # Add to ChromaDB
+            vector_added = vector_search.add_document_to_vector_db(
+                doc_id=str(citation.id),
+                text=extracted_text,
+                metadata=metadata
+            )
+            
+            if vector_added:
+                # Update citation with vector ID
+                citation.vector_id = str(citation.id)
+                db.session.commit()
+                flash(f'Document "{filename}" uploaded, text extracted, and added to AI search successfully!', 'success')
+            else:
+                flash(f'Document "{filename}" uploaded and text extracted successfully!', 'success')
         else:
             flash(f'Document "{filename}" uploaded (text extraction unavailable)', 'warning')
         
