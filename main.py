@@ -625,6 +625,28 @@ def download_citation(id):
     
     return send_file(citation.file_path, as_attachment=True)
 
+@app.route('/preview-citation/<int:id>')
+def preview_citation(id):
+    """Preview citation document file in browser"""
+    from flask import send_file
+    import mimetypes
+    
+    citation = LegalCitation.query.get_or_404(id)
+    
+    if not citation.file_path or not os.path.exists(citation.file_path):
+        flash('Document file not found', 'error')
+        return redirect(url_for('view_citation', id=id))
+    
+    # Get the MIME type for the file
+    mime_type, _ = mimetypes.guess_type(citation.file_path)
+    
+    # If it's a PDF, image, or text file, display inline
+    if mime_type and (mime_type.startswith('image/') or mime_type == 'application/pdf' or mime_type.startswith('text/')):
+        return send_file(citation.file_path, mimetype=mime_type)
+    
+    # For other file types, download instead
+    return send_file(citation.file_path, as_attachment=True)
+
 # Admin Panel Routes
 @app.route('/admin')
 @admin_required

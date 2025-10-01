@@ -141,6 +141,9 @@
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         {% if citation.file_path %}
+                        <a href="{{ url_for('preview_citation', id=citation.id) }}" class="btn btn-primary" target="_blank">
+                            <i class="fas fa-eye me-2"></i>Preview Document
+                        </a>
                         <a href="{{ url_for('download_citation', id=citation.id) }}" class="btn btn-success">
                             <i class="fas fa-download me-2"></i>Download Document
                         </a>
