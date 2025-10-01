@@ -14,6 +14,9 @@ class LegalCitation(db.Model):
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     
+    # Document Type
+    document_type = db.Column(db.String(50), nullable=False, default='case', index=True)  # 'case', 'rule', 'act', 'statute'
+    
     # Case Information
     title = db.Column(db.String(500), nullable=False, index=True)
     citation = db.Column(db.String(255), nullable=False, unique=True, index=True)
