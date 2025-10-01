@@ -236,7 +236,9 @@ function togglePreview() {
         btnText.textContent = 'Hide Preview';
         previewObject.data = pdfUrl;
         previewFrame.src = pdfUrl;
-        downloadLink.href = pdfUrl;
+        if (downloadLink) {
+            downloadLink.href = pdfUrl;
+        }
         
         // Smooth scroll to preview on mobile
         if (window.innerWidth < 992) {
