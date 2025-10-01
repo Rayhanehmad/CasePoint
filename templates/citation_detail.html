@@ -109,33 +109,6 @@
         <div class="col-lg-6 mb-4 mb-lg-0">
             <div class="card shadow-custom mb-3">
                 <div class="card-header bg-light">
-                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Document Info</h6>
-                </div>
-                <div class="card-body">
-                    {% if citation.file_path %}
-                    <p><strong>File:</strong> {{ citation.file_path.split('/')[-1] }}</p>
-                    <p><strong>Type:</strong> {{ citation.file_type or 'N/A' }}</p>
-                    {% if citation.ocr_confidence %}
-                    <p><strong>OCR Confidence:</strong> {{ "%.1f"|format(citation.ocr_confidence) }}%</p>
-                    {% endif %}
-                    {% else %}
-                    <p class="text-muted">Manually entered citation</p>
-                    {% endif %}
-                    
-                    <hr>
-                    
-                    <p class="mb-1"><strong>Uploaded:</strong><br>
-                    <small>{{ citation.created_at.strftime('%B %d, %Y at %I:%M %p') if citation.created_at else 'N/A' }}</small></p>
-                    
-                    {% if citation.updated_at and citation.updated_at != citation.created_at %}
-                    <p class="mb-0"><strong>Updated:</strong><br>
-                    <small>{{ citation.updated_at.strftime('%B %d, %Y at %I:%M %p') }}</small></p>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <div class="card shadow-custom mb-3">
-                <div class="card-header bg-light">
                     <h6 class="mb-0"><i class="fas fa-tools me-2"></i>Actions</h6>
                 </div>
                 <div class="card-body">
