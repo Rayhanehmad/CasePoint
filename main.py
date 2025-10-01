@@ -647,7 +647,7 @@ def download_citation(id):
 @app.route('/preview-citation/<int:id>')
 def preview_citation(id):
     """Preview citation document file in browser"""
-    from flask import send_file, make_response
+    from flask import send_file
     import mimetypes
     
     citation = LegalCitation.query.get_or_404(id)
@@ -661,11 +661,13 @@ def preview_citation(id):
     
     # If it's a PDF, image, or text file, display inline
     if mime_type and (mime_type.startswith('image/') or mime_type == 'application/pdf' or mime_type.startswith('text/')):
-        response = make_response(send_file(citation.file_path, mimetype=mime_type))
-        # Add headers to allow inline display in iframe
-        response.headers['Content-Disposition'] = 'inline'
-        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
-        return response
+        # Send file directly without X-Frame-Options to avoid Chrome blocking
+        return send_file(
+            citation.file_path, 
+            mimetype=mime_type,
+            as_attachment=False,
+            download_name=None
+        )
     
     # For other file types, download instead
     return send_file(citation.file_path, as_attachment=True)
