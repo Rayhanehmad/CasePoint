@@ -117,9 +117,6 @@
                         <button class="btn btn-primary" onclick="togglePreview()">
                             <i class="fas fa-eye me-2"></i><span id="preview-btn-text">Show Preview</span>
                         </button>
-                        <a href="{{ url_for('download_citation', id=citation.id) }}" class="btn btn-success">
-                            <i class="fas fa-download me-2"></i>Download Document
-                        </a>
                         {% endif %}
                         <button class="btn btn-outline-primary" onclick="window.print()">
                             <i class="fas fa-print me-2"></i>Print
