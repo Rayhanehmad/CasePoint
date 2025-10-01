@@ -163,7 +163,15 @@
                         <!-- Document Tab -->
                         <div class="tab-pane fade show active" id="document-pane" role="tabpanel">
                             <div id="pdf-container" style="width: 100%; height: 600px; background: #525659;">
-                                <embed id="preview-frame" src="" type="application/pdf" style="width: 100%; height: 100%; border: none;">
+                                <object id="preview-object" data="" type="application/pdf" style="width: 100%; height: 100%;">
+                                    <iframe id="preview-frame" src="" style="width: 100%; height: 100%; border: none;">
+                                        <div class="alert alert-warning m-3">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            Your browser cannot display PDFs inline.
+                                            <a id="pdf-download-link" href="" class="alert-link" target="_blank">Click here to open PDF in new tab</a>
+                                        </div>
+                                    </iframe>
+                                </object>
                             </div>
                         </div>
                         
@@ -213,16 +221,22 @@ let previewVisible = false;
 function togglePreview() {
     const previewDiv = document.getElementById('document-preview');
     const previewFrame = document.getElementById('preview-frame');
+    const previewObject = document.getElementById('preview-object');
+    const downloadLink = document.getElementById('pdf-download-link');
     const btnText = document.getElementById('preview-btn-text');
+    const pdfUrl = "{{ url_for('preview_citation', id=citation.id) }}";
     
     if (previewVisible) {
         previewDiv.style.display = 'none';
         btnText.textContent = 'Show Preview';
         previewFrame.src = '';
+        previewObject.data = '';
     } else {
         previewDiv.style.display = 'block';
         btnText.textContent = 'Hide Preview';
-        previewFrame.src = "{{ url_for('preview_citation', id=citation.id) }}";
+        previewObject.data = pdfUrl;
+        previewFrame.src = pdfUrl;
+        downloadLink.href = pdfUrl;
         
         // Smooth scroll to preview on mobile
         if (window.innerWidth < 992) {
