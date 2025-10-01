@@ -496,6 +496,7 @@ def upload_citation():
         try:
             # Extract form data
             citation_data = {
+                'document_type': request.form.get('document_type', 'case'),
                 'title': request.form.get('title'),
                 'citation': request.form.get('citation'),
                 'court': request.form.get('court'),
@@ -568,6 +569,7 @@ def upload_citation_file():
         
         # Store document with extracted text
         citation_data = {
+            'document_type': request.form.get('document_type', 'case'),
             'title': request.form.get('title', filename.rsplit('.', 1)[0]),
             'citation': request.form.get('citation', filename),
             'court': request.form.get('court', ''),
