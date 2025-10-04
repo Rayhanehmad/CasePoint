@@ -49,3 +49,8 @@ flask-cors
 pdf2image
 Pillow
 pytesseract
+fastapi
+jinja2
+pdfplumber
+pydantic
+uvicorn
