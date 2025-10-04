@@ -6,6 +6,7 @@ import os
 import pytesseract
 from PIL import Image
 import fitz  # PyMuPDF
+import pdfplumber
 from typing import Tuple, Optional
 import logging
 
@@ -51,18 +52,37 @@ class OCRService:
             return None, None
     
     def _extract_from_pdf(self, file_path: str) -> Tuple[Optional[str], Optional[float]]:
-        """Extract text from PDF file using PyMuPDF with OCR fallback"""
+        """Extract text from PDF file using pdfplumber, PyMuPDF, and OCR fallback"""
         
         try:
-            doc = fitz.open(file_path)
+            # Method 1: Try pdfplumber first (best for born-digital PDFs with tables and layout)
+            logger.info("Attempting text extraction with pdfplumber...")
+            text_content = []
+            
+            with pdfplumber.open(file_path) as pdf:
+                for page_num, page in enumerate(pdf.pages):
+                    page_text = page.extract_text()
+                    if page_text and page_text.strip():
+                        text_content.append(page_text)
+                        logger.debug(f"pdfplumber extracted {len(page_text)} chars from page {page_num}")
+            
+            if text_content and len('\n'.join(text_content).strip()) > 100:
+                combined_text = "\n\n".join(text_content)
+                logger.info(f"pdfplumber successfully extracted {len(combined_text)} characters")
+                return combined_text, 100.0  # pdfplumber extraction has 100% confidence
+            
+            # Method 2: Fallback to PyMuPDF if pdfplumber didn't work well
+            logger.info("pdfplumber extraction insufficient, trying PyMuPDF...")
             text_content = []
             total_confidence = 0
             page_count = 0
             
+            doc = fitz.open(file_path)
+            
             for page_num in range(len(doc)):
                 page = doc.load_page(page_num)
                 
-                # First try to extract text directly (for text-based PDFs)
+                # Try to extract text directly (for text-based PDFs)
                 text = page.get_text()
                 
                 if text.strip():
@@ -70,7 +90,7 @@ class OCRService:
                     total_confidence += 100  # Direct text extraction has 100% confidence
                     page_count += 1
                 else:
-                    # If no text found, use OCR on rendered page image
+                    # Method 3: If no text found, use OCR on rendered page image
                     logger.info(f"No text found on page {page_num}, using OCR...")
                     pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))  # 2x zoom for better OCR
                     img_data = pix.tobytes("png")
@@ -96,6 +116,7 @@ class OCRService:
             if text_content:
                 combined_text = "\n\n".join(text_content)
                 avg_confidence = total_confidence / page_count if page_count > 0 else 0
+                logger.info(f"PyMuPDF/OCR extracted {len(combined_text)} characters with {avg_confidence:.1f}% confidence")
                 return combined_text, avg_confidence
             
             return None, None
