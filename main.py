@@ -200,7 +200,20 @@ Response should be professional and accurate."""
 @app.route('/')
 def home():
     """Homepage with search interface"""
-    return render_template('home.html')
+    from models import LegalCitation
+    
+    # Get recent citations (using id as fallback if created_at fails)
+    try:
+        recent_citations = LegalCitation.query.order_by(LegalCitation.created_at.desc()).limit(5).all()
+    except Exception as e:
+        print(f"Error ordering by created_at, using id instead: {e}")
+        recent_citations = LegalCitation.query.order_by(LegalCitation.id.desc()).limit(5).all()
+    
+    total_citations = LegalCitation.query.count()
+    
+    return render_template('home.html', 
+                         recent_citations=recent_citations,
+                         total_citations=total_citations)
 
 @app.route('/search/cases')
 def search_cases():

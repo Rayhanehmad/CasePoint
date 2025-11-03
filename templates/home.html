@@ -2,611 +2,482 @@
 
 {% block title %}KanoonPK - Legal Intelligence, Simplified by AI{% endblock %}
 
-{% block extra_head %}
-<style>
-/* AI Network Background Animation */
-.ai-hero-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: 0;
-}
-
-.ai-network {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: 
-        radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.2) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.2) 0%, transparent 50%),
-        radial-gradient(circle at 40% 20%, rgba(37, 99, 235, 0.15) 0%, transparent 50%);
-    animation: pulse 8s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 0.5; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.05); }
-}
-
-.ai-particles {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-}
-
-.particle {
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    background: rgba(6, 182, 212, 0.7);
-    border-radius: 50%;
-    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
-    animation: float 15s infinite;
-}
-
-.particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
-.particle:nth-child(2) { left: 20%; top: 60%; animation-delay: 2s; }
-.particle:nth-child(3) { left: 30%; top: 40%; animation-delay: 4s; }
-.particle:nth-child(4) { left: 50%; top: 70%; animation-delay: 1s; }
-.particle:nth-child(5) { left: 70%; top: 30%; animation-delay: 3s; }
-.particle:nth-child(6) { left: 80%; top: 50%; animation-delay: 5s; }
-.particle:nth-child(7) { left: 90%; top: 80%; animation-delay: 6s; }
-
-@keyframes float {
-    0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { transform: translateY(-100px) translateX(30px); opacity: 0; }
-}
-
-/* Typing Animation */
-.typing-animation {
-    display: inline-block;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
-    min-height: 28px;
-    border-right: 2px solid rgba(255, 255, 255, 0.7);
-    padding-right: 8px;
-    animation: blink 0.7s step-end infinite;
-}
-
-@keyframes blink {
-    50% { border-color: transparent; }
-}
-
-/* AI Chat Bubble */
-.ai-chat-bubble {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background: white;
-    border-radius: 20px;
-    padding: 16px 20px;
-    box-shadow: 0 8px 30px rgba(58, 191, 159, 0.3);
-    max-width: 320px;
-    z-index: 1000;
-    animation: slideInUp 1s ease-out 2s both, float-bubble 3s ease-in-out infinite 3s;
-}
-
-@keyframes slideInUp {
-    from {
-        transform: translateY(100px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-@keyframes float-bubble {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-
-.ai-chat-bubble .bubble-icon {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #2563EB, #06B6D4);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 20px;
-    float: left;
-    margin-right: 12px;
-    box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3);
-}
-
-.ai-chat-bubble .bubble-content {
-    overflow: hidden;
-}
-
-.ai-chat-bubble .bubble-title {
-    font-size: 12px;
-    color: #64748b;
-    margin-bottom: 4px;
-}
-
-.ai-chat-bubble .bubble-text {
-    font-size: 14px;
-    color: #1a202c;
-    font-weight: 500;
-}
-
-.ai-chat-bubble .bubble-close {
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    background: none;
-    border: none;
-    color: #94a3b8;
-    cursor: pointer;
-    font-size: 18px;
-    line-height: 1;
-}
-
-/* Hero Section Enhanced */
-.search-hero {
-    position: relative;
-    min-height: 600px;
-    display: flex;
-    align-items: center;
-}
-
-.hero-content {
-    position: relative;
-    z-index: 1;
-}
-
-/* CTA Buttons */
-.btn-cta-primary {
-    background: linear-gradient(135deg, #06B6D4, #2563EB);
-    color: white;
-    border: none;
-    padding: 14px 32px;
-    font-weight: 700;
-    border-radius: 50px;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
-}
-
-.btn-cta-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(6, 182, 212, 0.6);
-    color: white;
-}
-
-.btn-cta-secondary {
-    background: rgba(255, 255, 255, 0.15);
-    color: white;
-    border: 2px solid rgba(255, 255, 255, 0.8);
-    padding: 14px 32px;
-    font-weight: 700;
-    border-radius: 50px;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-}
-
-.btn-cta-secondary:hover {
-    background: rgba(255, 255, 255, 0.25);
-    border-color: white;
-    color: white;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
-}
-</style>
-{% endblock %}
-
 {% block content %}
-<!-- Hero Search Section with AI Background -->
-<section class="search-hero">
-    <!-- Animated AI Network Background -->
-    <div class="ai-hero-background">
-        <div class="ai-network"></div>
-        <div class="ai-particles">
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-        </div>
-    </div>
-
-    <div class="container hero-content">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="text-center mb-5">
-                    <h1 class="display-3 fw-bold mb-3">
-                        KanoonPK
-                    </h1>
-                    <p class="lead fw-semibold mb-4" style="font-size: 1.5rem;">Legal Intelligence, Simplified by AI</p>
-                    <p class="mb-4" style="font-size: 1.15rem; max-width: 700px; margin: 0 auto;">
-                        Find, summarize, and understand any case in seconds. KanoonPK uses cutting-edge AI to transform complex legal data into simple, actionable insights.
-                    </p>
-                    
-                    <!-- Typing Animation -->
-                    <div class="mb-5">
-                        <span class="typing-animation" id="typingText"></span>
-                    </div>
-                    
-                    <!-- CTA Buttons -->
-                    <div class="d-flex gap-3 justify-content-center flex-wrap mb-4">
-                        <a href="{{ url_for('ai_analysis') }}" class="btn btn-cta-primary">
-                            <i class="fas fa-rocket me-2"></i>Try Free AI Tools
-                        </a>
-                        <a href="{{ url_for('view_citations') }}" class="btn btn-cta-secondary">
-                            <i class="fas fa-book me-2"></i>Browse Citations
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="search-box">
-                    <!-- Search Tabs -->
-                    <ul class="nav nav-tabs search-tabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link active" href="#" data-category="all" role="tab">
-                                <i class="fas fa-search me-2"></i>All Legal Content
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" href="#" data-category="cases" role="tab">
-                                <i class="fas fa-gavel me-2"></i>Cases
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" href="#" data-category="statutes" role="tab">
-                                <i class="fas fa-book me-2"></i>Statutes
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" href="#" data-category="rules" role="tab">
-                                <i class="fas fa-list-ul me-2"></i>Rules
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" href="#" data-category="ai" role="tab">
-                                <i class="fas fa-robot me-2"></i>AI Analysis
-                            </a>
-                        </li>
-                    </ul>
-                    
-                    <!-- Search Form -->
-                    <form class="search-form" id="searchForm" action="{{ url_for('search_results') }}" method="GET">
-                        <div class="row g-3">
-                            <div class="col-lg-9">
-                                <input type="text" 
-                                       class="form-control form-control-lg" 
-                                       id="searchQuery" 
-                                       name="q"
-                                       placeholder="Search cases, statutes, rules, and more..."
-                                       required>
-                                <input type="hidden" id="searchCategory" name="category" value="all">
-                            </div>
-                            <div class="col-lg-3">
-                                <button type="submit" class="btn btn-search btn-lg w-100" id="searchSubmitBtn">
-                                    <i class="fas fa-search me-2"></i>Search
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Advanced Search Toggle -->
-                        <div class="text-center mt-3">
-                            <a href="#" class="advanced-search-toggle" id="advancedSearchToggle">
-                                <i class="fas fa-chevron-down me-2"></i>Advanced Search
-                            </a>
-                        </div>
-                        
-                        <!-- Advanced Search Panel -->
-                        <div class="advanced-search-panel" id="advancedSearchPanel" style="display: none;">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="court" class="form-label">Court</label>
-                                    <select class="form-select" id="court" name="court">
-                                        <option value="">All Courts</option>
-                                        <option value="sc">Supreme Court</option>
-                                        <option value="shc">Sindh High Court</option>
-                                        <option value="lhc">Lahore High Court</option>
-                                        <option value="phc">Peshawar High Court</option>
-                                        <option value="bhc">Balochistan High Court</option>
-                                        <option value="ihc">Islamabad High Court</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="year" class="form-label">Year</label>
-                                    <select class="form-select" id="year" name="year">
-                                        <option value="">All Years</option>
-                                        <option value="2024">2024</option>
-                                        <option value="2023">2023</option>
-                                        <option value="2022">2022</option>
-                                        <option value="2021">2021</option>
-                                        <option value="2020">2020</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="jurisdiction" class="form-label">Jurisdiction</label>
-                                    <select class="form-select" id="jurisdiction" name="jurisdiction">
-                                        <option value="">All Jurisdictions</option>
-                                        <option value="federal">Federal</option>
-                                        <option value="punjab">Punjab</option>
-                                        <option value="sindh">Sindh</option>
-                                        <option value="kpk">Khyber Pakhtunkhwa</option>
-                                        <option value="balochistan">Balochistan</option>
-                                        <option value="islamabad">Islamabad</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="citation" class="form-label">Citation Contains</label>
-                                    <input type="text" class="form-control" id="citation" name="citation" placeholder="e.g., PLD, SCMR, CLC">
-                                </div>
-                            </div>
+<!-- Main Container with Sidebar Layout -->
+<div class="min-vh-100" style="background-color: #F5F5F5;">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Main Content Area -->
+            <div class="col-lg-9 col-md-8 p-4">
+                <!-- Search Bar at Top -->
+                <div class="mb-4">
+                    <form action="{{ url_for('search_results') }}" method="GET">
+                        <div class="search-container">
+                            <input type="text" 
+                                   class="form-control form-control-lg search-input" 
+                                   name="q"
+                                   placeholder="Search by citation, title, or keywords"
+                                   required>
+                            <button type="submit" class="search-btn">
+                                <i class="fas fa-search"></i>
+                            </button>
                         </div>
                     </form>
                 </div>
+
+                <!-- AI Search Section -->
+                <div class="content-card mb-4">
+                    <h2 class="section-title">AI Search</h2>
+                    <p class="section-subtitle">Ask a question or upload a document</p>
+                    
+                    <form action="{{ url_for('ai_analysis') }}" method="POST" enctype="multipart/form-data">
+                        <div class="ai-search-box">
+                            <textarea 
+                                class="form-control ai-textarea" 
+                                name="query"
+                                rows="3" 
+                                placeholder="Explain a concept, case, or section..."></textarea>
+                            
+                            <div class="file-upload-section mt-3">
+                                <label class="file-upload-label">
+                                    <i class="fas fa-paperclip me-2"></i>
+                                    <input type="file" name="document" class="d-none" id="documentUpload" accept=".pdf,.docx,.txt">
+                                    <span>Attach document (PDF, DOCX, TXT)</span>
+                                </label>
+                                <span id="fileName" class="text-muted ms-3"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="text-end mt-3">
+                            <button type="submit" class="btn-primary-custom">Search</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Citation Explorer Section -->
+                <div class="content-card">
+                    <h2 class="section-title">Citation Explorer</h2>
+                    
+                    <form action="{{ url_for('view_citations') }}" method="GET">
+                        <div class="citation-search-container mb-4">
+                            <input type="text" 
+                                   class="form-control citation-input" 
+                                   name="search"
+                                   placeholder="Enter citation e.g. PLD 1982 SC 1">
+                            <button type="submit" class="citation-search-btn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Recent Citations -->
+                    <div class="citations-list">
+                        {% if recent_citations %}
+                            {% for citation in recent_citations[:3] %}
+                            <div class="citation-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="citation-title">
+                                            <a href="{{ url_for('view_citation', id=citation.id) }}">
+                                                {{ citation.citation or 'Untitled' }}
+                                            </a>
+                                        </h5>
+                                        <span class="badge citation-type-badge">{{ citation.document_type or 'Judgment' }}</span>
+                                    </div>
+                                </div>
+                                {% if citation.title %}
+                                <p class="citation-description">{{ citation.title[:150] }}...</p>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No citations yet. Upload legal documents from the admin panel.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Sidebar -->
+            <div class="col-lg-3 col-md-4 p-4">
+                <div class="dashboard-sidebar">
+                    <h3 class="sidebar-title">Dashboard</h3>
+                    
+                    <nav class="sidebar-nav">
+                        <a href="{{ url_for('home') }}" class="sidebar-link">
+                            <i class="fas fa-folder me-2"></i>
+                            My Cases
+                        </a>
+                        <a href="{{ url_for('view_citations') }}" class="sidebar-link">
+                            <i class="fas fa-bookmark me-2"></i>
+                            Bookmarks
+                        </a>
+                        <a href="#" class="sidebar-link">
+                            <i class="fas fa-bell me-2"></i>
+                            Notifications
+                        </a>
+                    </nav>
+
+                    <div class="mt-4">
+                        <button class="btn-secondary-custom w-100">Show all</button>
+                    </div>
+                </div>
+
+                <!-- Overview Section -->
+                <div class="overview-card mt-4">
+                    <h4 class="overview-title">Overview</h4>
+                    <div class="overview-content">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value">{{ total_citations or 0 }}</div>
+                                <div class="stat-label">Total Citations</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value">AI</div>
+                                <div class="stat-label">Powered Search</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</section>
-
-<!-- AI Chat Bubble Preview -->
-<div class="ai-chat-bubble" id="aiChatBubble">
-    <button class="bubble-close" onclick="document.getElementById('aiChatBubble').style.display='none'">&times;</button>
-    <div class="bubble-icon">
-        <i class="fas fa-robot"></i>
-    </div>
-    <div class="bubble-content">
-        <div class="bubble-title">Try AI Analysis</div>
-        <div class="bubble-text">"Explain PLD 1995 SC 423"</div>
     </div>
 </div>
 
-<!-- Quick Access Section -->
-<section class="py-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h2 class="text-center mb-5">AI-Powered Legal Tools</h2>
-            </div>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 text-center">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <i class="fas fa-gavel fa-3x text-primary-custom"></i>
-                        </div>
-                        <h5 class="card-title">Supreme Court Cases</h5>
-                        <p class="card-text">Search through landmark Supreme Court judgments and precedents</p>
-                        <a href="{{ url_for('search_cases') }}" class="btn btn-outline-primary">Browse Cases</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 text-center">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <i class="fas fa-book fa-3x text-primary-custom"></i>
-                        </div>
-                        <h5 class="card-title">Federal Statutes</h5>
-                        <p class="card-text">Access comprehensive federal and provincial legislation</p>
-                        <a href="{{ url_for('search_statutes') }}" class="btn btn-outline-primary">Browse Acts</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 text-center">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <i class="fas fa-list-ul fa-3x text-primary-custom"></i>
-                        </div>
-                        <h5 class="card-title">Rules & Regulations</h5>
-                        <p class="card-text">Find specific rules, regulations, and procedural guidelines</p>
-                        <a href="{{ url_for('search_rules') }}" class="btn btn-outline-primary">Browse Rules</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 text-center">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <i class="fas fa-robot fa-3x text-primary-custom"></i>
-                        </div>
-                        <h5 class="card-title">AI Legal Analysis</h5>
-                        <p class="card-text">Get intelligent legal research assistance powered by AI</p>
-                        <a href="{{ url_for('ai_analysis') }}" class="btn btn-outline-primary">Try AI Analysis</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+<style>
+/* Minimalist Design System */
+.search-container {
+    position: relative;
+    max-width: 600px;
+}
 
-<!-- Features Section -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h2 class="text-center mb-5">Why Choose KanoonPK?</h2>
-            </div>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-6 col-lg-4">
-                <div class="d-flex">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-brain fa-2x text-primary-custom"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h5>AI-Powered Intelligence</h5>
-                        <p class="mb-0">Advanced AI transforms complex legal data into clear, actionable insights in seconds.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="d-flex">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-search fa-2x text-primary-custom"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h5>Semantic Search</h5>
-                        <p class="mb-0">Find relevant cases by meaning, not just keywords. Our AI understands legal context.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="d-flex">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-file-alt fa-2x text-primary-custom"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h5>Instant Summaries</h5>
-                        <p class="mb-0">Get AI-generated summaries of any case, saving hours of reading time.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="d-flex">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-database fa-2x text-primary-custom"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h5>Comprehensive Database</h5>
-                        <p class="mb-0">Access Pakistan's most extensive collection of legal documents and precedents.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="d-flex">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-bolt fa-2x text-primary-custom"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h5>Lightning Fast</h5>
-                        <p class="mb-0">Get answers in seconds, not hours. Built for modern legal professionals.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="d-flex">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-shield-alt fa-2x text-primary-custom"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h5>Secure & Reliable</h5>
-                        <p class="mb-0">Enterprise-grade security and reliability you can trust.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-{% endblock %}
+.search-input {
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 50px;
+    padding: 14px 60px 14px 24px;
+    font-size: 15px;
+}
 
-{% block extra_scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Typing Animation
-    const phrases = ['Search', 'Cite', 'Summarize', 'Draft'];
-    let phraseIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
-    const typingElement = document.getElementById('typingText');
-    const typingSpeed = 100;
-    const deletingSpeed = 50;
-    const pauseTime = 2000;
-    
-    function type() {
-        const currentPhrase = phrases[phraseIndex];
-        
-        if (isDeleting) {
-            typingElement.textContent = currentPhrase.substring(0, charIndex - 1);
-            charIndex--;
-        } else {
-            typingElement.textContent = currentPhrase.substring(0, charIndex + 1);
-            charIndex++;
-        }
-        
-        if (!isDeleting && charIndex === currentPhrase.length) {
-            isDeleting = true;
-            setTimeout(type, pauseTime);
-            return;
-        }
-        
-        if (isDeleting && charIndex === 0) {
-            isDeleting = false;
-            phraseIndex = (phraseIndex + 1) % phrases.length;
-        }
-        
-        const speed = isDeleting ? deletingSpeed : typingSpeed;
-        setTimeout(type, speed);
+.search-input:focus {
+    border-color: #4169E1;
+    box-shadow: 0 0 0 3px rgba(65, 105, 225, 0.1);
+    outline: none;
+}
+
+.search-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #4169E1;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.search-btn:hover {
+    background: #2952CC;
+}
+
+.content-card {
+    background: white;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 8px;
+}
+
+.section-subtitle {
+    color: #6B7280;
+    font-size: 15px;
+    margin-bottom: 24px;
+}
+
+.ai-search-box {
+    background: #F9FAFB;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.ai-textarea {
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 15px;
+    resize: vertical;
+}
+
+.ai-textarea:focus {
+    border-color: #4169E1;
+    box-shadow: 0 0 0 3px rgba(65, 105, 225, 0.1);
+    outline: none;
+}
+
+.file-upload-section {
+    padding: 12px 0;
+}
+
+.file-upload-label {
+    color: #4169E1;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.file-upload-label:hover {
+    color: #2952CC;
+}
+
+.btn-primary-custom {
+    background: #4169E1;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-weight: 500;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary-custom:hover {
+    background: #2952CC;
+    transform: translateY(-1px);
+}
+
+.btn-secondary-custom {
+    background: white;
+    color: #374151;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary-custom:hover {
+    background: #F9FAFB;
+    border-color: #D1D5DB;
+}
+
+.citation-search-container {
+    position: relative;
+}
+
+.citation-input {
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 12px 50px 12px 16px;
+    font-size: 15px;
+}
+
+.citation-input:focus {
+    border-color: #4169E1;
+    box-shadow: 0 0 0 3px rgba(65, 105, 225, 0.1);
+    outline: none;
+}
+
+.citation-search-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #6B7280;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.citation-search-btn:hover {
+    color: #4169E1;
+}
+
+.citations-list {
+    margin-top: 24px;
+}
+
+.citation-item {
+    padding: 20px 0;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.citation-item:last-child {
+    border-bottom: none;
+}
+
+.citation-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.citation-title a {
+    color: #111827;
+    text-decoration: none;
+}
+
+.citation-title a:hover {
+    color: #4169E1;
+}
+
+.citation-type-badge {
+    background: #F3F4F6;
+    color: #374151;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+.citation-description {
+    color: #6B7280;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-top: 8px;
+}
+
+.dashboard-sidebar {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 20px;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    color: #374151;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.2s;
+}
+
+.sidebar-link:hover {
+    background: #F9FAFB;
+    color: #111827;
+}
+
+.sidebar-link i {
+    width: 20px;
+}
+
+.overview-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.overview-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 20px;
+}
+
+.overview-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.stat-icon {
+    width: 40px;
+    height: 40px;
+    background: #EFF6FF;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4169E1;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #6B7280;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+@media (max-width: 768px) {
+    .content-card {
+        padding: 20px;
     }
     
-    type();
+    .dashboard-sidebar {
+        margin-top: 20px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // File upload display
+    const fileInput = document.getElementById('documentUpload');
+    const fileName = document.getElementById('fileName');
     
-    // Handle search tab switching
-    const searchTabs = document.querySelectorAll('.search-tabs .nav-link');
-    const searchInput = document.getElementById('searchQuery');
-    const categoryInput = document.getElementById('searchCategory');
-    const searchForm = document.getElementById('searchForm');
-    
-    // Tab switching logic
-    searchTabs.forEach(tab => {
-        tab.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Remove active from all tabs
-            searchTabs.forEach(t => t.classList.remove('active'));
-            // Add active to clicked tab
-            this.classList.add('active');
-            
-            const category = this.getAttribute('data-category');
-            categoryInput.value = category;
-            
-            // Update placeholder and form action based on category
-            const placeholders = {
-                'all': 'Search cases, statutes, rules, and more...',
-                'cases': 'Search case law and judgments...',
-                'statutes': 'Search statutes and acts...',
-                'rules': 'Search rules and regulations...',
-                'ai': 'Ask AI a legal question...'
-            };
-            
-            if (placeholders[category]) {
-                searchInput.setAttribute('placeholder', placeholders[category]);
-            }
-            
-            // Change form action for AI tab
-            if (category === 'ai') {
-                searchForm.action = '{{ url_for("ai_analysis") }}';
-                searchInput.name = 'query';
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                fileName.textContent = e.target.files[0].name;
             } else {
-                searchForm.action = '{{ url_for("search_results") }}';
-                searchInput.name = 'q';
-            }
-        });
-    });
-    
-    // Advanced search toggle
-    const advancedToggle = document.getElementById('advancedSearchToggle');
-    const advancedPanel = document.getElementById('advancedSearchPanel');
-    
-    if (advancedToggle && advancedPanel) {
-        advancedToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (advancedPanel.style.display === 'none') {
-                advancedPanel.style.display = 'block';
-                this.innerHTML = '<i class="fas fa-chevron-up me-2"></i>Hide Advanced Search';
-            } else {
-                advancedPanel.style.display = 'none';
-                this.innerHTML = '<i class="fas fa-chevron-down me-2"></i>Advanced Search';
+                fileName.textContent = '';
             }
         });
     }
