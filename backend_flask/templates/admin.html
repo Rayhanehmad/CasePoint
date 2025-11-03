@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - KanoonPK{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="fas fa-shield-alt me-2 text-danger"></i>Admin Dashboard</h2>
+            <p class="text-muted">Manage users and system settings</p>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-custom">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Users</h6>
+                            <h3 class="mb-0">{{ users|length }}</h3>
+                        </div>
+                        <i class="fas fa-users fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-custom">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Admin Users</h6>
+                            <h3 class="mb-0">{{ users|selectattr('role', 'equalto', 'admin')|list|length }}</h3>
+                        </div>
+                        <i class="fas fa-shield-alt fa-2x text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-custom">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Regular Users</h6>
+                            <h3 class="mb-0">{{ users|selectattr('role', 'equalto', 'user')|list|length }}</h3>
+                        </div>
+                        <i class="fas fa-user fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-custom">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">System Status</h6>
+                            <h6 class="mb-0 text-success"><i class="fas fa-check-circle me-1"></i>Active</h6>
+                        </div>
+                        <i class="fas fa-server fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Users Table -->
+    <div class="card shadow-custom">
+        <div class="card-header bg-primary-custom text-white">
+            <h5 class="mb-0"><i class="fas fa-users me-2"></i>User Management</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>#{{ user.id }}</td>
+                            <td>
+                                <i class="fas fa-user-circle me-2 text-muted"></i>
+                                {{ user.username }}
+                            </td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                <span class="badge {% if user.role == 'admin' %}bg-danger{% else %}bg-primary{% endif %}">
+                                    <i class="fas fa-{% if user.role == 'admin' %}shield-alt{% else %}user{% endif %} me-1"></i>
+                                    {{ user.role|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    {{ user.created_at.strftime('%Y-%m-%d %H:%M') if user.created_at else 'N/A' }}
+                                </small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-primary" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-warning" title="Edit User">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    {% if user.role != 'admin' %}
+                                    <button type="button" class="btn btn-outline-danger" title="Delete User">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                <i class="fas fa-users fa-3x mb-3 d-block"></i>
+                                No users found
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
