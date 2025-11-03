@@ -4,7 +4,7 @@
   "private": true,
   "description": "KanoonPK SaaS Legal Research Platform Frontend",
   "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 5000",
+    "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx"

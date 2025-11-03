@@ -31,7 +31,7 @@ def admin_required(f):
         user = User.query.get(session['user_id'])
         if not user or not user.is_admin():
             flash('Admin access required', 'error')
-            return redirect(url_for('main.home'))
+            return redirect(url_for('home'))
         return f(*args, **kwargs)
     return decorated_function
 

@@ -2,13 +2,15 @@ import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './stores/authStore'
 import Navbar from './components/Navbar'
+import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-import Dashboard from './pages/Dashboard'
 import SearchPage from './pages/SearchPage'
-import DocumentsPage from './pages/DocumentsPage'
+import CaseDetailPage from './pages/CaseDetailPage'
+import ActsPage from './pages/ActsPage'
+import CompareCasesPage from './pages/CompareCasesPage'
+import AIAnalysisPage from './pages/AIAnalysisPage'
 import AdminPage from './pages/AdminPage'
-import SubscriptionPage from './pages/SubscriptionPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -17,7 +19,7 @@ function App() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-royal-600"></div>
       </div>
     )
   }
@@ -25,43 +27,21 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <main>
         <Routes>
           {/* Public routes */}
-          <Route 
-            path="/login" 
-            element={user ? <Navigate to="/dashboard" replace /> : <LoginPage />} 
-          />
-          <Route 
-            path="/register" 
-            element={user ? <Navigate to="/dashboard" replace /> : <RegisterPage />} 
-          />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           
-          {/* Protected routes */}
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/search" 
-            element={
-              <ProtectedRoute>
-                <SearchPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/documents" 
-            element={
-              <ProtectedRoute>
-                <DocumentsPage />
-              </ProtectedRoute>
-            } 
-          />
+          {/* Legal research routes */}
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/cases/:id" element={<CaseDetailPage />} />
+          <Route path="/acts" element={<ActsPage />} />
+          <Route path="/compare" element={<CompareCasesPage />} />
+          <Route path="/ai-analysis" element={<AIAnalysisPage />} />
+          
+          {/* Protected admin route */}
           <Route 
             path="/admin" 
             element={
@@ -69,20 +49,6 @@ function App() {
                 <AdminPage />
               </ProtectedRoute>
             } 
-          />
-          <Route 
-            path="/subscription" 
-            element={
-              <ProtectedRoute>
-                <SubscriptionPage />
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* Default redirect */}
-          <Route 
-            path="/" 
-            element={<Navigate to={user ? "/dashboard" : "/login"} replace />} 
           />
         </Routes>
       </main>
