@@ -29,6 +29,21 @@ Modern full-stack legal research platform for Pakistan law with AI-powered searc
 
 ### Option 1: Both Servers Together (Recommended)
 
+Single command to run both Flask backend and React frontend:
+
+```bash
+./start_both_servers.sh
+```
+
+Then visit:
+- **React Frontend**: http://localhost:3000
+- **Flask API**: http://localhost:5000
+- **Flask-Admin**: http://localhost:5000/admin
+
+Press `Ctrl+C` to stop both servers.
+
+### Option 2: Run Servers Separately
+
 ```bash
 # Terminal 1 - Flask Backend
 python run_flask_backend.py
@@ -37,12 +52,7 @@ python run_flask_backend.py
 cd frontend && npm run dev
 ```
 
-Then visit:
-- **React Frontend**: http://localhost:3000
-- **Flask API**: http://localhost:5000
-- **Flask-Admin**: http://localhost:5000/admin
-
-### Option 2: Flask Backend Only (Original Templates)
+### Option 3: Flask Backend Only (Original Templates)
 
 ```bash
 python main.py
