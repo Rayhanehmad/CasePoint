@@ -38,10 +38,6 @@ localPort = 8000
 externalPort = 8000
 
 [[ports]]
-localPort = 35905
-externalPort = 5173
-
-[[ports]]
 localPort = 37811
 externalPort = 4200
 
@@ -60,6 +56,10 @@ externalPort = 3003
 [[ports]]
 localPort = 43381
 externalPort = 3001
+
+[[ports]]
+localPort = 46299
+externalPort = 5000
 
 [agent]
 integrations = ["python_openai:1.0.0", "python_log_in_with_replit:1.0.0", "python_database:1.0.0", "flask_stripe:1.0.0"]
