@@ -1,19 +1,249 @@
 {% extends "base.html" %}
 
-{% block title %}KanoonPK - Pakistan's Premier Legal Research Platform{% endblock %}
+{% block title %}CasePoint - Legal Intelligence, Simplified by AI{% endblock %}
+
+{% block extra_head %}
+<style>
+/* AI Network Background Animation */
+.ai-hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.ai-network {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(58, 191, 159, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(64, 201, 162, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(94, 217, 189, 0.15) 0%, transparent 50%);
+    animation: pulse 8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.ai-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(58, 191, 159, 0.6);
+    border-radius: 50%;
+    animation: float 15s infinite;
+}
+
+.particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+.particle:nth-child(2) { left: 20%; top: 60%; animation-delay: 2s; }
+.particle:nth-child(3) { left: 30%; top: 40%; animation-delay: 4s; }
+.particle:nth-child(4) { left: 50%; top: 70%; animation-delay: 1s; }
+.particle:nth-child(5) { left: 70%; top: 30%; animation-delay: 3s; }
+.particle:nth-child(6) { left: 80%; top: 50%; animation-delay: 5s; }
+.particle:nth-child(7) { left: 90%; top: 80%; animation-delay: 6s; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-100px) translateX(30px); opacity: 0; }
+}
+
+/* Typing Animation */
+.typing-animation {
+    display: inline-block;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    min-height: 28px;
+    border-right: 2px solid rgba(255, 255, 255, 0.7);
+    padding-right: 8px;
+    animation: blink 0.7s step-end infinite;
+}
+
+@keyframes blink {
+    50% { border-color: transparent; }
+}
+
+/* AI Chat Bubble */
+.ai-chat-bubble {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: white;
+    border-radius: 20px;
+    padding: 16px 20px;
+    box-shadow: 0 8px 30px rgba(58, 191, 159, 0.3);
+    max-width: 320px;
+    z-index: 1000;
+    animation: slideInUp 1s ease-out 2s both, float-bubble 3s ease-in-out infinite 3s;
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes float-bubble {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.ai-chat-bubble .bubble-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    float: left;
+    margin-right: 12px;
+}
+
+.ai-chat-bubble .bubble-content {
+    overflow: hidden;
+}
+
+.ai-chat-bubble .bubble-title {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 4px;
+}
+
+.ai-chat-bubble .bubble-text {
+    font-size: 14px;
+    color: #1a202c;
+    font-weight: 500;
+}
+
+.ai-chat-bubble .bubble-close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+}
+
+/* Hero Section Enhanced */
+.search-hero {
+    position: relative;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* CTA Buttons */
+.btn-cta-primary {
+    background: white;
+    color: var(--primary-color);
+    border: none;
+    padding: 14px 32px;
+    font-weight: 700;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-cta-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(58, 191, 159, 0.4);
+    color: var(--primary-color);
+}
+
+.btn-cta-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid white;
+    padding: 14px 32px;
+    font-weight: 700;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.btn-cta-secondary:hover {
+    background: white;
+    color: var(--primary-color);
+    transform: translateY(-3px);
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<!-- Hero Search Section -->
+<!-- Hero Search Section with AI Background -->
 <section class="search-hero">
-    <div class="container">
+    <!-- Animated AI Network Background -->
+    <div class="ai-hero-background">
+        <div class="ai-network"></div>
+        <div class="ai-particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+
+    <div class="container hero-content">
         <div class="row justify-content-center">
             <div class="col-lg-10">
                 <div class="text-center mb-5">
-                    <h1 class="display-4 fw-bold mb-3">
-                        KanoonPK
+                    <h1 class="display-3 fw-bold mb-3">
+                        CasePoint
                     </h1>
-                    <p class="lead mb-4">Pakistan's Most Comprehensive Legal Research Platform</p>
-                    <p class="mb-0">Search through cases, statutes, rules, and get AI-powered legal analysis</p>
+                    <p class="lead fw-semibold mb-4" style="font-size: 1.5rem;">Legal Intelligence, Simplified by AI</p>
+                    <p class="mb-4" style="font-size: 1.15rem; max-width: 700px; margin: 0 auto;">
+                        Find, summarize, and understand any case in seconds. CasePoint uses cutting-edge AI to transform complex legal data into simple, actionable insights.
+                    </p>
+                    
+                    <!-- Typing Animation -->
+                    <div class="mb-5">
+                        <span class="typing-animation" id="typingText"></span>
+                    </div>
+                    
+                    <!-- CTA Buttons -->
+                    <div class="d-flex gap-3 justify-content-center flex-wrap mb-4">
+                        <a href="{{ url_for('ai_analysis') }}" class="btn btn-cta-primary">
+                            <i class="fas fa-rocket me-2"></i>Try Free AI Tools
+                        </a>
+                        <a href="{{ url_for('view_citations') }}" class="btn btn-cta-secondary">
+                            <i class="fas fa-book me-2"></i>Browse Citations
+                        </a>
+                    </div>
                 </div>
                 
                 <div class="search-box">
@@ -123,12 +353,24 @@
     </div>
 </section>
 
+<!-- AI Chat Bubble Preview -->
+<div class="ai-chat-bubble" id="aiChatBubble">
+    <button class="bubble-close" onclick="document.getElementById('aiChatBubble').style.display='none'">&times;</button>
+    <div class="bubble-icon">
+        <i class="fas fa-robot"></i>
+    </div>
+    <div class="bubble-content">
+        <div class="bubble-title">Try AI Analysis</div>
+        <div class="bubble-text">"Explain PLD 1995 SC 423"</div>
+    </div>
+</div>
+
 <!-- Quick Access Section -->
 <section class="py-5">
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <h2 class="text-center mb-5">Quick Access to Legal Resources</h2>
+                <h2 class="text-center mb-5">AI-Powered Legal Tools</h2>
             </div>
         </div>
         <div class="row g-4">
@@ -189,18 +431,18 @@
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <h2 class="text-center mb-5">Why Choose KanoonPK?</h2>
+                <h2 class="text-center mb-5">Why Choose CasePoint?</h2>
             </div>
         </div>
         <div class="row g-4">
             <div class="col-md-6 col-lg-4">
                 <div class="d-flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-database fa-2x text-primary-custom"></i>
+                        <i class="fas fa-brain fa-2x text-primary-custom"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <h5>Comprehensive Database</h5>
-                        <p class="mb-0">Access to Pakistan's most extensive collection of legal documents, cases, and statutes.</p>
+                        <h5>AI-Powered Intelligence</h5>
+                        <p class="mb-0">Advanced AI transforms complex legal data into clear, actionable insights in seconds.</p>
                     </div>
                 </div>
             </div>
@@ -210,41 +452,41 @@
                         <i class="fas fa-search fa-2x text-primary-custom"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <h5>Advanced Search</h5>
-                        <p class="mb-0">Powerful search capabilities with filters for courts, years, jurisdictions, and citation types.</p>
+                        <h5>Semantic Search</h5>
+                        <p class="mb-0">Find relevant cases by meaning, not just keywords. Our AI understands legal context.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
                 <div class="d-flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-magic fa-2x text-primary-custom"></i>
+                        <i class="fas fa-file-alt fa-2x text-primary-custom"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <h5>AI-Powered Analysis</h5>
-                        <p class="mb-0">Get intelligent legal research assistance and case analysis using advanced AI technology.</p>
+                        <h5>Instant Summaries</h5>
+                        <p class="mb-0">Get AI-generated summaries of any case, saving hours of reading time.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
                 <div class="d-flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-clock fa-2x text-primary-custom"></i>
+                        <i class="fas fa-database fa-2x text-primary-custom"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <h5>Regular Updates</h5>
-                        <p class="mb-0">Stay current with the latest judgments, amendments, and legal developments.</p>
+                        <h5>Comprehensive Database</h5>
+                        <p class="mb-0">Access Pakistan's most extensive collection of legal documents and precedents.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
                 <div class="d-flex">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-mobile-alt fa-2x text-primary-custom"></i>
+                        <i class="fas fa-bolt fa-2x text-primary-custom"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <h5>Mobile Friendly</h5>
-                        <p class="mb-0">Access legal research tools anywhere with our responsive design and mobile optimization.</p>
+                        <h5>Lightning Fast</h5>
+                        <p class="mb-0">Get answers in seconds, not hours. Built for modern legal professionals.</p>
                     </div>
                 </div>
             </div>
@@ -255,7 +497,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <h5>Secure & Reliable</h5>
-                        <p class="mb-0">Professional-grade security and reliability for law firms and legal professionals.</p>
+                        <p class="mb-0">Enterprise-grade security and reliability you can trust.</p>
                     </div>
                 </div>
             </div>
@@ -267,6 +509,44 @@
 {% block extra_scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Typing Animation
+    const phrases = ['Search', 'Cite', 'Summarize', 'Draft'];
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    const typingElement = document.getElementById('typingText');
+    const typingSpeed = 100;
+    const deletingSpeed = 50;
+    const pauseTime = 2000;
+    
+    function type() {
+        const currentPhrase = phrases[phraseIndex];
+        
+        if (isDeleting) {
+            typingElement.textContent = currentPhrase.substring(0, charIndex - 1);
+            charIndex--;
+        } else {
+            typingElement.textContent = currentPhrase.substring(0, charIndex + 1);
+            charIndex++;
+        }
+        
+        if (!isDeleting && charIndex === currentPhrase.length) {
+            isDeleting = true;
+            setTimeout(type, pauseTime);
+            return;
+        }
+        
+        if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            phraseIndex = (phraseIndex + 1) % phrases.length;
+        }
+        
+        const speed = isDeleting ? deletingSpeed : typingSpeed;
+        setTimeout(type, speed);
+    }
+    
+    type();
+    
     // Handle search tab switching
     const searchTabs = document.querySelectorAll('.search-tabs .nav-link');
     const searchInput = document.getElementById('searchQuery');
@@ -309,6 +589,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Advanced search toggle
+    const advancedToggle = document.getElementById('advancedSearchToggle');
+    const advancedPanel = document.getElementById('advancedSearchPanel');
+    
+    if (advancedToggle && advancedPanel) {
+        advancedToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (advancedPanel.style.display === 'none') {
+                advancedPanel.style.display = 'block';
+                this.innerHTML = '<i class="fas fa-chevron-up me-2"></i>Hide Advanced Search';
+            } else {
+                advancedPanel.style.display = 'none';
+                this.innerHTML = '<i class="fas fa-chevron-down me-2"></i>Advanced Search';
+            }
+        });
+    }
 });
 </script>
 {% endblock %}
