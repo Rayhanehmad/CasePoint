@@ -731,6 +731,41 @@ def preview_citation(id):
     # For other file types, download instead
     return send_file(citation.file_path, as_attachment=True)
 
+@app.route('/compare-cases')
+def compare_cases():
+    """Compare multiple cases side by side"""
+    # Get case IDs from query parameters
+    case_ids_str = request.args.get('ids', '')
+    
+    if not case_ids_str:
+        # If no IDs provided, show the selection page
+        all_cases = LegalCitation.query.filter_by(document_type='case').order_by(LegalCitation.created_at.desc()).limit(50).all()
+        return render_template('compare_select.html', cases=all_cases)
+    
+    # Parse comma-separated IDs
+    try:
+        case_ids = [int(id.strip()) for id in case_ids_str.split(',') if id.strip()]
+    except ValueError:
+        flash('Invalid case IDs provided', 'error')
+        return redirect(url_for('compare_cases'))
+    
+    # Limit to maximum 3 cases for comparison
+    if len(case_ids) > 3:
+        flash('You can compare up to 3 cases at a time', 'warning')
+        case_ids = case_ids[:3]
+    
+    if len(case_ids) < 2:
+        flash('Please select at least 2 cases to compare', 'warning')
+        return redirect(url_for('compare_cases'))
+    
+    # Fetch the cases
+    cases = LegalCitation.query.filter(LegalCitation.id.in_(case_ids)).all()
+    
+    if len(cases) != len(case_ids):
+        flash('Some cases could not be found', 'warning')
+    
+    return render_template('compare_cases.html', cases=cases)
+
 @app.route('/citation/<int:id>/retry-ocr', methods=['POST'])
 @admin_required
 def retry_ocr(id):
