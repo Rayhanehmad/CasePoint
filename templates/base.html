@@ -133,19 +133,20 @@
                 <div class="col-md-3">
                     <h6>Legal Resources</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{{ url_for('search_cases') }}" class="text-light-emphasis">Supreme Court Cases</a></li>
-                        <li><a href="{{ url_for('search_cases') }}" class="text-light-emphasis">High Court Cases</a></li>
-                        <li><a href="{{ url_for('search_statutes') }}" class="text-light-emphasis">Federal Statutes</a></li>
-                        <li><a href="{{ url_for('search_statutes') }}" class="text-light-emphasis">Provincial Acts</a></li>
+                        <li><a href="{{ url_for('cases.search_cases') }}" class="text-light-emphasis">Legal Cases</a></li>
+                        <li><a href="{{ url_for('acts.search_statutes') }}" class="text-light-emphasis">Statutes & Acts</a></li>
+                        <li><a href="{{ url_for('acts.search_rules') }}" class="text-light-emphasis">Rules</a></li>
+                        <li><a href="{{ url_for('ai.ai_analysis') }}" class="text-light-emphasis">AI Analysis</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
                     <h6>Support</h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-light-emphasis">Help Center</a></li>
-                        <li><a href="#" class="text-light-emphasis">Terms of Service</a></li>
-                        <li><a href="#" class="text-light-emphasis">Privacy Policy</a></li>
-                        <li><a href="#" class="text-light-emphasis">Contact Us</a></li>
+                        <li><a href="{{ url_for('home') }}" class="text-light-emphasis">Home</a></li>
+                        <li><a href="{{ url_for('search') }}" class="text-light-emphasis">Search</a></li>
+                        {% if session.get('role') == 'admin' %}
+                        <li><a href="/admin" class="text-light-emphasis">Admin Panel</a></li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

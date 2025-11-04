@@ -73,20 +73,26 @@ def create_app(config_name='default'):
     @app.route('/')
     def home():
         """Homepage with search interface"""
-        # Get recent citations
+        # Get statistics
         try:
-            recent_citations = LegalCitation.query.order_by(
-                LegalCitation.created_at.desc()
-            ).limit(5).all()
+            total_citations = LegalCitation.query.count()
+            total_cases = LegalCitation.query.filter_by(document_type='case').count()
+            total_acts = LegalCitation.query.filter(
+                LegalCitation.document_type.in_(['act', 'statute'])
+            ).count()
         except Exception as e:
-            logging.error(f"Error fetching recent citations: {e}")
-            recent_citations = []
+            logging.error(f"Error fetching statistics: {e}")
+            total_citations = 0
+            total_cases = 0
+            total_acts = 0
         
-        total_citations = LegalCitation.query.count()
+        stats = {
+            'total_citations': total_citations,
+            'total_cases': total_cases,
+            'total_acts': total_acts
+        }
         
-        return render_template('home.html', 
-                             recent_citations=recent_citations,
-                             total_citations=total_citations)
+        return render_template('home.html', stats=stats)
     
     @app.route('/search')
     def search():
