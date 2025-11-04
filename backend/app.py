@@ -28,8 +28,8 @@ def create_app(config_name='default'):
     
     # Initialize Flask app
     app = Flask(__name__,
-                template_folder='../templates',
-                static_folder='../static')
+                template_folder='templates',
+                static_folder='static')
     
     # Load configuration
     app.config.from_object(config[config_name])
