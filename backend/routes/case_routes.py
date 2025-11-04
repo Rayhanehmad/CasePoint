@@ -50,22 +50,22 @@ def search_cases():
 @case_bp.route('/<int:case_id>')
 def case_detail(case_id):
     """View single case details"""
-    case = LegalCitation.query.get_or_404(case_id)
+    citation = LegalCitation.query.get_or_404(case_id)
     
     # Find related cases by legal area
     related_cases = LegalCitation.query.filter(
         LegalCitation.document_type == 'case',
-        LegalCitation.legal_area == case.legal_area,
-        LegalCitation.id != case.id
+        LegalCitation.legal_area == citation.legal_area,
+        LegalCitation.id != citation.id
     ).limit(5).all()
     
     breadcrumbs = [
         {'text': 'Cases', 'url': url_for('cases.search_cases')},
-        {'text': case.citation, 'url': url_for('cases.case_detail', case_id=case.id)}
+        {'text': citation.citation, 'url': url_for('cases.case_detail', case_id=citation.id)}
     ]
     
-    return render_template('case_detail.html', 
-                         case=case, 
+    return render_template('citation_detail.html', 
+                         citation=citation, 
                          related_cases=related_cases,
                          breadcrumbs=breadcrumbs)
 
