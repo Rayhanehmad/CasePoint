@@ -34,38 +34,38 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('search_cases') }}">
+                        <a class="nav-link" href="{{ url_for('cases.search_cases') }}">
                             <i class="fas fa-gavel me-1"></i>Cases
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('search_statutes') }}">
+                        <a class="nav-link" href="{{ url_for('acts.search_statutes') }}">
                             <i class="fas fa-book me-1"></i>Statutes & Acts
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('search_rules') }}">
+                        <a class="nav-link" href="{{ url_for('acts.search_rules') }}">
                             <i class="fas fa-list-ul me-1"></i>Rules
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('ai_analysis') }}">
+                        <a class="nav-link" href="{{ url_for('ai.ai_analysis') }}">
                             <i class="fas fa-robot me-1"></i>AI Analysis
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('view_citations') }}">
+                        <a class="nav-link" href="{{ url_for('search') }}">
                             <i class="fas fa-search me-1"></i>Citation Search
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('compare_cases') }}">
+                        <a class="nav-link" href="{{ url_for('cases.compare_cases') }}">
                             <i class="fas fa-exchange-alt me-1"></i>Compare Cases
                         </a>
                     </li>
                     {% if session.get('role') == 'admin' %}
                     <li class="nav-item">
-                        <a class="nav-link text-success" href="{{ url_for('upload_citation') }}">
+                        <a class="nav-link text-success" href="{{ url_for('admin_api.upload_citation') }}">
                             <i class="fas fa-upload me-1"></i>Upload Data
                         </a>
                     </li>
@@ -75,7 +75,7 @@
                 <ul class="navbar-nav">
                     {% if session.get('role') == 'admin' %}
                         <li class="nav-item">
-                            <a class="nav-link text-danger" href="{{ url_for('admin_panel') }}">
+                            <a class="nav-link text-danger" href="{{ url_for('admin_api.admin_panel') }}">
                                 <i class="fas fa-shield-alt me-1"></i>Admin
                             </a>
                         </li>
@@ -89,28 +89,28 @@
                                 {% endif %}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ url_for('profile') }}">
+                                <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
                                     <i class="fas fa-user me-2"></i>My Profile
                                 </a></li>
                                 {% if session.get('role') == 'admin' %}
-                                <li><a class="dropdown-item" href="{{ url_for('admin_panel') }}">
+                                <li><a class="dropdown-item" href="{{ url_for('admin_api.admin_panel') }}">
                                     <i class="fas fa-shield-alt me-2"></i>Admin Dashboard
                                 </a></li>
                                 {% endif %}
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
+                                <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
                                     <i class="fas fa-sign-out-alt me-2"></i>Logout
                                 </a></li>
                             </ul>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('login') }}">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">
                                 <i class="fas fa-sign-in-alt me-1"></i>Login
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('register') }}">
+                            <a class="nav-link" href="{{ url_for('auth.register') }}">
                                 <i class="fas fa-user-plus me-1"></i>Register
                             </a>
                         </li>
@@ -173,10 +173,10 @@
                 <div class="col-md-3">
                     <h6>Legal Resources</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{{ url_for('search_cases') }}" class="text-light-emphasis">Supreme Court Cases</a></li>
-                        <li><a href="{{ url_for('search_cases') }}" class="text-light-emphasis">High Court Cases</a></li>
-                        <li><a href="{{ url_for('search_statutes') }}" class="text-light-emphasis">Federal Statutes</a></li>
-                        <li><a href="{{ url_for('search_statutes') }}" class="text-light-emphasis">Provincial Acts</a></li>
+                        <li><a href="{{ url_for('cases.search_cases') }}" class="text-light-emphasis">Supreme Court Cases</a></li>
+                        <li><a href="{{ url_for('cases.search_cases') }}" class="text-light-emphasis">High Court Cases</a></li>
+                        <li><a href="{{ url_for('acts.search_statutes') }}" class="text-light-emphasis">Federal Statutes</a></li>
+                        <li><a href="{{ url_for('acts.search_statutes') }}" class="text-light-emphasis">Provincial Acts</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">

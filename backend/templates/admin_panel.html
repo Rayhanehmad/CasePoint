@@ -63,7 +63,7 @@
                     <h5 class="mb-0"><i class="fas fa-database me-2"></i>Database Management - Upload Data</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ url_for('upload_citation') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url_for('admin_api.upload_citation') }}" method="POST" enctype="multipart/form-data">
                         <div class="row">
                             <div class="col-md-12 mb-3">
                                 <label class="form-label fw-bold">Document Type *</label>
@@ -157,22 +157,22 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3 mb-2">
-                            <a href="{{ url_for('admin_users') }}" class="btn btn-outline-primary w-100">
+                            <a href="#" class="btn btn-outline-primary w-100">
                                 <i class="fas fa-users me-2"></i>Manage Users
                             </a>
                         </div>
                         <div class="col-md-3 mb-2">
-                            <a href="{{ url_for('admin_citations') }}" class="btn btn-outline-success w-100">
+                            <a href="#" class="btn btn-outline-success w-100">
                                 <i class="fas fa-book me-2"></i>Manage Citations
                             </a>
                         </div>
                         <div class="col-md-3 mb-2">
-                            <a href="{{ url_for('view_citations') }}" class="btn btn-outline-secondary w-100">
+                            <a href="{{ url_for('search') }}" class="btn btn-outline-secondary w-100">
                                 <i class="fas fa-search me-2"></i>Citation Search
                             </a>
                         </div>
                         <div class="col-md-3 mb-2">
-                            <a href="{{ url_for('admin_citations') }}" class="btn btn-outline-danger w-100">
+                            <a href="#" class="btn btn-outline-danger w-100">
                                 <i class="fas fa-trash-alt me-2"></i>Delete Records
                             </a>
                         </div>
@@ -226,7 +226,7 @@
                     </div>
                 </div>
                 <div class="card-footer bg-light text-center">
-                    <a href="{{ url_for('admin_users') }}" class="text-decoration-none">View All Users <i class="fas fa-arrow-right ms-1"></i></a>
+                    <a href="#" class="text-decoration-none">View All Users <i class="fas fa-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
@@ -260,7 +260,7 @@
                     </div>
                 </div>
                 <div class="card-footer bg-light text-center">
-                    <a href="{{ url_for('admin_citations') }}" class="text-decoration-none">View All Citations <i class="fas fa-arrow-right ms-1"></i></a>
+                    <a href="#" class="text-decoration-none">View All Citations <i class="fas fa-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>

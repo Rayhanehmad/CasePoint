@@ -10,7 +10,7 @@
             <p class="text-muted">View and manage all registered users</p>
         </div>
         <div class="col-md-4 text-md-end">
-            <a href="{{ url_for('admin_panel') }}" class="btn btn-outline-secondary">
+            <a href="{{ url_for('admin_api.admin_panel') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
             </a>
         </div>
@@ -59,7 +59,7 @@
                                     <td>{{ user.last_seen.strftime('%Y-%m-%d %H:%M') if user.last_seen else 'Never' }}</td>
                                     <td>
                                         {% if user.id != session['user_id'] %}
-                                        <form method="POST" action="{{ url_for('admin_delete_user', id=user.id) }}" 
+                                        <form method="POST" action="#" 
                                               onsubmit="return confirm('Are you sure you want to delete user {{ user.username }}?');" style="display: inline;">
                                             <button type="submit" class="btn btn-sm btn-danger">
                                                 <i class="fas fa-trash"></i>
@@ -82,7 +82,7 @@
                         <ul class="pagination justify-content-center mb-0">
                             {% if users.has_prev %}
                             <li class="page-item">
-                                <a class="page-link" href="{{ url_for('admin_users', page=users.prev_num) }}">
+                                <a class="page-link" href="#">
                                     <i class="fas fa-chevron-left me-1"></i>Previous
                                 </a>
                             </li>
@@ -94,7 +94,7 @@
                             
                             {% if users.has_next %}
                             <li class="page-item">
-                                <a class="page-link" href="{{ url_for('admin_users', page=users.next_num) }}">
+                                <a class="page-link" href="#">
                                     Next<i class="fas fa-chevron-right ms-1"></i>
                                 </a>
                             </li>

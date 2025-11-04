@@ -9,7 +9,7 @@
         <p class="text-muted">Select 2-3 cases to compare side by side</p>
     </div>
 
-    <form id="compareForm" action="{{ url_for('compare_cases') }}" method="GET">
+    <form id="compareForm" action="{{ url_for('cases.compare_cases') }}" method="GET">
         <div class="selected-cases-bar mb-4 p-3 bg-light rounded">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
@@ -56,7 +56,7 @@
         <div class="text-center py-5">
             <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
             <p class="text-muted">No cases available for comparison</p>
-            <a href="{{ url_for('view_citations') }}" class="btn btn-outline-primary">Browse Citations</a>
+            <a href="{{ url_for('search') }}" class="btn btn-outline-primary">Browse Citations</a>
         </div>
         {% endif %}
     </form>
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        window.location.href = `{{ url_for('compare_cases') }}?ids=${selected.join(',')}`;
+        window.location.href = `{{ url_for('cases.compare_cases') }}?ids=${selected.join(',')}`;
     });
 
     updateSelected();

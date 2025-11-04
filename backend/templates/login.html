@@ -17,7 +17,7 @@
                         Access your account to continue legal research
                     </p>
                     
-                    <form method="POST" action="{{ url_for('login') }}">
+                    <form method="POST" action="{{ url_for('auth.login') }}">
                         <div class="mb-3">
                             <label for="username" class="form-label">Username or Email *</label>
                             <div class="input-group">
@@ -72,7 +72,7 @@
                         </p>
                         <p class="mb-0">
                             Don't have an account? 
-                            <a href="{{ url_for('register') }}" class="text-decoration-none fw-bold">
+                            <a href="{{ url_for('auth.register') }}" class="text-decoration-none fw-bold">
                                 Register now
                             </a>
                         </p>
