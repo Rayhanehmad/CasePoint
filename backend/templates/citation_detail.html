@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container-fluid py-4">
-    <div class="row">
+    <div class="row no-print">
         <div class="col-12 mb-3">
             <a href="{{ url_for('search') }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i>Back to Citations
@@ -15,10 +15,31 @@
     <div class="row flex-column-reverse flex-lg-row">
         <div class="col-lg-6" id="citation-details">
             <div class="card shadow-custom mb-4">
-                <div class="card-header bg-primary-custom text-white">
-                    <h4 class="mb-0">{{ citation.title }}</h4>
+                <!-- Header Section - Centered in Full Text View -->
+                <div class="citation-header text-center p-4">
+                    <h4 class="mb-3">{{ citation.title }}</h4>
+                    
+                    <div class="citation-metadata mb-3">
+                        <p class="mb-1"><strong>Citation:</strong> {{ citation.citation }}</p>
+                        <p class="mb-1"><strong>Court:</strong> {{ citation.court or 'N/A' }}</p>
+                        <p class="mb-1"><strong>Jurisdiction:</strong> {{ citation.jurisdiction or 'N/A' }}</p>
+                        <p class="mb-1"><strong>Date Decided:</strong> {{ citation.date_decided.strftime('%B %d, %Y') if citation.date_decided else 'N/A' }}</p>
+                        
+                        {% if citation.legal_area %}
+                        <p class="mb-1"><strong>Legal Area:</strong> {{ citation.legal_area }}</p>
+                        {% endif %}
+                        
+                        {% if citation.case_type %}
+                        <p class="mb-1"><strong>Case Type:</strong> {{ citation.case_type }}</p>
+                        {% endif %}
+                        
+                        {% if citation.judges %}
+                        <p class="mb-1"><strong>Judges:</strong> {{ citation.judges }}</p>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="card-body">
+                
+                <div class="card-body no-print">
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <strong>Citation:</strong> {{ citation.citation }}
@@ -79,13 +100,24 @@
                         <p>{{ citation.headnotes }}</p>
                     </div>
                     {% endif %}
-                    
-                    {% if citation.full_text %}
-                    <div class="mb-3">
-                        <h6>Full Text</h6>
-                        <div class="border p-3 bg-light" style="max-height: 400px; overflow-y: auto;">
-                            <pre style="white-space: pre-wrap; font-family: inherit;">{{ citation.full_text }}</pre>
-                        </div>
+                </div>
+                
+                <!-- Full Text Section - For Print -->
+                {% if citation.full_text %}
+                <div class="full-text-section">
+                    <div class="no-print">
+                        <h6 class="px-3">Full Text</h6>
+                    </div>
+                    <div class="border p-3 bg-light full-text-content" style="max-height: 400px; overflow-y: auto;">
+                        <pre style="white-space: pre-wrap; font-family: inherit;">{{ citation.full_text }}</pre>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="card-body no-print">
+                    {% if not citation.full_text %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No full text available for this citation.
                     </div>
                     {% endif %}
                     
@@ -106,7 +138,7 @@
             </div>
         </div>
         
-        <div class="col-lg-6 mb-4 mb-lg-0">
+        <div class="col-lg-6 mb-4 mb-lg-0 no-print">
             <div class="card shadow-custom mb-3">
                 <div class="card-header bg-light">
                     <h6 class="mb-0"><i class="fas fa-tools me-2"></i>Actions</h6>
@@ -249,6 +281,115 @@ function togglePreview() {
 </script>
 
 <style>
+/* Screen view - hide citation header */
+@media screen {
+    .citation-header {
+        display: none;
+    }
+}
+
+/* Print styles */
+@media print {
+    /* Hide everything except the full text */
+    .no-print,
+    nav,
+    .navbar,
+    .sidebar,
+    footer,
+    .card-header,
+    .card-body.no-print,
+    .btn,
+    button,
+    .actions {
+        display: none !important;
+    }
+    
+    /* Show and center the citation header */
+    .citation-header {
+        display: block !important;
+        text-align: center;
+        page-break-after: avoid;
+        border-bottom: 2px solid #333;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .citation-header h4 {
+        font-size: 18pt;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    
+    .citation-metadata p {
+        font-size: 10pt;
+        margin: 5px 0;
+    }
+    
+    /* Full text content */
+    .full-text-content {
+        max-height: none !important;
+        overflow: visible !important;
+        border: none !important;
+        background: white !important;
+        padding: 0 !important;
+    }
+    
+    .full-text-content pre {
+        font-size: 11pt;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    
+    /* Page setup */
+    @page {
+        margin: 1in;
+        size: A4;
+    }
+    
+    body {
+        background: white;
+        position: relative;
+    }
+    
+    /* CasePoint Watermark */
+    body::before {
+        content: "CasePoint";
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        font-size: 8pt;
+        color: #d3d3d3;
+        opacity: 0.3;
+        z-index: -1;
+        pointer-events: none;
+        font-weight: normal;
+    }
+    
+    /* Remove card styling */
+    .card {
+        box-shadow: none !important;
+        border: none !important;
+    }
+    
+    /* Ensure proper width */
+    .container-fluid {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+    
+    .row {
+        margin: 0 !important;
+    }
+    
+    .col-lg-6 {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
 /* Responsive layout */
 @media (max-width: 991.98px) {
     #document-preview {
