@@ -4,7 +4,8 @@ Authentication routes - Login, Register, Logout, Profile
 
 from flask import Blueprint, request, render_template, redirect, url_for, flash, session, jsonify
 from functools import wraps
-from backend_flask.models import db, User
+from models import db
+from models.user import User
 
 auth_bp = Blueprint('auth', __name__)
 

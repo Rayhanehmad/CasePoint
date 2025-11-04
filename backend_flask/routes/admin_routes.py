@@ -4,16 +4,18 @@ Admin routes - Upload citations, bulk CSV upload, admin panel
 
 from flask import Blueprint, request, render_template, redirect, url_for, flash, jsonify, session
 from werkzeug.utils import secure_filename
-from backend_flask.models import db, LegalCitation, User
-from backend_flask.services import ocr_service, vector_search
-from .auth_routes import admin_required
+from models import db
+from models.user import User
+from models.case import LegalCitation
+from services import ocr_service, vector_search
+from routes.auth_routes import admin_required
 import os
 import logging
 import csv
 import io
 from datetime import datetime
 
-admin_bp = Blueprint('admin', __name__)
+admin_bp = Blueprint('admin_api', __name__)  # Changed from 'admin' to 'admin_api' to avoid conflict with Flask-Admin
 
 
 def allowed_file(filename):

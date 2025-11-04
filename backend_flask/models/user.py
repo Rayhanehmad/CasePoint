@@ -2,9 +2,14 @@
 User model with authentication support
 """
 
-from . import db
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+
+# Import db from __init__.py to avoid circular import
+import sys
+sys.path.insert(0, '/home/runner/workspace/backend_flask')
+from models import db
 
 
 class User(db.Model):

@@ -6,7 +6,9 @@ Web-based admin interface for managing users, cases, acts, and rules
 from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask import redirect, url_for, session, flash
-from .models import db, User, LegalCitation
+from models import db
+from models.user import User
+from models.case import LegalCitation
 
 
 class SecureAdminIndexView(AdminIndexView):
@@ -106,14 +108,12 @@ def init_admin(app):
     admin = Admin(
         app,
         name='KanoonPK Admin',
-        template_mode='bootstrap4',
-        index_view=SecureAdminIndexView(),
-        base_template='admin/custom_base.html'
+        index_view=SecureAdminIndexView()
     )
     
     # Add model views
     admin.add_view(UserAdminView(User, db.session, name='Users', category='User Management'))
-    admin.add_view(LegalCitationAdminView(LegalCitation, db.session, name='All Citations', category='Legal Data'))
+    admin.add_view(LegalCitationAdminView(LegalCitation, db.session, name='All Citations', category='Legal Data', endpoint='all_citations'))
     
     # Add views for different document types
     class CaseView(LegalCitationAdminView):
@@ -141,8 +141,8 @@ def init_admin(app):
         def get_count_query(self):
             return self.session.query(self.model).filter(self.model.document_type == 'rule')
     
-    admin.add_view(CaseView(LegalCitation, db.session, name='Cases Only', category='Legal Data'))
-    admin.add_view(ActView(LegalCitation, db.session, name='Acts & Statutes', category='Legal Data'))
-    admin.add_view(RuleView(LegalCitation, db.session, name='Rules Only', category='Legal Data'))
+    admin.add_view(CaseView(LegalCitation, db.session, name='Cases Only', category='Legal Data', endpoint='cases_only'))
+    admin.add_view(ActView(LegalCitation, db.session, name='Acts & Statutes', category='Legal Data', endpoint='acts_statutes'))
+    admin.add_view(RuleView(LegalCitation, db.session, name='Rules Only', category='Legal Data', endpoint='rules_only'))
     
     return admin

@@ -10,13 +10,15 @@ from flask_cors import CORS
 from datetime import datetime
 
 # Import configuration
-from .config import config
+from config import config
 
 # Import models
-from .models import db, User, LegalCitation
+from models import db
+from models.user import User
+from models.case import LegalCitation
 
 # Import routes
-from .routes import auth_bp, case_bp, act_bp, admin_bp, ai_bp
+from routes import auth_bp, case_bp, act_bp, admin_bp, ai_bp
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -47,7 +49,7 @@ def create_app(config_name='default'):
         logging.info("Database tables created successfully")
     
     # Initialize Flask-Admin
-    from .admin import init_admin
+    from admin import init_admin
     init_admin(app)
     
     # Track user activity
@@ -64,7 +66,7 @@ def create_app(config_name='default'):
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(case_bp, url_prefix='/cases')
     app.register_blueprint(act_bp, url_prefix='/acts')
-    app.register_blueprint(admin_bp, url_prefix='/admin')
+    app.register_blueprint(admin_bp, url_prefix='/api/admin')  # Changed to avoid conflict with Flask-Admin
     app.register_blueprint(ai_bp, url_prefix='/ai')
     
     # Main routes
