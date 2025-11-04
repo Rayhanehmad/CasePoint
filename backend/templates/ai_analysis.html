@@ -33,7 +33,7 @@
                     </h5>
                 </div>
                 <div class="card-body p-4">
-                    <form id="aiAnalysisForm" method="POST" action="{{ url_for('ai_analysis') }}">
+                    <form id="aiAnalysisForm" method="POST" action="{{ url_for('ai.ai_analysis') }}">
                         <div class="mb-4">
                             <label for="query" class="form-label fw-bold">Legal Question *</label>
                             <textarea class="form-control" 
@@ -146,7 +146,7 @@
                             <button class="btn btn-outline-secondary btn-sm" onclick="copyAnalysis()">
                                 <i class="fas fa-copy me-1"></i>Copy to Clipboard
                             </button>
-                            <a href="{{ url_for('ai_analysis') }}" class="btn btn-primary btn-sm">
+                            <a href="{{ url_for('ai.ai_analysis') }}" class="btn btn-primary btn-sm">
                                 <i class="fas fa-plus me-1"></i>New Analysis
                             </a>
                             <a href="{{ url_for('home') }}" class="btn btn-outline-secondary btn-sm">

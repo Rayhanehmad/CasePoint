@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found - KanoonPK{% endblock %}
+
+{% block content %}
+<div class="container my-5 py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <div class="mb-4">
+                <i class="fas fa-gavel" style="font-size: 80px; color: #6c757d; opacity: 0.5;"></i>
+            </div>
+            
+            <h1 class="display-1 fw-bold text-primary mb-3">404</h1>
+            <h2 class="h3 mb-4">Page Not Found</h2>
+            <p class="lead text-muted mb-4">
+                The legal document or page you're looking for doesn't exist in our database.
+            </p>
+            
+            <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center mb-5">
+                <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-home me-2"></i>Go to Homepage
+                </a>
+                <a href="{{ url_for('cases.search_cases') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-search me-2"></i>Search Cases
+                </a>
+            </div>
+            
+            <div class="card border-0 bg-light">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-3">Need Help Finding Something?</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <a href="{{ url_for('cases.search_cases') }}" class="text-decoration-none text-dark d-block p-3 hover-bg-white rounded">
+                                <i class="fas fa-gavel text-primary me-2"></i>
+                                <strong>Browse Cases</strong>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ url_for('acts.search_statutes') }}" class="text-decoration-none text-dark d-block p-3 hover-bg-white rounded">
+                                <i class="fas fa-book text-primary me-2"></i>
+                                <strong>Browse Statutes</strong>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ url_for('ai.ai_analysis') }}" class="text-decoration-none text-dark d-block p-3 hover-bg-white rounded">
+                                <i class="fas fa-robot text-primary me-2"></i>
+                                <strong>AI Analysis</strong>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ url_for('search') }}" class="text-decoration-none text-dark d-block p-3 hover-bg-white rounded">
+                                <i class="fas fa-search text-primary me-2"></i>
+                                <strong>Search All</strong>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

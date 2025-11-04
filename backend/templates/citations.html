@@ -11,7 +11,7 @@
         </div>
         <div class="col-md-4 text-md-end">
             {% if session.get('role') == 'admin' %}
-            <a href="{{ url_for('upload_citation') }}" class="btn btn-primary">
+            <a href="{{ url_for('admin_api.upload_citation') }}" class="btn btn-primary">
                 <i class="fas fa-plus me-2"></i>Upload Citation
             </a>
             {% endif %}
@@ -22,7 +22,7 @@
         <div class="col-12">
             <div class="card shadow-custom">
                 <div class="card-body">
-                    <form method="GET" action="{{ url_for('view_citations') }}" class="row g-3">
+                    <form method="GET" action="{{ url_for('search') }}" class="row g-3">
                         <div class="col-md-10">
                             <input type="text" class="form-control form-control-lg" name="q" 
                                    value="{{ search_query or '' }}" 
@@ -45,7 +45,7 @@
             <div class="alert alert-info">
                 <i class="fas fa-info-circle me-2"></i>
                 Showing results for: <strong>{{ search_query }}</strong>
-                <a href="{{ url_for('view_citations') }}" class="alert-link ms-2">Clear search</a>
+                <a href="{{ url_for('search') }}" class="alert-link ms-2">Clear search</a>
             </div>
         </div>
     </div>
@@ -82,11 +82,11 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <a href="{{ url_for('view_citation', id=citation.id) }}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                        <a href="{{ url_for('cases.case_detail', case_id=citation.id) }}" class="btn btn-sm btn-outline-primary" title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         {% if citation.file_path %}
-                                        <a href="{{ url_for('download_citation', id=citation.id) }}" class="btn btn-sm btn-outline-success ms-1" title="Download Document">
+                                        <a href="#" class="btn btn-sm btn-outline-success ms-1" title="Download Document">
                                             <i class="fas fa-download"></i>
                                         </a>
                                         {% endif %}
@@ -104,7 +104,7 @@
                         <ul class="pagination justify-content-center mb-0">
                             {% if citations.has_prev %}
                             <li class="page-item">
-                                <a class="page-link" href="{{ url_for('view_citations', page=citations.prev_num, q=search_query) }}">
+                                <a class="page-link" href="{{ url_for('search', page=citations.prev_num, q=search_query) }}">
                                     <i class="fas fa-chevron-left me-1"></i>Previous
                                 </a>
                             </li>
@@ -116,7 +116,7 @@
                             
                             {% if citations.has_next %}
                             <li class="page-item">
-                                <a class="page-link" href="{{ url_for('view_citations', page=citations.next_num, q=search_query) }}">
+                                <a class="page-link" href="{{ url_for('search', page=citations.next_num, q=search_query) }}">
                                     Next<i class="fas fa-chevron-right ms-1"></i>
                                 </a>
                             </li>
@@ -132,7 +132,7 @@
     <div class="alert alert-warning">
         <i class="fas fa-search me-2"></i>
         <strong>No citations found matching your search.</strong> 
-        Try different keywords or <a href="{{ url_for('view_citations') }}" class="alert-link">clear your search</a>.
+        Try different keywords or <a href="{{ url_for('search') }}" class="alert-link">clear your search</a>.
     </div>
     {% endif %}
     

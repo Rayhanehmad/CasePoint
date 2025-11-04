@@ -5,8 +5,6 @@ Legal Citation/Case model for storing Pakistan law cases
 from datetime import datetime
 
 # Import db from __init__.py to avoid circular import
-import sys
-sys.path.insert(0, '/home/runner/workspace/backend_flask')
 from models import db
 
 

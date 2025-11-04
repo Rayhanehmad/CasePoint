@@ -37,8 +37,19 @@ def create_app(config_name='default'):
     # Ensure upload folder exists
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     
-    # Initialize CORS
-    CORS(app)
+    # Initialize CORS for React frontend
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": ["http://localhost:3000", "http://localhost:5173"],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True
+        },
+        r"/auth/*": {
+            "origins": ["http://localhost:3000", "http://localhost:5173"],
+            "supports_credentials": True
+        }
+    })
     
     # Initialize database
     db.init_app(app)
@@ -68,6 +79,10 @@ def create_app(config_name='default'):
     app.register_blueprint(act_bp, url_prefix='/acts')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')  # Changed to avoid conflict with Flask-Admin
     app.register_blueprint(ai_bp, url_prefix='/ai')
+    
+    # Register consolidated API routes for React frontend
+    from routes.api_routes import api_bp
+    app.register_blueprint(api_bp, url_prefix='/api')
     
     # Main routes
     @app.route('/')

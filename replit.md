@@ -1,8 +1,8 @@
-# KanoonPK - Multi-Tenant SaaS Legal Research Platform
+# CasePoint - Modern Legal Research Platform
 
 ## Overview
 
-KanoonPK has been transformed into a comprehensive multi-tenant SaaS platform specifically designed for Pakistan law research. The platform provides intelligent legal research capabilities for law firms, legal departments, and legal professionals. Each organization gets their own isolated workspace with advanced AI-powered research tools, document management, team collaboration, and usage analytics. The system combines OpenAI's GPT models with ChromaDB vector search to deliver contextually relevant legal information with proper citations and precedent analysis.
+CasePoint (formerly KanoonPK) is a full-stack legal research platform for Pakistan law. The application has been restructured into a modern, modular architecture with a Flask backend and React frontend, ready for production deployment. The platform provides intelligent legal research capabilities using AI-powered search, document management, and case analysis. The system combines OpenAI's GPT models with ChromaDB vector search to deliver contextually relevant legal information with proper citations.
 
 ## User Preferences
 
@@ -10,73 +10,70 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### Multi-Tenant SaaS Architecture
-- **Tenant Isolation**: Schema-per-tenant approach for strict data separation
-- **Subdomain Routing**: Automatic tenant detection via subdomain (tenant.kanoonpk.com)
-- **Resource Isolation**: Each tenant gets isolated database schema and document storage
-- **Plan-Based Access**: Feature and usage limits based on subscription tiers
+### Application Architecture
+- **Modular Backend**: Flask application organized into blueprints for clean separation of concerns
+- **REST API**: Complete JSON API layer for React frontend integration
+- **Blueprint Structure**: Separate blueprints for auth, cases, acts, AI, admin, and API routes
+- **CORS Enabled**: Configured for seamless React frontend communication
 
 ### Authentication & Authorization System
-- **JWT Authentication**: Secure token-based authentication with tenant context
-- **Role-Based Access**: Owner, Admin, Member, Viewer roles with granular permissions
-- **Multi-User Support**: Team collaboration within organizations
-- **Session Management**: Secure session handling with tenant isolation
+- **Session Authentication**: Secure session-based authentication with Flask sessions
+- **Role-Based Access**: Admin and User roles for access control
+- **Multi-User Support**: Multiple user accounts with personal dashboards
+- **Session Management**: Secure cookie-based session handling
 
 ### Frontend Architecture
-- **Modern UI**: Bootstrap-based responsive dashboard with dark theme
-- **Multi-Tab Interface**: Dashboard, Research, Documents, Workspaces, Analytics
-- **Real-Time Chat**: Enhanced legal research chat with advanced filters
-- **Collaborative Tools**: Shared workspaces and team research features
-- **Usage Monitoring**: Real-time display of plan limits and current usage
+- **Modern UI**: React 18 + Vite + TailwindCSS for responsive design
+- **Component-Based**: Reusable components with clean separation
+- **Service Layer**: Dedicated API service files (authService, caseService)
+- **State Management**: Zustand for lightweight state management
+- **Routing**: React Router DOM for client-side navigation
+- **Proxy Configuration**: Vite proxy for seamless API communication during development
 
 ### Backend Architecture
-- **Modular Design**: Separate blueprints for auth, API, admin, and main routes
-- **RESTful APIs**: Comprehensive API for all platform functionality
-- **Middleware Stack**: Tenant resolution, authentication, and authorization layers
+- **Blueprint Organization**: 
+  - `auth_routes.py` - User authentication (login, register, logout)
+  - `case_routes.py` - Case search and details
+  - `act_routes.py` - Acts and statutes
+  - `ai_routes.py` - AI-powered legal analysis
+  - `admin_routes.py` - Admin management endpoints
+  - `api_routes.py` - Consolidated REST API for React frontend
+- **RESTful APIs**: Complete JSON API endpoints for all platform functionality
+- **Flask-Admin**: Integrated admin dashboard at `/admin` route
 - **Error Handling**: Comprehensive error handling with proper HTTP status codes
+- **CORS Configuration**: Properly configured for React frontend at localhost:3000 and localhost:5173
 
-### Enhanced Legal Research Engine
-- **Pakistan Law Filters**: Jurisdiction, legal area, document type, court level filtering
-- **Advanced Search**: Vector similarity search with metadata filtering
-- **Citation Extraction**: Automatic Pakistan legal citation recognition (PLD, SCMR, CLR, etc.)
-- **Precedent Analysis**: AI-powered similar case and precedent identification
-- **Confidence Scoring**: Relevance confidence scores for search results
+### Legal Research Features
+- **Pakistan Law Filters**: Jurisdiction, legal area, document type, court level filtering via SQL
+- **Database Search**: Full-text search across cases, acts, and statutes
+- **Related Cases**: Find similar cases by legal area
+- **AI Analysis**: OpenAI-powered legal question answering (via /ai routes)
+- **Services Available**: Vector search (ChromaDB) and classification services implemented but not yet integrated into main API
 
-### Multi-Tenant Data Architecture
-- **Public Schema**: Shared tenant, user, subscription, and usage data
-- **Tenant Schemas**: Isolated legal documents, queries, and workspaces per tenant
-- **PostgreSQL Database**: Full ACID compliance with advanced indexing
-- **Vector Storage**: Tenant-isolated ChromaDB collections for document embeddings
-
-### Subscription & Usage Management
-- **Multiple Plans**: Free, Lawyer, Firm, Enterprise tiers with different limits
-- **Usage Tracking**: Real-time monitoring of queries, documents, storage, users
-- **Billing Integration**: Stripe-ready subscription management infrastructure
-- **Limit Enforcement**: Automatic enforcement of plan-based usage limits
+### Database Architecture
+- **PostgreSQL Database**: SQLAlchemy ORM with full ACID compliance
+- **User Management**: User accounts with authentication and profiles
+- **Legal Citations**: Cases, acts, statutes with metadata and full-text
+- **Vector Storage**: ChromaDB for document embeddings and semantic search
 
 ### Document Management System
-- **Multi-Format Processing**: Enhanced PDF, DOCX, TXT processing with metadata extraction
-- **Legal Classification**: Automatic document type and legal area classification
-- **Jurisdiction Detection**: Pakistan court and jurisdiction identification
-- **Advanced Chunking**: Optimized text segmentation for better search results
+- **Multi-Format Processing**: PDF and DOCX text extraction using pdfplumber and python-docx
+- **File Upload**: Secure document upload with file type validation
+- **Database Storage**: Citation metadata and full-text stored in PostgreSQL
+- **OCR Services**: OCR extraction service available in backend/services/ocr_service.py
 
-### Collaboration Features
-- **Legal Workspaces**: Shared research environments for teams
-- **Query Sharing**: Save and share research queries across team members
-- **Document Bookmarking**: Collaborative document organization and annotation
-- **Team Analytics**: Usage patterns and research insights for teams
 
-### Security & Compliance
-- **Data Isolation**: Complete separation between tenant data
-- **Secure Authentication**: JWT tokens with tenant claims and role validation
-- **File Security**: Secure upload handling with virus scanning capabilities
-- **Audit Logging**: Comprehensive audit trails for all user actions
+### Security Features
+- **Secure Authentication**: Session-based authentication with secure cookies
+- **File Security**: Secure upload handling with file type validation
+- **CORS Protection**: Properly configured CORS for React frontend
+- **Password Hashing**: Werkzeug password hashing for user credentials
 
 ## External Dependencies
 
 ### AI Services
-- **OpenAI API**: GPT-5 model for legal question answering and text-embedding-3-small for document vectorization
-- **API Key Management**: Environment variable-based secure authentication
+- **OpenAI API**: GPT-4 model for legal question answering and text-embedding-3-small for document vectorization
+- **API Key Management**: Environment variable-based secure authentication (OPENAI_API_KEY)
 
 ### Database and Storage
 - **ChromaDB**: Vector database for persistent storage of document embeddings and similarity search

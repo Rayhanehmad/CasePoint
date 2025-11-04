@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
 KanoonPK - Main Entry Point
-Imports the new modular Flask backend from backend_flask/
+Imports the modular Flask backend from backend/
 This file is kept for backward compatibility with the gunicorn workflow
 """
 
 import sys
 import os
 
-# Add backend_flask to Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'backend_flask'))
+# Add backend to Python path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'backend'))
 
-# Import the Flask app from the new modular backend
+# Import the Flask app from the modular backend
 from app import create_app
 
 # Create the Flask application instance
