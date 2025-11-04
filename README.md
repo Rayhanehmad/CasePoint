@@ -85,7 +85,7 @@ CasePoint combines traditional legal research with modern AI capabilities to hel
 - **Framework**: Flask (Python)
 - **Database**: PostgreSQL (via SQLAlchemy ORM)
 - **Admin Panel**: Flask-Admin
-- **AI/ML**: OpenAI GPT-4, ChromaDB (vector search)
+- **AI/ML**: OpenAI GPT-4 integration, ChromaDB (service implemented, integration pending)
 - **Document Processing**: PyPDF2, python-docx, pdfplumber
 - **Authentication**: Session-based (Flask sessions with cookies)
 - **CORS**: Flask-CORS for React integration
