@@ -179,9 +179,9 @@
                                 <a href="#" class="result-title">{{ result.title }}</a>
                                 <div class="d-flex gap-2">
                                     <span class="result-citation">{{ result.citation }}</span>
-                                    {% if result.type == 'case' %}
+                                    {% if result.document_type == 'case' %}
                                         <span class="badge bg-primary">Case</span>
-                                    {% elif result.type == 'statute' %}
+                                    {% elif result.document_type in ['statute', 'act'] %}
                                         <span class="badge bg-success">Statute</span>
                                     {% else %}
                                         <span class="badge bg-info">Rule</span>
@@ -190,17 +190,17 @@
                             </div>
                             
                             <div class="result-meta">
-                                <i class="fas fa-gavel me-1"></i>{{ result.court if result.court else result.type|title }}
+                                <i class="fas fa-gavel me-1"></i>{{ result.court if result.court else result.document_type|title }}
                                 <span class="mx-2">•</span>
                                 <i class="fas fa-calendar me-1"></i>{{ result.year }}
-                                {% if result.get('jurisdiction') %}
+                                {% if result.jurisdiction %}
                                 <span class="mx-2">•</span>
                                 <i class="fas fa-map-marker-alt me-1"></i>{{ result.jurisdiction|title }}
                                 {% endif %}
                             </div>
                             
                             <div class="result-snippet">
-                                {{ result.snippet }}
+                                {{ result.summary[:200] if result.summary else 'No summary available' }}...
                             </div>
                             
                             <div class="mt-3">
