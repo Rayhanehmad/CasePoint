@@ -95,9 +95,10 @@ def upload_citation():
                     'legal_area': citation.legal_area,
                     'document_type': citation.document_type
                 }
-                vector_id = vector_search.add_document(citation.full_text, metadata)
-                citation.vector_id = vector_id
-                db.session.commit()
+                success = vector_search.add_document_to_vector_db(str(citation.id), citation.full_text, metadata)
+                if success:
+                    citation.vector_id = str(citation.id)
+                    db.session.commit()
             
             flash(f'Citation {citation.citation} uploaded successfully!', 'success')
             return redirect(url_for('admin.upload_citation'))
@@ -184,9 +185,10 @@ def upload_file():
                 'legal_area': citation.legal_area,
                 'document_type': citation.document_type
             }
-            vector_id = vector_search.add_document(extracted_text, vector_metadata)
-            citation.vector_id = vector_id
-            db.session.commit()
+            success = vector_search.add_document_to_vector_db(str(citation.id), extracted_text, vector_metadata)
+            if success:
+                citation.vector_id = str(citation.id)
+                db.session.commit()
             
             flash(f'Document uploaded successfully! Citation: {extracted_citation} | Confidence: {ocr_confidence:.1f}%', 'success')
         else:
@@ -286,9 +288,10 @@ def bulk_upload_csv():
                         'legal_area': citation.legal_area,
                         'document_type': citation.document_type
                     }
-                    vector_id = vector_search.add_document(citation.full_text, metadata)
-                    citation.vector_id = vector_id
-                    db.session.commit()
+                    success = vector_search.add_document_to_vector_db(str(citation.id), citation.full_text, metadata)
+                    if success:
+                        citation.vector_id = str(citation.id)
+                        db.session.commit()
                 
                 success_count += 1
                 
