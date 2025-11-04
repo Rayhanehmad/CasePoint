@@ -1,17 +1,19 @@
 /* CasePoint - AI-Powered Legal Intelligence Platform Styles */
 
 :root {
-    --primary-color: #0F172A;
-    --secondary-color: #2563EB;
-    --accent-color: #06B6D4;
-    --light-bg: #F8FAFC;
+    --primary-color: #1E3A5F;
+    --secondary-color: #0066CC;
+    --accent-color: #00A8E8;
+    --light-bg: #F5F8FA;
     --card-bg: #FFFFFF;
-    --border-color: #E5E7EB;
-    --text-primary: #111827;
-    --text-secondary: #6B7280;
+    --border-color: #E1E8ED;
+    --text-primary: #2C3E50;
+    --text-secondary: #5A6C7D;
     --success-color: #10B981;
     --warning-color: #F59E0B;
     --danger-color: #EF4444;
+    --gradient-primary: linear-gradient(135deg, #1E3A5F 0%, #0066CC 100%);
+    --gradient-accent: linear-gradient(135deg, #0066CC 0%, #00A8E8 100%);
 }
 
 /* Global Styles */
@@ -61,9 +63,22 @@ body {
 
 /* Search Components */
 .search-hero {
-    background: linear-gradient(135deg, var(--primary-color) 0%, #1e293b 50%, var(--secondary-color) 100%);
+    background: var(--gradient-primary);
     color: white;
     padding: 4rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.search-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.3;
 }
 
 .search-box {
@@ -88,9 +103,10 @@ body {
 }
 
 .search-tabs .nav-link.active {
-    background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+    background: var(--gradient-accent);
     color: white;
     border: none;
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
 }
 
 .search-tabs .nav-link:hover:not(.active) {
@@ -109,22 +125,23 @@ body {
 
 .search-form .form-control:focus {
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 0.2rem rgba(6, 182, 212, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
 }
 
 .btn-search {
-    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-color) 100%);
+    background: var(--gradient-accent);
     border: none;
     color: white;
     padding: 0.75rem 2rem;
     font-weight: 600;
     border-radius: 8px;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
 }
 
 .btn-search:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+    box-shadow: 0 6px 16px rgba(0, 102, 204, 0.35);
 }
 
 /* Advanced Search */
@@ -384,7 +401,7 @@ body {
 .form-control:focus,
 .form-select:focus {
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 0.2rem rgba(6, 182, 212, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
 }
 
 /* Responsive Design */
@@ -468,4 +485,52 @@ body {
 
 .badge-danger {
     background-color: var(--danger-color);
+}
+
+/* Modern AI-Style Enhancements */
+.card, .content-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover, .content-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 102, 204, 0.12);
+}
+
+/* Primary Buttons with Logo Colors */
+.btn-primary, .btn-primary-custom {
+    background: var(--gradient-accent) !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover, .btn-primary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 102, 204, 0.35);
+}
+
+/* Badge Styles */
+.badge.bg-primary {
+    background: var(--secondary-color) !important;
+}
+
+.badge.bg-info {
+    background: var(--accent-color) !important;
+}
+
+/* Navigation Link Hover */
+.nav-link:hover {
+    color: var(--secondary-color) !important;
+}
+
+/* Form Controls */
+.form-control:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+}
+
+/* Circuit Pattern Background (subtle) */
+.bg-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230066CC' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
