@@ -42,7 +42,7 @@ def admin_panel():
         LegalCitation.created_at.desc()
     ).limit(10).all()
     
-    breadcrumbs = [{'text': 'Admin Panel', 'url': url_for('admin.admin_panel')}]
+    breadcrumbs = [{'text': 'Admin Panel', 'url': url_for('admin_api.admin_panel')}]
     
     return render_template('admin_panel.html',
                          total_cases=total_cases,
@@ -101,12 +101,12 @@ def upload_citation():
                     db.session.commit()
             
             flash(f'Citation {citation.citation} uploaded successfully!', 'success')
-            return redirect(url_for('admin.upload_citation'))
+            return redirect(url_for('admin_api.upload_citation'))
             
         except Exception as e:
             db.session.rollback()
             flash(f'Error uploading citation: {str(e)}', 'error')
-            return redirect(url_for('admin.upload_citation'))
+            return redirect(url_for('admin_api.upload_citation'))
     
     return render_template('upload_citation.html')
 
@@ -118,13 +118,13 @@ def upload_file():
     
     if 'file' not in request.files:
         flash('No file provided', 'error')
-        return redirect(url_for('admin.upload_citation'))
+        return redirect(url_for('admin_api.upload_citation'))
     
     file = request.files['file']
     
     if file.filename == '':
         flash('No file selected', 'error')
-        return redirect(url_for('admin.upload_citation'))
+        return redirect(url_for('admin_api.upload_citation'))
     
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
@@ -194,10 +194,10 @@ def upload_file():
         else:
             flash('Could not extract text from document', 'error')
         
-        return redirect(url_for('admin.upload_citation'))
+        return redirect(url_for('admin_api.upload_citation'))
     
     flash('File type not allowed', 'error')
-    return redirect(url_for('admin.upload_citation'))
+    return redirect(url_for('admin_api.upload_citation'))
 
 
 @admin_bp.route('/bulk-upload-csv', methods=['POST'])
@@ -207,17 +207,17 @@ def bulk_upload_csv():
     
     if 'csv_file' not in request.files:
         flash('No CSV file provided', 'error')
-        return redirect(url_for('admin.admin_panel'))
+        return redirect(url_for('admin_api.admin_panel'))
     
     file = request.files['csv_file']
     
     if file.filename == '':
         flash('No file selected', 'error')
-        return redirect(url_for('admin.admin_panel'))
+        return redirect(url_for('admin_api.admin_panel'))
     
     if not file.filename.endswith('.csv'):
         flash('Please upload a CSV file', 'error')
-        return redirect(url_for('admin.admin_panel'))
+        return redirect(url_for('admin_api.admin_panel'))
     
     try:
         # Read CSV file
@@ -309,11 +309,11 @@ def bulk_upload_csv():
             for error in errors[:10]:  # Show first 10 errors
                 logging.warning(error)
         
-        return redirect(url_for('admin.admin_panel'))
+        return redirect(url_for('admin_api.admin_panel'))
         
     except Exception as e:
         flash(f'Error processing CSV file: {str(e)}', 'error')
-        return redirect(url_for('admin.admin_panel'))
+        return redirect(url_for('admin_api.admin_panel'))
 
 
 # API Endpoints for React frontend
