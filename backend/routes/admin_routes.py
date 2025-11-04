@@ -9,6 +9,7 @@ from models.user import User
 from models.case import LegalCitation
 from services import ocr_service, vector_search
 from services.citation_extractor import citation_extractor
+from services.bulk_processor import bulk_processor
 from routes.auth_routes import admin_required
 import os
 import logging
@@ -415,3 +416,91 @@ def api_bulk_upload_csv():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@admin_bp.route('/bulk-upload', methods=['GET'])
+@admin_required
+def bulk_upload_page():
+    """Bulk upload page"""
+    return render_template('bulk_upload.html')
+
+
+@admin_bp.route('/api/process-bulk-document', methods=['POST'])
+@admin_required
+def process_bulk_document():
+    """Process a single document from bulk upload"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'message': 'No file provided'}), 400
+        
+        file = request.files['file']
+        
+        if not file.filename:
+            return jsonify({'success': False, 'message': 'Empty filename'}), 400
+        
+        # Check file type
+        if not allowed_file(file.filename):
+            return jsonify({'success': False, 'message': 'Unsupported file type'}), 400
+        
+        # Save file temporarily
+        filename = secure_filename(file.filename)
+        upload_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
+        os.makedirs(upload_folder, exist_ok=True)
+        
+        file_path = os.path.join(upload_folder, filename)
+        file.save(file_path)
+        
+        try:
+            # Process document with AI
+            result = bulk_processor.process_document(
+                file_path, 
+                filename, 
+                session.get('user_id')
+            )
+            
+            if not result['success']:
+                return jsonify(result), 200
+            
+            # Check for duplicate citation
+            existing = LegalCitation.query.filter_by(
+                citation=result['data']['citation']
+            ).first()
+            
+            if existing:
+                return jsonify({
+                    'success': False,
+                    'message': f'Duplicate citation: {result["data"]["citation"]} already exists'
+                }), 200
+            
+            # Save to database
+            citation = LegalCitation(**result['data'])
+            db.session.add(citation)
+            db.session.commit()
+            
+            return jsonify({
+                'success': True,
+                'citation': result['citation'],
+                'message': f'Successfully added: {result["citation"]}'
+            }), 200
+            
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error processing document: {str(e)}")
+            return jsonify({
+                'success': False,
+                'message': f'Processing error: {str(e)}'
+            }), 200
+        finally:
+            # Clean up temporary file
+            if os.path.exists(file_path):
+                try:
+                    os.remove(file_path)
+                except:
+                    pass
+    
+    except Exception as e:
+        logger.error(f"Error in bulk document processing: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
