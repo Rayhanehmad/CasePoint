@@ -36,7 +36,7 @@ const RegisterPage = () => {
             Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Join KanoonPK for advanced legal research
+            Join CasePoint for advanced legal research
           </p>
         </div>
         

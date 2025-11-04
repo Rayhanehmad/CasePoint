@@ -1,5 +1,5 @@
 """
-Services for KanoonPK - AI, OCR, Vector Search
+Services for CasePoint - AI, OCR, Vector Search
 """
 
 from services.ocr_service import ocr_service

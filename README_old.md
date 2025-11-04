@@ -1,4 +1,4 @@
-# KanoonPK - Professional Legal Research Platform
+# CasePoint - Professional Legal Research Platform
 
 Modern full-stack legal research platform for Pakistan law with AI-powered search, document analysis, and case comparison.
 
@@ -172,7 +172,7 @@ npm install
 ### File Structure
 
 ```
-/kanoonpk/
+/casepoint/
 ├── backend_flask/          # Flask backend (NEW)
 │   ├── app.py             # Main Flask app
 │   ├── config.py          # Configuration

@@ -1,5 +1,5 @@
 """
-Flask-Admin configuration for KanoonPK
+Flask-Admin configuration for CasePoint
 Web-based admin interface for managing users, cases, acts, and rules
 """
 
@@ -107,7 +107,7 @@ def init_admin(app):
     
     admin = Admin(
         app,
-        name='KanoonPK Admin',
+        name='CasePoint Admin',
         index_view=SecureAdminIndexView()
     )
     

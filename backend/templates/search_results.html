@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-    {% if query %}Search Results for "{{ query }}"{% else %}Search{% endif %} - KanoonPK
+    {% if query %}Search Results for "{{ query }}"{% else %}Search{% endif %} - CasePoint
 {% endblock %}
 
 {% block content %}
@@ -205,10 +205,10 @@
                             
                             <div class="mt-3">
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <button type="button" class="btn btn-outline-primary">
+                                    <a href="{{ url_for('cases.case_detail', case_id=result.id) }}" class="btn btn-outline-primary">
                                         <i class="fas fa-eye me-1"></i>View Full Text
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary">
+                                    </a>
+                                    <button type="button" class="btn btn-outline-secondary copy-citation-btn">
                                         <i class="fas fa-copy me-1"></i>Copy Citation
                                     </button>
                                     <button type="button" class="btn btn-outline-secondary">
@@ -266,27 +266,35 @@
 {% block extra_scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Copy citation functionality
-    document.querySelectorAll('.btn-outline-secondary').forEach(button => {
-        if (button.textContent.includes('Copy Citation')) {
-            button.addEventListener('click', function() {
-                const resultCard = this.closest('.result-card');
-                const citation = resultCard.querySelector('.result-citation').textContent;
-                navigator.clipboard.writeText(citation).then(() => {
-                    // Show success feedback
-                    const originalText = this.innerHTML;
-                    this.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
-                    this.classList.remove('btn-outline-secondary');
-                    this.classList.add('btn-success');
-                    
-                    setTimeout(() => {
-                        this.innerHTML = originalText;
-                        this.classList.remove('btn-success');
-                        this.classList.add('btn-outline-secondary');
-                    }, 2000);
-                });
-            });
+    // Scroll to results section when page loads (if there are results)
+    {% if results %}
+    setTimeout(function() {
+        const resultsSection = document.querySelector('.result-card');
+        if (resultsSection) {
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+    }, 100);
+    {% endif %}
+    
+    // Copy citation functionality
+    document.querySelectorAll('.copy-citation-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const resultCard = this.closest('.result-card');
+            const citation = resultCard.querySelector('.result-citation').textContent;
+            navigator.clipboard.writeText(citation).then(() => {
+                // Show success feedback
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+                this.classList.remove('btn-outline-secondary');
+                this.classList.add('btn-success');
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-outline-secondary');
+                }, 2000);
+            });
+        });
     });
 });
 </script>

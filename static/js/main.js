@@ -1,4 +1,4 @@
-// KanoonPK - Main JavaScript Functions
+// CasePoint - Main JavaScript Functions
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize search functionality

@@ -31,7 +31,7 @@ const LoginPage = () => {
             <Scale className="h-12 w-12 text-primary-600" />
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to KanoonPK
+            Sign in to CasePoint
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Access advanced legal research tools

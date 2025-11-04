@@ -1,5 +1,5 @@
 """
-Routes/Blueprints for KanoonPK
+Routes/Blueprints for CasePoint
 """
 
 from routes.auth_routes import auth_bp, login_required, admin_required

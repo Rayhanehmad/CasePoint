@@ -1,5 +1,5 @@
 """
-Database models for KanoonPK
+Database models for CasePoint
 """
 
 from flask_sqlalchemy import SQLAlchemy
