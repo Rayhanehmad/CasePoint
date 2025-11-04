@@ -55,8 +55,36 @@
         </div>
     </div>
     
-    <!-- Database Upload Section -->
+    <!-- Quick Actions -->
     <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-primary h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-upload fa-3x text-primary mb-3"></i>
+                    <h5>AI Bulk Upload</h5>
+                    <p class="text-muted">Upload multiple documents and let AI extract metadata automatically</p>
+                    <a href="{{ url_for('admin_api.bulk_upload_page') }}" class="btn btn-primary">
+                        <i class="fas fa-magic me-2"></i>Start Bulk Upload
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-success h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-file-csv fa-3x text-success mb-3"></i>
+                    <h5>Manual Upload</h5>
+                    <p class="text-muted">Upload single citation with form below or CSV file</p>
+                    <a href="#upload-form" class="btn btn-success">
+                        <i class="fas fa-file-alt me-2"></i>Manual Entry
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Database Upload Section -->
+    <div class="row mb-4" id="upload-form">
         <div class="col-12">
             <div class="card shadow-custom border-primary">
                 <div class="card-header bg-primary text-white">

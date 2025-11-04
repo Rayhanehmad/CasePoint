@@ -55,3 +55,7 @@ pdfplumber
 pydantic
 uvicorn
 flask-admin
+pdfplumber
+Pillow
+pytesseract
+python-docx

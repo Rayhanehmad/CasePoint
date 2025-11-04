@@ -5,7 +5,6 @@ OCR utilities for document text extraction using Tesseract
 import os
 import pytesseract
 from PIL import Image
-import fitz  # PyMuPDF
 import pdfplumber
 from typing import Tuple, Optional
 import logging
