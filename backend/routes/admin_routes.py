@@ -8,6 +8,7 @@ from models import db
 from models.user import User
 from models.case import LegalCitation
 from services import ocr_service, vector_search
+from services.citation_extractor import citation_extractor
 from routes.auth_routes import admin_required
 import os
 import logging
@@ -138,16 +139,21 @@ def upload_file():
         extracted_text, ocr_confidence = ocr_service.extract_text_from_file(filepath, file_ext)
         
         if extracted_text:
-            # Store document with extracted text
+            # Extract metadata from document text
+            metadata = citation_extractor.extract_metadata(extracted_text, filename)
+            
+            # Store document with extracted metadata
             citation_data = {
                 'document_type': request.form.get('document_type', 'case'),
-                'title': request.form.get('title', filename.rsplit('.', 1)[0]),
-                'citation': request.form.get('citation', filename),
-                'court': request.form.get('court', ''),
-                'jurisdiction': request.form.get('jurisdiction', ''),
-                'year': int(request.form.get('year')) if request.form.get('year') else None,
-                'legal_area': request.form.get('legal_area', ''),
-                'summary': request.form.get('summary', ''),
+                'title': request.form.get('title') or metadata.get('title') or filename.rsplit('.', 1)[0],
+                'citation': request.form.get('citation') or metadata.get('citation'),
+                'court': request.form.get('court') or metadata.get('court') or '',
+                'jurisdiction': request.form.get('jurisdiction') or metadata.get('jurisdiction') or '',
+                'year': int(request.form.get('year')) if request.form.get('year') else metadata.get('year'),
+                'legal_area': request.form.get('legal_area') or metadata.get('legal_area') or '',
+                'judges': metadata.get('judges'),
+                'summary': request.form.get('summary') or metadata.get('summary') or '',
+                'headnotes': metadata.get('headnotes'),
                 'file_path': filepath,
                 'file_type': file_ext,
                 'full_text': extracted_text,
