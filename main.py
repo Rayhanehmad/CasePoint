@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-KanoonPK - Main Entry Point
+CasePoint - Main Entry Point
 Imports the modular Flask backend from backend/
 This file is kept for backward compatibility with the gunicorn workflow
 """

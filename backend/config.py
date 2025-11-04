@@ -1,5 +1,5 @@
 """
-Configuration for KanoonPK Flask Backend
+Configuration for CasePoint Flask Backend
 """
 
 import os
@@ -8,7 +8,7 @@ class Config:
     """Base configuration"""
     
     # Flask
-    SECRET_KEY = os.environ.get("SESSION_SECRET", "kanoonpk-dev-secret-2024")
+    SECRET_KEY = os.environ.get("SESSION_SECRET", "casepoint-dev-secret-2024")
     DEBUG = True
     
     # Database

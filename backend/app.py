@@ -1,5 +1,5 @@
 """
-KanoonPK Flask Backend - Main Application
+CasePoint Flask Backend - Main Application
 Professional Legal Research Platform with AI, OCR, and Vector Search
 """
 
@@ -149,7 +149,7 @@ def create_app(config_name='default'):
         from flask import jsonify
         return jsonify({
             'status': 'healthy',
-            'service': 'kanoonpk-flask',
+            'service': 'casepoint-flask',
             'version': '2.0.0'
         })
     
