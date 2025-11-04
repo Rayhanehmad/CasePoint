@@ -101,34 +101,46 @@ class CitationExtractor:
     def _extract_case_title(self, text: str) -> str:
         """Extract case title (party names)"""
         
-        # Common patterns for case titles
-        # Pattern 1: "PARTY1 v. PARTY2" or "PARTY1 vs. PARTY2"
-        vs_pattern = r'([A-Z][A-Za-z\s&\.]+?)\s+(?:v\.|vs\.|versus)\s+([A-Z][A-Za-z\s&\.]+?)(?:\n|Before|JUDGMENT)'
+        # Pattern 1: Look for "Petitioner" and "Respondent" labels (most reliable)
+        # Note: May have space before hyphen like " -Petitioners"
+        # Use [^\n] to avoid matching across line breaks
+        petitioner_match = re.search(r'(?:^|\n)([A-Z][^\n]+?)\s*(?:-|—)Petitioners?', text[:1500], re.MULTILINE)
+        respondent_match = re.search(r'(?:^|\n)([A-Z][^\n]+?)\s*(?:-|—)Respondents?', text[:1500], re.MULTILINE)
+        
+        if petitioner_match and respondent_match:
+            petitioner = petitioner_match.group(1).strip()
+            respondent = respondent_match.group(1).strip()
+            # Clean up extra text after "THROUGH", "AND OTHERS", "AND 14 OTHERS" etc.
+            petitioner = re.split(r'\s+(?:THROUGH|AND\s+\d+\s+OTHERS|AND\s+OTHERS)\s+', petitioner)[0]
+            respondent = re.split(r'\s+(?:THROUGH|AND\s+\d+\s+OTHERS|AND\s+OTHERS)\s+', respondent)[0]
+            title = f"{petitioner} v. {respondent}"
+            logger.info(f"Found case title from labels: {title}")
+            return title
+        
+        # Pattern 2: "PARTY1 v. PARTY2" or "PARTY1 vs. PARTY2" or "PARTY1 versus PARTY2"
+        vs_pattern = r'([A-Z][A-Z\s&\.,]+?)\s+(?:v\.|vs\.|versus)\s+([A-Z][A-Z\s&\.,]+?)(?:\n|Before|JUDGMENT|$)'
         
         match = re.search(vs_pattern, text[:1500])
         if match:
             petitioner = match.group(1).strip()
             respondent = match.group(2).strip()
+            
+            # Clean up - remove "JJ" or "J." prefix that sometimes gets captured
+            petitioner = re.sub(r'^JJ?\.?\s+', '', petitioner)
+            respondent = re.sub(r'^JJ?\.?\s+', '', respondent)
+            
+            # Clean and limit length
+            petitioner = petitioner[:100]
+            respondent = respondent[:100]
             title = f"{petitioner} v. {respondent}"
             logger.info(f"Found case title: {title}")
-            return title
-        
-        # Pattern 2: Look for "Petitioner" and "Respondent" labels
-        petitioner_match = re.search(r'([A-Z][A-Z\s\.]+?)(?:-Petitioner|—Petitioner)', text[:1500])
-        respondent_match = re.search(r'([A-Z][A-Z\s\.]+?)(?:-Respondent|—Respondent)', text[:1500])
-        
-        if petitioner_match and respondent_match:
-            petitioner = petitioner_match.group(1).strip()
-            respondent = respondent_match.group(1).strip()
-            title = f"{petitioner} v. {respondent}"
-            logger.info(f"Found case title from labels: {title}")
             return title
         
         # Fallback: Extract first bold/caps line
         first_lines = text[:500].split('\n')
         for line in first_lines:
             line = line.strip()
-            if len(line) > 10 and line.isupper() and 'JUDGMENT' not in line and 'COURT' not in line:
+            if len(line) > 10 and line.isupper() and 'JUDGMENT' not in line and 'COURT' not in line and 'BEFORE' not in line:
                 return line[:200]  # Limit title length
         
         return ''
@@ -201,16 +213,21 @@ class CitationExtractor:
     def _extract_judges(self, text: str) -> Optional[str]:
         """Extract judge names"""
         
-        # Pattern: "Before ... J." or "Coram: ..."
-        before_pattern = r'Before\s+([A-Z][^\.]+?(?:and|,)[^\.]+?)\s+JJ?\.'
-        coram_pattern = r'Coram:\s+([A-Z][^\n]+?)(?:\n|$)'
+        # Pattern 1: "Before ... JJ" or "Before ... J."
+        before_pattern = r'Before\s+([A-Z][^\n]+?)\s+JJ?\.?(?:\n|$)'
         
         match = re.search(before_pattern, text[:1000])
         if match:
             judges = match.group(1).strip()
-            judges = re.sub(r'\s+', ' ', judges)  # Clean whitespace
+            # Clean up - remove extra whitespace
+            judges = re.sub(r'\s+', ' ', judges)
+            # Remove trailing commas
+            judges = judges.rstrip(',')
             logger.info(f"Found judges: {judges}")
             return judges
+        
+        # Pattern 2: "Coram: ..."
+        coram_pattern = r'Coram:\s+([A-Z][^\n]+?)(?:\n|$)'
         
         match = re.search(coram_pattern, text[:1000])
         if match:
@@ -225,35 +242,42 @@ class CitationExtractor:
         
         headnotes = []
         
-        # Look for HELD: or Held: sections
-        held_pattern = r'HELD:|Held:'
-        matches = list(re.finditer(held_pattern, text[:5000]))
+        # Pattern 1: Look for sections starting with legal provisions
+        # e.g., "Constitution of Pakistan (1973)---", "Penal Code (XLV of 1860)---"
+        provision_pattern = r'([A-Z][^\n]{10,150}(?:Constitution|Code|Act|Ordinance|Order)[^\n]{5,100}---[^\n]+)'
+        provision_headnotes = re.findall(provision_pattern, text[:4000])
         
-        for match in matches:
-            start = match.end()
-            # Extract until next section marker or 500 chars
-            end = start + 500
-            
-            # Find next section
-            next_section = re.search(r'\n[A-Z][A-Z\s]{5,}:', text[start:start+1000])
-            if next_section:
-                end = start + next_section.start()
-            
-            headnote = text[start:end].strip()
-            if headnote and len(headnote) > 20:
-                headnotes.append(headnote)
+        for headnote in provision_headnotes[:3]:  # Max 3 provision headnotes
+            if len(headnote) > 30:
+                headnotes.append(headnote.strip())
         
-        # Look for numbered headnotes
-        headnote_pattern = r'\((?:\d+|[ivxlc]+)\)\s+([A-Z][^\n]{30,300})'
-        numbered_headnotes = re.findall(headnote_pattern, text[:3000])
+        # Pattern 2: Look for HELD: or Held: sections
+        held_pattern = r'(?:HELD:|Held:)\s*([^\n]{50,500})'
+        held_matches = re.findall(held_pattern, text[:5000])
         
-        if numbered_headnotes:
-            headnotes.extend(numbered_headnotes[:5])  # Max 5 headnotes
+        for held_text in held_matches[:2]:  # Max 2 held sections
+            if held_text.strip():
+                headnotes.append(f"HELD: {held_text.strip()}")
+        
+        # Pattern 3: Look for numbered/lettered points after citation
+        # Common in Pakistan case law - (a), (b), (i), (ii) etc.
+        points_section = re.search(r'(?:HEADNOTES?:|POINTS?:)\s*(.*?)(?:\n\n[A-Z]{5,}|\Z)', text[:5000], re.DOTALL)
+        if points_section:
+            points_text = points_section.group(1)
+            point_pattern = r'\([a-z]+\)\s+([A-Z][^\n]{30,300})'
+            points = re.findall(point_pattern, points_text)
+            headnotes.extend(points[:3])
         
         if headnotes:
             combined = '\n\n'.join(headnotes)
             logger.info(f"Extracted {len(headnotes)} headnote(s)")
             return combined[:2000]  # Limit total length
+        
+        # If no headnotes found, try to extract first substantial legal paragraph
+        # after the parties but before judgment
+        legal_para = re.search(r'(?:Petitioners?|Respondents?)[^\n]*\n\n([A-Z][^\n]{100,500})', text[:3000])
+        if legal_para:
+            return legal_para.group(1)[:500]
         
         return None
     
