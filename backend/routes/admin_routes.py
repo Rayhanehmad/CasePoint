@@ -142,11 +142,21 @@ def upload_file():
             # Extract metadata from document text
             metadata = citation_extractor.extract_metadata(extracted_text, filename)
             
+            # Get citation string
+            extracted_citation = request.form.get('citation') or metadata.get('citation')
+            
+            # Check if citation already exists in database
+            existing_citation = LegalCitation.query.filter_by(citation=extracted_citation).first()
+            
+            if existing_citation:
+                flash(f'Citation "{extracted_citation}" already exists in database! Please use a different document or update the existing record.', 'warning')
+                return redirect(url_for('admin_api.upload_citation'))
+            
             # Store document with extracted metadata
             citation_data = {
                 'document_type': request.form.get('document_type', 'case'),
                 'title': request.form.get('title') or metadata.get('title') or filename.rsplit('.', 1)[0],
-                'citation': request.form.get('citation') or metadata.get('citation'),
+                'citation': extracted_citation,
                 'court': request.form.get('court') or metadata.get('court') or '',
                 'jurisdiction': request.form.get('jurisdiction') or metadata.get('jurisdiction') or '',
                 'year': int(request.form.get('year')) if request.form.get('year') else metadata.get('year'),
@@ -166,7 +176,7 @@ def upload_file():
             db.session.commit()
             
             # Add to vector database
-            metadata = {
+            vector_metadata = {
                 'title': citation.title,
                 'citation': citation.citation,
                 'court': citation.court,
@@ -174,11 +184,11 @@ def upload_file():
                 'legal_area': citation.legal_area,
                 'document_type': citation.document_type
             }
-            vector_id = vector_search.add_document(extracted_text, metadata)
+            vector_id = vector_search.add_document(extracted_text, vector_metadata)
             citation.vector_id = vector_id
             db.session.commit()
             
-            flash(f'Document uploaded successfully with {ocr_confidence:.1f}% confidence!', 'success')
+            flash(f'Document uploaded successfully! Citation: {extracted_citation} | Confidence: {ocr_confidence:.1f}%', 'success')
         else:
             flash('Could not extract text from document', 'error')
         
