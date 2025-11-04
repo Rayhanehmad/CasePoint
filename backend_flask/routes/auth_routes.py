@@ -112,7 +112,7 @@ def login():
             
             # Redirect to next page or home
             next_page = request.args.get('next')
-            return redirect(next_page if next_page else url_for('main.home'))
+            return redirect(next_page if next_page else url_for('home'))
         else:
             flash('Invalid username or password', 'error')
             return redirect(url_for('auth.login'))
@@ -125,7 +125,7 @@ def logout():
     """User logout"""
     session.clear()
     flash('You have been logged out', 'success')
-    return redirect(url_for('main.home'))
+    return redirect(url_for('home'))
 
 
 @auth_bp.route('/profile')
