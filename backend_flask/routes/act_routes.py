@@ -3,7 +3,8 @@ Act routes - Search statutes, acts, and rules
 """
 
 from flask import Blueprint, request, render_template, url_for, jsonify
-from backend_flask.models import db, LegalCitation
+from models import db
+from models.case import LegalCitation
 
 act_bp = Blueprint('acts', __name__)
 

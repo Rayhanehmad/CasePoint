@@ -54,3 +54,4 @@ jinja2
 pdfplumber
 pydantic
 uvicorn
+flask-admin

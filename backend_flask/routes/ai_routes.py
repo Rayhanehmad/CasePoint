@@ -3,7 +3,7 @@ AI routes - Legal analysis and AI-powered search
 """
 
 from flask import Blueprint, request, render_template, url_for, jsonify, flash, redirect
-from backend_flask.services import generate_legal_analysis
+from services import generate_legal_analysis
 
 ai_bp = Blueprint('ai', __name__)
 

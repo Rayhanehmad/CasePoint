@@ -4,7 +4,7 @@ AI Service for legal analysis using OpenAI
 
 import openai
 import os
-from . import vector_search
+from services import vector_search
 
 # Configure OpenAI with legacy API
 openai.api_key = os.getenv("OPENAI_API_KEY")

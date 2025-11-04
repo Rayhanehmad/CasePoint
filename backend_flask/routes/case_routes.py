@@ -3,8 +3,9 @@ Case routes - Search cases, view details, compare cases
 """
 
 from flask import Blueprint, request, render_template, redirect, url_for, flash, jsonify
-from backend_flask.models import db, LegalCitation
-from .auth_routes import login_required
+from models import db
+from models.case import LegalCitation
+from routes.auth_routes import login_required
 
 case_bp = Blueprint('cases', __name__)
 
