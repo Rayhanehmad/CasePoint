@@ -79,11 +79,19 @@ class UserAdminView(SecureModelView):
 class LegalCitationAdminView(SecureModelView):
     """Legal citations management view"""
     
-    column_list = ['id', 'document_type', 'title', 'citation', 'court', 'year', 'legal_area', 'created_at']
+    column_list = ['id', 'document_type', 'title', 'citation', 'court', 'year', 'journal', 'legal_area', 'share_count', 'embed_views', 'created_at']
     column_searchable_list = ['title', 'citation', 'court', 'summary']
-    column_filters = ['document_type', 'year', 'court', 'legal_area', 'jurisdiction']
+    column_filters = ['document_type', 'year', 'court', 'legal_area', 'jurisdiction', 'journal']
     column_editable_list = ['document_type', 'legal_area']
+    column_sortable_list = ['id', 'year', 'created_at', 'share_count', 'embed_views']
     column_default_sort = ('created_at', True)
+    
+    # Add column labels
+    column_labels = {
+        'share_count': 'Total Shares',
+        'embed_views': 'Embed Views',
+        'journal': 'Journal'
+    }
     
     # Configure form
     form_excluded_columns = ['vector_id', 'uploader']
