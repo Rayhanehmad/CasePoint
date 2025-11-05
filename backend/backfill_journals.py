@@ -9,9 +9,13 @@ import os
 # Add backend directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app import app, db
+from app import create_app
+from models import db
 from models.case import LegalCitation
 from services.utils import extract_journal_from_citation
+
+# Create app instance
+app = create_app()
 
 
 def backfill_journals():
