@@ -42,36 +42,11 @@
                 {% endif %}
                 
                 <div class="card-body no-print">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <strong>Citation:</strong> {{ citation.citation }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Court:</strong> {{ citation.court or 'N/A' }}
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <strong>Jurisdiction:</strong> {{ citation.jurisdiction or 'N/A' }}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Date Decided:</strong> {{ citation.date_decided.strftime('%B %d, %Y') if citation.date_decided else 'N/A' }}
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <strong>Legal Area:</strong> 
-                            {% if citation.legal_area %}
-                            <span class="badge bg-info">{{ citation.legal_area }}</span>
-                            {% else %}
-                            N/A
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Case Type:</strong> {{ citation.case_type or 'N/A' }}
-                        </div>
+                    <div class="mb-4 d-flex align-items-center gap-3">
+                        <h4 class="fw-bold text-dark mb-0">{{ citation.citation }}</h4>
+                        <a href="{{ url_for('search') }}?q={{ citation.citation }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-search me-1"></i>Search Citations
+                        </a>
                     </div>
                     
                     {% if citation.judges %}
@@ -107,9 +82,6 @@
                 <!-- Full Text Section - For Print -->
                 {% if citation.full_text %}
                 <div class="full-text-section">
-                    <div class="no-print px-3 mb-2">
-                        <h6 class="mb-0">Full Text</h6>
-                    </div>
                     <div class="border p-3 bg-light full-text-content" style="max-height: 400px; overflow-y: auto;">
                         <pre id="fullTextContent" class="full-text-pre" style="white-space: pre-wrap; font-family: inherit;">{{ citation.full_text }}</pre>
                     </div>
@@ -126,6 +98,9 @@
                             <button class="btn btn-sm btn-outline-primary" onclick="window.print()">
                                 <i class="fas fa-print me-1"></i>Print
                             </button>
+                            <a href="{{ url_for('search') }}?q={{ citation.citation }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-search me-1"></i>Search Citation
+                            </a>
                         </div>
                     </div>
                 </div>
