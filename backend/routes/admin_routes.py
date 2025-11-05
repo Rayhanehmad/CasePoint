@@ -20,6 +20,7 @@ import io
 from datetime import datetime
 
 admin_bp = Blueprint('admin_api', __name__)  # Changed from 'admin' to 'admin_api' to avoid conflict with Flask-Admin
+logger = logging.getLogger(__name__)
 
 
 def allowed_file(filename):
