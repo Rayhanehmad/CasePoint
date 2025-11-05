@@ -124,7 +124,9 @@ def create_app(config_name='default'):
                     LegalCitation.document_type == 'case',
                     (LegalCitation.title.ilike(f'%{query}%')) |
                     (LegalCitation.citation.ilike(f'%{query}%')) |
-                    (LegalCitation.summary.ilike(f'%{query}%'))
+                    (LegalCitation.summary.ilike(f'%{query}%')) |
+                    (LegalCitation.full_text.ilike(f'%{query}%')) |
+                    (LegalCitation.keywords.ilike(f'%{query}%'))
                 ).all()
                 results.extend(cases)
             
@@ -132,7 +134,9 @@ def create_app(config_name='default'):
                 acts = LegalCitation.query.filter(
                     LegalCitation.document_type.in_(['act', 'statute']),
                     (LegalCitation.title.ilike(f'%{query}%')) |
-                    (LegalCitation.citation.ilike(f'%{query}%'))
+                    (LegalCitation.citation.ilike(f'%{query}%')) |
+                    (LegalCitation.full_text.ilike(f'%{query}%')) |
+                    (LegalCitation.keywords.ilike(f'%{query}%'))
                 ).all()
                 results.extend(acts)
         
