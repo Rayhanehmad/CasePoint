@@ -20,9 +20,9 @@
 <div class="container-fluid py-4">
     <div class="row no-print">
         <div class="col-12 mb-3">
-            <a href="{{ url_for('search') }}" class="btn btn-sm btn-outline-secondary">
+            <button onclick="window.history.back()" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i>Back to Citations
-            </a>
+            </button>
         </div>
     </div>
     
@@ -42,11 +42,14 @@
                 {% endif %}
                 
                 <div class="card-body no-print">
-                    <div class="mb-4 d-flex align-items-center gap-3">
+                    <div class="mb-4 d-flex align-items-center gap-2">
                         <h4 class="fw-bold text-dark mb-0">{{ citation.citation }}</h4>
                         <a href="{{ url_for('search') }}?q={{ citation.citation }}" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-search me-1"></i>Search Citations
                         </a>
+                        <button class="btn btn-sm btn-outline-warning" onclick="toggleBookmark({{ citation.id }}, {{ citation.citation|tojson }})" id="bookmark-btn-{{ citation.id }}">
+                            <i class="far fa-bookmark me-1"></i>Bookmark
+                        </button>
                     </div>
                     
                     {% if citation.judges %}
@@ -279,6 +282,87 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 {% endif %}
+
+// Bookmark functionality
+function toggleBookmark(citationId, citationNumber) {
+    // Get existing bookmarks from localStorage
+    let bookmarks = JSON.parse(localStorage.getItem('casepoint_bookmarks') || '[]');
+    
+    const bookmarkBtn = document.getElementById('bookmark-btn-' + citationId);
+    const icon = bookmarkBtn.querySelector('i');
+    
+    // Check if already bookmarked
+    const existingIndex = bookmarks.findIndex(b => b.id === citationId);
+    
+    if (existingIndex >= 0) {
+        // Remove bookmark
+        bookmarks.splice(existingIndex, 1);
+        icon.classList.remove('fas');
+        icon.classList.add('far');
+        bookmarkBtn.classList.remove('btn-warning');
+        bookmarkBtn.classList.add('btn-outline-warning');
+        
+        // Show feedback
+        showToast('Bookmark removed', 'info');
+    } else {
+        // Add bookmark
+        bookmarks.push({
+            id: citationId,
+            citation: citationNumber,
+            timestamp: new Date().toISOString()
+        });
+        icon.classList.remove('far');
+        icon.classList.add('fas');
+        bookmarkBtn.classList.remove('btn-outline-warning');
+        bookmarkBtn.classList.add('btn-warning');
+        
+        // Show feedback
+        showToast('Citation bookmarked', 'success');
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('casepoint_bookmarks', JSON.stringify(bookmarks));
+}
+
+// Check bookmark status on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const citationId = {{ citation.id }};
+    const bookmarks = JSON.parse(localStorage.getItem('casepoint_bookmarks') || '[]');
+    const isBookmarked = bookmarks.some(b => b.id === citationId);
+    
+    if (isBookmarked) {
+        const bookmarkBtn = document.getElementById('bookmark-btn-' + citationId);
+        const icon = bookmarkBtn.querySelector('i');
+        icon.classList.remove('far');
+        icon.classList.add('fas');
+        bookmarkBtn.classList.remove('btn-outline-warning');
+        bookmarkBtn.classList.add('btn-warning');
+    }
+});
+
+// Simple toast notification
+function showToast(message, type) {
+    const toastHTML = `
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+            <div class="toast show align-items-center text-white bg-${type === 'success' ? 'success' : 'info'} border-0" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = toastHTML;
+    document.body.appendChild(tempDiv);
+    
+    setTimeout(() => {
+        tempDiv.remove();
+    }, 3000);
+}
 
 {% if citation.file_path %}
 let previewVisible = false;
