@@ -565,10 +565,11 @@ def process_batch_citations():
             # Skip AI summary generation for instant upload (no timeout)
             logger.info(f"Found {len(citation_blocks)} citations - processing without AI summaries for fast upload")
             
-            # Save citations to database
+            # Save citations to database (batch commit for speed)
             saved_count = 0
             skipped_count = 0
             errors = []
+            citations_to_add = []
             
             for block in citation_blocks:
                 try:
@@ -596,16 +597,28 @@ def process_batch_citations():
                     }
                     
                     citation = LegalCitation(**citation_data)
-                    db.session.add(citation)
-                    db.session.commit()
+                    citations_to_add.append(citation)
                     saved_count += 1
-                    logger.info(f"Saved: {block['citation']}")
+                    logger.debug(f"Prepared: {block['citation']}")
                     
                 except Exception as e:
-                    db.session.rollback()
                     error_msg = f"{block['citation']}: {str(e)}"
                     errors.append(error_msg)
-                    logger.error(f"Error saving citation: {error_msg}")
+                    logger.error(f"Error preparing citation: {error_msg}")
+            
+            # Batch commit all citations at once (much faster)
+            try:
+                if citations_to_add:
+                    db.session.add_all(citations_to_add)
+                    db.session.commit()
+                    logger.info(f"Batch committed {len(citations_to_add)} citations")
+            except Exception as e:
+                db.session.rollback()
+                logger.error(f"Error batch committing citations: {str(e)}")
+                return jsonify({
+                    'success': False,
+                    'message': f'Database error: {str(e)}'
+                }), 500
             
             return jsonify({
                 'success': True,
