@@ -409,6 +409,9 @@ class CitationParser:
                     if citation_info:
                         break
         
+        # Include heading at the top of full text
+        full_text = heading + "\n" + body_text
+        
         if citation_info:
             return {
                 'citation': citation_info['citation'],
@@ -416,8 +419,8 @@ class CitationParser:
                 'year': citation_info['year'],
                 'court': citation_info['court'],
                 'number': citation_info.get('number', 0),
-                'text': body_text,
-                'text_length': len(body_text)
+                'text': full_text,
+                'text_length': len(full_text)
             }
         
         # Fallback: use heading as citation if no pattern found
@@ -428,8 +431,8 @@ class CitationParser:
             'year': None,
             'court': 'Unknown Court',
             'number': 0,
-            'text': body_text,
-            'text_length': len(body_text)
+            'text': full_text,
+            'text_length': len(full_text)
         }
     
     def auto_detect_and_split(self, filepath: str, text: str = None, method: str = 'auto') -> Tuple[List[Dict], str]:
