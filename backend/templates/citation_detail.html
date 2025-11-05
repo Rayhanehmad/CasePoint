@@ -81,6 +81,25 @@
                     </div>
                     {% endif %}
                     
+                    <!-- Share Buttons -->
+                    <div class="mb-4 border-top pt-3">
+                        <h6 class="mb-3">Share This Citation</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="#" id="whatsapp-btn" class="btn btn-sm btn-success" target="_blank" rel="noopener noreferrer">
+                                <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                            </a>
+                            <a href="#" id="facebook-btn" class="btn btn-sm btn-primary" target="_blank" rel="noopener noreferrer">
+                                <i class="fab fa-facebook-f me-1"></i>Facebook
+                            </a>
+                            <button onclick="copyLink()" class="btn btn-sm btn-secondary">
+                                <i class="fas fa-link me-1"></i>Copy Link
+                            </button>
+                            <button onclick="copyEmbed()" class="btn btn-sm btn-dark">
+                                <i class="fas fa-code me-1"></i>Embed in Website
+                            </button>
+                        </div>
+                    </div>
+                    
                     {% if citation.headnotes %}
                     <div class="mb-3">
                         <h6>Headnotes</h6>
@@ -228,6 +247,58 @@
 
 {% block extra_scripts %}
 <script>
+// Share functionality
+const citationLink = window.location.href;
+const citation = {{ citation.citation|tojson }};
+const summary = {{ (citation.summary[:200] if citation.summary else '')|tojson }};
+
+// Set up share button URLs
+document.addEventListener('DOMContentLoaded', function() {
+    const message = `CasePoint Citation: ${citation}\n\n${summary}...\nRead more: ${citationLink}`;
+    const encodedMessage = encodeURIComponent(message);
+    
+    // WhatsApp share
+    document.getElementById('whatsapp-btn').href = `https://wa.me/?text=${encodedMessage}`;
+    document.getElementById('whatsapp-btn').addEventListener('click', () => trackShare());
+    
+    // Facebook share
+    document.getElementById('facebook-btn').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(citationLink)}`;
+    document.getElementById('facebook-btn').addEventListener('click', () => trackShare());
+});
+
+// Copy link to clipboard
+async function copyLink() {
+    try {
+        await navigator.clipboard.writeText(citationLink);
+        await trackShare();
+        showToast('🔗 Link copied to clipboard!', 'success');
+    } catch (error) {
+        showToast('Failed to copy link', 'danger');
+    }
+}
+
+// Copy embed code to clipboard
+async function copyEmbed() {
+    const embedHTML = `<iframe src="${citationLink}/embed" width="100%" height="450" style="border:none;border-radius:8px;" title="CasePoint - ${citation}"></iframe>`;
+    try {
+        await navigator.clipboard.writeText(embedHTML);
+        await trackShare();
+        showToast('✅ Embed code copied to clipboard!', 'success');
+    } catch (error) {
+        showToast('Failed to copy embed code', 'danger');
+    }
+}
+
+// Track share event
+async function trackShare() {
+    try {
+        await fetch(`/api/track_share/${encodeURIComponent(citation)}`, {
+            method: 'GET'
+        });
+    } catch (error) {
+        console.error('Failed to track share:', error);
+    }
+}
 
 // Add invisible watermarks to full text and format first 6 lines
 {% if citation.full_text %}
