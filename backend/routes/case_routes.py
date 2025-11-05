@@ -6,6 +6,9 @@ from flask import Blueprint, request, render_template, redirect, url_for, flash,
 from models import db
 from models.case import LegalCitation
 from routes.auth_routes import login_required
+import qrcode
+import io
+import base64
 
 case_bp = Blueprint('cases', __name__)
 
@@ -59,6 +62,18 @@ def case_detail(case_id):
         LegalCitation.id != citation.id
     ).limit(5).all()
     
+    # Generate QR code for this citation
+    citation_url = url_for('cases.case_detail', case_id=citation.id, _external=True)
+    qr = qrcode.QRCode(version=1, box_size=10, border=2)
+    qr.add_data(citation_url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    # Convert to base64 for embedding in HTML
+    buffered = io.BytesIO()
+    img.save(buffered, format="PNG")
+    qr_code_base64 = base64.b64encode(buffered.getvalue()).decode()
+    
     breadcrumbs = [
         {'text': 'Cases', 'url': url_for('cases.search_cases')},
         {'text': citation.citation, 'url': url_for('cases.case_detail', case_id=citation.id)}
@@ -67,7 +82,8 @@ def case_detail(case_id):
     return render_template('citation_detail.html', 
                          citation=citation, 
                          related_cases=related_cases,
-                         breadcrumbs=breadcrumbs)
+                         breadcrumbs=breadcrumbs,
+                         qr_code=qr_code_base64)
 
 
 @case_bp.route('/compare')

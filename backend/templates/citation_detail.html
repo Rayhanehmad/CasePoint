@@ -51,6 +51,14 @@
                         <p class="mb-1"><strong>Judges:</strong> {{ citation.judges }}</p>
                         {% endif %}
                     </div>
+                    
+                    <!-- QR Code - only visible in print -->
+                    {% if qr_code %}
+                    <div class="qr-code-container mt-4">
+                        <p class="mb-2"><strong>Scan to access full text online:</strong></p>
+                        <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" class="qr-code-image">
+                    </div>
+                    {% endif %}
                 </div>
                 
                 <div class="card-body no-print">
@@ -122,6 +130,9 @@
                     <div class="no-print d-flex justify-content-between align-items-center px-3 mb-2">
                         <h6 class="mb-0">Full Text</h6>
                         <div>
+                            <a href="{{ url_for('cases.search_cases') }}" class="btn btn-sm btn-primary me-1" title="Search Citations">
+                                <i class="fas fa-search me-1"></i>Search
+                            </a>
                             <a href="{{ url_for('ai.ai_analysis') }}?context={{ citation.full_text[:500] }}" class="btn btn-sm btn-success me-1" title="Analyze with AI">
                                 <i class="fas fa-brain me-1"></i>AI Analysis
                             </a>
@@ -131,7 +142,7 @@
                         </div>
                     </div>
                     <div class="border p-3 bg-light full-text-content" style="max-height: 400px; overflow-y: auto;">
-                        <pre id="fullTextContent" style="white-space: pre-wrap; font-family: inherit;">{{ citation.full_text }}</pre>
+                        <pre id="fullTextContent" class="full-text-pre" style="white-space: pre-wrap; font-family: inherit;">{{ citation.full_text }}</pre>
                     </div>
                 </div>
                 {% endif %}
@@ -266,35 +277,58 @@ function copyToClipboard() {
     });
 }
 
-// Add invisible watermarks to full text
+// Add invisible watermarks to full text and format first 6 lines
 {% if citation.full_text %}
 document.addEventListener('DOMContentLoaded', function() {
     const fullTextElement = document.getElementById('fullTextContent');
     if (fullTextElement) {
         const originalText = fullTextElement.textContent;
-        const words = originalText.split(/(\s+)/); // Split by whitespace but keep the spaces
         
-        // Insert "CasePoint" every 50 words
+        // Split into lines
+        const lines = originalText.split('\n');
+        
+        // Format the content with cumulative word count
+        let formattedHTML = '';
         const watermarkInterval = 50;
-        let wordCount = 0;
-        let newHTML = '';
+        let cumulativeWordCount = 0;
         
-        for (let i = 0; i < words.length; i++) {
-            // Add the word/space
-            newHTML += words[i];
+        for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+            const line = lines[lineIndex];
+            const words = line.split(/(\s+)/); // Split by whitespace but keep the spaces
             
-            // Count only actual words, not spaces
-            if (words[i].trim().length > 0) {
-                wordCount++;
+            // First 6 lines: centered and bold
+            if (lineIndex < 6) {
+                formattedHTML += '<div class="first-six-lines">';
+                formattedHTML += line;
+                formattedHTML += '</div>';
                 
-                // Insert invisible watermark every N words
-                if (wordCount % watermarkInterval === 0) {
-                    newHTML += '<span class="invisible-watermark">CasePoint</span> ';
+                // Still count words in first 6 lines for cumulative count
+                for (let i = 0; i < words.length; i++) {
+                    if (words[i].trim().length > 0) {
+                        cumulativeWordCount++;
+                    }
                 }
+            } else {
+                // Remaining lines: add watermarks with cumulative count
+                let lineHTML = '';
+                
+                for (let i = 0; i < words.length; i++) {
+                    lineHTML += words[i];
+                    
+                    if (words[i].trim().length > 0) {
+                        cumulativeWordCount++;
+                        
+                        if (cumulativeWordCount % watermarkInterval === 0) {
+                            lineHTML += '<span class="invisible-watermark">CasePoint</span> ';
+                        }
+                    }
+                }
+                
+                formattedHTML += lineHTML + '\n';
             }
         }
         
-        fullTextElement.innerHTML = newHTML;
+        fullTextElement.innerHTML = formattedHTML;
     }
 });
 {% endif %}
@@ -336,6 +370,13 @@ function togglePreview() {
 </script>
 
 <style>
+/* First 6 lines styling - centered and bold */
+.first-six-lines {
+    text-align: center;
+    font-weight: bold;
+    line-height: 1.5;
+}
+
 /* Invisible watermark in full text - hidden on screen but copied when selected */
 .invisible-watermark {
     font-size: 10px;
@@ -354,10 +395,14 @@ function togglePreview() {
     }
 }
 
-/* Screen view - hide citation header and watermarks */
+/* Screen view - hide citation header, QR code and watermarks */
 @media screen {
     .citation-header {
         display: none;
+    }
+    
+    .qr-code-container {
+        display: none !important;
     }
     
     .watermark-container {
@@ -400,6 +445,20 @@ function togglePreview() {
     .citation-metadata p {
         font-size: 10pt;
         margin: 5px 0;
+    }
+    
+    /* Show QR code in print */
+    .qr-code-container {
+        display: block !important;
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .qr-code-image {
+        width: 150px;
+        height: 150px;
+        margin: 10px auto;
+        display: block;
     }
     
     /* Full text content */
