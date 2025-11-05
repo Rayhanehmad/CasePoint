@@ -49,10 +49,10 @@
                     <h5>Quick Actions</h5>
                 </div>
                 <div class="card-body">
-                    <a href="{{ url_for('admin.upload_citation') }}" class="btn btn-primary">
+                    <a href="{{ url_for('admin_api.upload_citation') }}" class="btn btn-primary">
                         <i class="fa fa-upload"></i> Upload Single Citation
                     </a>
-                    <a href="{{ url_for('legalcitation.index_view') }}" class="btn btn-secondary">
+                    <a href="{{ url_for('all_citations.index_view') }}" class="btn btn-secondary">
                         <i class="fa fa-database"></i> Manage All Citations
                     </a>
                     <a href="{{ url_for('user.index_view') }}" class="btn btn-info">
