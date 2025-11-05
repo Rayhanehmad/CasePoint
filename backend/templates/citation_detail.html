@@ -119,8 +119,16 @@
                 <!-- Full Text Section - For Print -->
                 {% if citation.full_text %}
                 <div class="full-text-section">
-                    <div class="no-print">
-                        <h6 class="px-3">Full Text</h6>
+                    <div class="no-print d-flex justify-content-between align-items-center px-3 mb-2">
+                        <h6 class="mb-0">Full Text</h6>
+                        <div>
+                            <a href="{{ url_for('ai.ai_analysis') }}?context={{ citation.full_text[:500] }}" class="btn btn-sm btn-success me-1" title="Analyze with AI">
+                                <i class="fas fa-brain me-1"></i>AI Analysis
+                            </a>
+                            <a href="{{ url_for('cases.compare_cases') }}?ids={{ citation.id }}" class="btn btn-sm btn-info" title="Compare with other cases">
+                                <i class="fas fa-balance-scale me-1"></i>Compare
+                            </a>
+                        </div>
                     </div>
                     <div class="border p-3 bg-light full-text-content" style="max-height: 400px; overflow-y: auto;">
                         <pre id="fullTextContent" style="white-space: pre-wrap; font-family: inherit;">{{ citation.full_text }}</pre>
@@ -159,15 +167,6 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <!-- AI-Powered Actions -->
-                        <a href="{{ url_for('ai.ai_analysis') }}?context={{ citation.full_text[:500] }}" class="btn btn-success">
-                            <i class="fas fa-brain me-2"></i>AI Analysis
-                        </a>
-                        <a href="{{ url_for('cases.compare_cases') }}?ids={{ citation.id }}" class="btn btn-info">
-                            <i class="fas fa-balance-scale me-2"></i>Compare Cases
-                        </a>
-                        
-                        <!-- Document Actions -->
                         {% if citation.file_path %}
                         <button class="btn btn-primary" onclick="togglePreview()">
                             <i class="fas fa-eye me-2"></i><span id="preview-btn-text">Show Preview</span>
