@@ -5,6 +5,7 @@ All endpoints return JSON for frontend consumption
 
 from flask import Blueprint, request, jsonify, session
 from werkzeug.utils import secure_filename
+from sqlalchemy import or_, and_
 from models import db
 from models.user import User
 from models.case import LegalCitation
@@ -43,37 +44,49 @@ def api_search():
     per_page = request.args.get('per_page', 20, type=int)
     
     try:
-        # Build base query
-        search_query = LegalCitation.query
+        # Build filter conditions
+        filter_conditions = []
         
-        # Filter by category
+        # Category filter
         if category == 'cases':
-            search_query = search_query.filter_by(document_type='case')
+            filter_conditions.append(LegalCitation.document_type == 'case')
         elif category == 'acts':
-            search_query = search_query.filter(
-                LegalCitation.document_type.in_(['act', 'statute'])
-            )
+            filter_conditions.append(LegalCitation.document_type.in_(['act', 'statute']))
         
-        # Apply text search
-        if query:
-            search_query = search_query.filter(
-                (LegalCitation.title.ilike(f'%{query}%')) |
-                (LegalCitation.citation.ilike(f'%{query}%')) |
-                (LegalCitation.summary.ilike(f'%{query}%')) |
-                (LegalCitation.keywords.ilike(f'%{query}%'))
-            )
-        
-        # Apply filters
+        # Metadata filters
         if filters.get('year'):
-            search_query = search_query.filter_by(year=int(filters['year']))
+            filter_conditions.append(LegalCitation.year == int(filters['year']))
         if filters.get('court'):
-            search_query = search_query.filter_by(court=filters['court'])
+            filter_conditions.append(LegalCitation.court.ilike(f"%{filters['court']}%"))
         if filters.get('legal_area'):
-            search_query = search_query.filter_by(legal_area=filters['legal_area'])
+            filter_conditions.append(LegalCitation.legal_area == filters['legal_area'])
         if filters.get('jurisdiction'):
-            search_query = search_query.filter_by(jurisdiction=filters['jurisdiction'])
+            filter_conditions.append(LegalCitation.jurisdiction == filters['jurisdiction'])
         if filters.get('journal'):
-            search_query = search_query.filter_by(journal=filters['journal'].upper())
+            filter_conditions.append(LegalCitation.journal.ilike(f"%{filters['journal']}%"))
+        
+        # Text search conditions
+        text_conditions = []
+        if query:
+            text_conditions = [
+                LegalCitation.citation.ilike(f"%{query}%"),
+                LegalCitation.title.ilike(f"%{query}%"),
+                LegalCitation.summary.ilike(f"%{query}%"),
+                LegalCitation.full_text.ilike(f"%{query}%"),
+                LegalCitation.keywords.ilike(f"%{query}%")
+            ]
+        
+        # Combine filters with text search
+        if text_conditions and filter_conditions:
+            search_query = LegalCitation.query.filter(
+                and_(*filter_conditions, or_(*text_conditions))
+            )
+        elif text_conditions:
+            search_query = LegalCitation.query.filter(or_(*text_conditions))
+        elif filter_conditions:
+            search_query = LegalCitation.query.filter(and_(*filter_conditions))
+        else:
+            search_query = LegalCitation.query
         
         # Paginate
         pagination = search_query.order_by(
