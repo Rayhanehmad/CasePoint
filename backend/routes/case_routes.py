@@ -20,9 +20,17 @@ def search_cases():
     year = request.args.get('year', '')
     court = request.args.get('court', '')
     legal_area = request.args.get('legal_area', '')
+    jurisdiction = request.args.get('jurisdiction', '')
+    doc_type = request.args.get('type', '')
     
-    # Build query
-    cases_query = LegalCitation.query.filter_by(document_type='case')
+    # Build query - start with all legal citations
+    cases_query = LegalCitation.query
+    
+    # Filter by document type if specified, otherwise default to cases
+    if doc_type:
+        cases_query = cases_query.filter_by(document_type=doc_type)
+    else:
+        cases_query = cases_query.filter_by(document_type='case')
     
     if query:
         cases_query = cases_query.filter(
@@ -39,6 +47,9 @@ def search_cases():
     
     if legal_area:
         cases_query = cases_query.filter_by(legal_area=legal_area)
+    
+    if jurisdiction:
+        cases_query = cases_query.filter_by(jurisdiction=jurisdiction)
     
     results = cases_query.order_by(LegalCitation.year.desc()).all()
     
