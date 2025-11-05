@@ -159,6 +159,15 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
+                        <!-- AI-Powered Actions -->
+                        <a href="{{ url_for('ai.ai_analysis') }}?context={{ citation.full_text[:500] }}" class="btn btn-success">
+                            <i class="fas fa-brain me-2"></i>AI Analysis
+                        </a>
+                        <a href="{{ url_for('cases.compare_cases') }}?ids={{ citation.id }}" class="btn btn-info">
+                            <i class="fas fa-balance-scale me-2"></i>Compare Cases
+                        </a>
+                        
+                        <!-- Document Actions -->
                         {% if citation.file_path %}
                         <button class="btn btn-primary" onclick="togglePreview()">
                             <i class="fas fa-eye me-2"></i><span id="preview-btn-text">Show Preview</span>
