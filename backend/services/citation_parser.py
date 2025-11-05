@@ -152,7 +152,8 @@ class CitationParser:
     
     def split_document_by_citations(self, text: str) -> List[Dict[str, any]]:
         """
-        Split document into individual citation blocks
+        Split document into individual citation blocks using improved lookahead regex
+        that keeps internal references intact
         
         Returns:
             List of dicts with: {
@@ -164,41 +165,102 @@ class CitationParser:
                 'text': 'Full text content for this citation...'
             }
         """
-        citations = self.find_all_citations(text)
+        return self.split_document_by_citations_improved(text)
+    
+    def split_document_by_citations_improved(self, text: str) -> List[Dict[str, any]]:
+        """
+        Improved citation extraction using lookahead regex to avoid breaking at internal references
+        """
+        # Lookahead pattern that captures complete blocks including internal references
+        pattern = r'((?:PLD|SCMR|YLR|CLC|CLD|MLD|PCrLJ|PLC|PTD)\s+\d{4}\s+(?:[A-Z]+\s+)?\d+.*?)(?=(?:PLD|SCMR|YLR|CLC|CLD|MLD|PCrLJ|PLC|PTD)\s+\d{4}\s+(?:[A-Z]+\s+)?\d+|$)'
         
-        if not citations:
+        matches = re.findall(pattern, text, re.DOTALL)
+        
+        if not matches:
+            logger.warning("No citations found with improved pattern")
             return []
         
+        logger.info(f"Found {len(matches)} raw citation blocks")
+        
+        # Merge small fragments back into complete citations
+        cleaned_citations = self._merge_small_fragments(matches)
+        
+        logger.info(f"After merging: {len(cleaned_citations)} complete citation blocks")
+        
+        # Convert to structured format
         citation_blocks = []
+        for i, block_text in enumerate(cleaned_citations, 1):
+            block_text = block_text.strip()
+            
+            if not block_text:
+                continue
+            
+            # Extract citation info from the block
+            citation_info = self._extract_citation_from_block(block_text)
+            
+            if citation_info:
+                citation_blocks.append({
+                    'citation': citation_info['citation'],
+                    'code': citation_info['code'],
+                    'year': citation_info['year'],
+                    'court': citation_info['court'],
+                    'number': citation_info.get('number', 0),
+                    'text': block_text,
+                    'text_length': len(block_text)
+                })
+                
+                # Debug output with clear markers
+                logger.debug(f"\n===== START CITATION {i} =====")
+                logger.debug(f"[CITATION] {citation_info['citation']}")
+                logger.debug(f"[PREVIEW] {block_text[:100]}...")
+                logger.debug(f"[LENGTH] {len(block_text)} chars")
+                logger.debug(f"===== END CITATION {i} =====\n")
         
-        for i, citation_info in enumerate(citations):
-            # Determine text range for this citation
-            start_pos = citation_info['position'][0]
-            
-            # End position is start of next citation, or end of document
-            if i < len(citations) - 1:
-                end_pos = citations[i + 1]['position'][0]
-            else:
-                end_pos = len(text)
-            
-            # Extract text block
-            citation_text = text[start_pos:end_pos].strip()
-            
-            # Create citation block
-            block = {
-                'citation': citation_info['citation'],
-                'code': citation_info['code'],
-                'year': citation_info['year'],
-                'court': citation_info['court'],
-                'number': citation_info['number'],
-                'text': citation_text,
-                'text_length': len(citation_text)
-            }
-            
-            citation_blocks.append(block)
-        
-        logger.info(f"Extracted {len(citation_blocks)} citation blocks from document")
+        logger.info(f"Extracted {len(citation_blocks)} complete citation blocks")
         return citation_blocks
+    
+    def _merge_small_fragments(self, blocks: List[str]) -> List[str]:
+        """
+        Merge small fragments (< 200 chars) into larger blocks to fix false breaks
+        """
+        cleaned = []
+        buffer = ""
+        
+        for block in blocks:
+            block_stripped = block.strip()
+            
+            # If block is too small, add to buffer
+            if len(block_stripped) < 200:
+                buffer += " " + block_stripped
+            else:
+                # This is a substantial block
+                if buffer:
+                    # Merge buffer with this block
+                    cleaned.append(buffer + " " + block_stripped)
+                    buffer = ""
+                else:
+                    # Just add the block
+                    cleaned.append(block_stripped)
+        
+        # Add any remaining buffer
+        if buffer.strip():
+            cleaned.append(buffer.strip())
+        
+        return cleaned
+    
+    def _extract_citation_from_block(self, block_text: str) -> Optional[Dict]:
+        """
+        Extract the main citation identifier from a block of text
+        """
+        # Look for the first citation pattern in the block
+        for pattern in self.COMPILED_PATTERNS:
+            match = pattern.search(block_text)
+            if match:
+                citation_info = self._extract_citation_info(match, block_text)
+                if citation_info:
+                    return citation_info
+        
+        return None
     
     def extract_title_from_text(self, citation_text: str, citation_code: str) -> Optional[str]:
         """
