@@ -363,9 +363,9 @@ class CitationParser:
                     current_title = para.text.strip()
                     current_text = ""
                 else:
-                    # Add to current citation body
+                    # Add to current citation body - preserve line breaks
                     if para.text.strip():
-                        current_text += para.text + " "
+                        current_text += para.text + "\n"
             
             # Append last citation
             if current_title and current_text.strip():
