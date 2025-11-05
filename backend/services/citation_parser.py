@@ -6,6 +6,7 @@ Recognizes and extracts citations in Pakistani legal formats
 import re
 import logging
 from typing import List, Dict, Tuple, Optional
+from docx import Document
 
 logger = logging.getLogger(__name__)
 
@@ -327,6 +328,152 @@ class CitationParser:
                 return line
         
         return None
+    
+    def split_document_by_headings(self, filepath: str) -> List[Dict[str, any]]:
+        """
+        Extract citations from DOCX using Heading 1 styles
+        
+        This method is faster and more accurate for properly formatted DOCX files
+        where each citation is marked with Heading 1 style
+        
+        Args:
+            filepath: Path to the DOCX file
+            
+        Returns:
+            List of dicts with citation information and text content
+        """
+        try:
+            doc = Document(filepath)
+            citations = []
+            current_title = None
+            current_text = ""
+            
+            for para in doc.paragraphs:
+                style = para.style.name
+                
+                # Check if this is a heading (citation identifier)
+                if style.startswith("Heading 1"):
+                    # Save previous citation if exists
+                    if current_title and current_text.strip():
+                        citation_data = self._parse_heading_citation(current_title, current_text.strip())
+                        if citation_data:
+                            citations.append(citation_data)
+                    
+                    # Start new citation
+                    current_title = para.text.strip()
+                    current_text = ""
+                else:
+                    # Add to current citation body
+                    if para.text.strip():
+                        current_text += para.text + " "
+            
+            # Append last citation
+            if current_title and current_text.strip():
+                citation_data = self._parse_heading_citation(current_title, current_text.strip())
+                if citation_data:
+                    citations.append(citation_data)
+            
+            logger.info(f"Extracted {len(citations)} citations using heading-based method")
+            return citations
+            
+        except Exception as e:
+            logger.error(f"Error extracting citations from headings: {str(e)}")
+            return []
+    
+    def _parse_heading_citation(self, heading: str, body_text: str) -> Optional[Dict]:
+        """
+        Parse citation information from heading text
+        
+        Args:
+            heading: The Heading 1 text (e.g., "2003 MLD 1077")
+            body_text: The full text content under this heading
+            
+        Returns:
+            Dict with citation info and text, or None if parsing fails
+        """
+        # Try to extract citation from heading using patterns
+        citation_info = None
+        for pattern in self.COMPILED_PATTERNS:
+            match = pattern.search(heading)
+            if match:
+                citation_info = self._extract_citation_info(match, heading)
+                if citation_info:
+                    break
+        
+        if not citation_info:
+            # If no pattern match, try to find citation in the body text
+            for pattern in self.COMPILED_PATTERNS:
+                match = pattern.search(body_text[:200])  # Check first 200 chars
+                if match:
+                    citation_info = self._extract_citation_info(match, body_text)
+                    if citation_info:
+                        break
+        
+        if citation_info:
+            return {
+                'citation': citation_info['citation'],
+                'code': citation_info['code'],
+                'year': citation_info['year'],
+                'court': citation_info['court'],
+                'number': citation_info.get('number', 0),
+                'text': body_text,
+                'text_length': len(body_text)
+            }
+        
+        # Fallback: use heading as citation if no pattern found
+        logger.warning(f"Could not parse citation pattern from heading: {heading}")
+        return {
+            'citation': heading[:100],  # Use heading as citation
+            'code': 'UNKNOWN',
+            'year': None,
+            'court': 'Unknown Court',
+            'number': 0,
+            'text': body_text,
+            'text_length': len(body_text)
+        }
+    
+    def auto_detect_and_split(self, filepath: str, text: str = None, method: str = 'auto') -> Tuple[List[Dict], str]:
+        """
+        Auto-detect the best extraction method and split document
+        
+        Args:
+            filepath: Path to the DOCX file
+            text: Plain text content (optional, used for pattern-based method)
+            method: 'auto', 'heading', or 'pattern'
+            
+        Returns:
+            Tuple of (citations list, method_used)
+        """
+        if method == 'heading':
+            citations = self.split_document_by_headings(filepath)
+            return citations, 'heading-based'
+        
+        if method == 'pattern':
+            if not text:
+                # Read text from file
+                from docx import Document
+                doc = Document(filepath)
+                text = '\n'.join([para.text for para in doc.paragraphs])
+            citations = self.split_document_by_citations(text)
+            return citations, 'pattern-based'
+        
+        # Auto-detect method
+        # Try heading-based first
+        citations_heading = self.split_document_by_headings(filepath)
+        
+        # Check if heading-based found meaningful citations
+        if len(citations_heading) >= 3:  # At least 3 citations with headings
+            logger.info(f"Auto-detected heading-based method ({len(citations_heading)} citations)")
+            return citations_heading, 'heading-based (auto-detected)'
+        
+        # Fall back to pattern-based
+        if not text:
+            doc = Document(filepath)
+            text = '\n'.join([para.text for para in doc.paragraphs])
+        
+        citations_pattern = self.split_document_by_citations(text)
+        logger.info(f"Auto-detected pattern-based method ({len(citations_pattern)} citations)")
+        return citations_pattern, 'pattern-based (auto-detected)'
 
 
 # Global instance

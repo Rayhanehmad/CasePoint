@@ -52,7 +52,23 @@
                         <div class="card border-primary">
                             <div class="card-body">
                                 <h6><i class="fas fa-file me-2"></i><span id="fileName"></span></h6>
-                                <p class="text-muted mb-2">Ready to extract citations</p>
+                                <p class="text-muted mb-3">Ready to extract citations</p>
+                                
+                                <!-- Extraction Method Selection -->
+                                <div class="mb-3">
+                                    <label for="extractionMethod" class="form-label">
+                                        <i class="fas fa-cog me-1"></i><strong>Extraction Method:</strong>
+                                    </label>
+                                    <select id="extractionMethod" class="form-select">
+                                        <option value="auto" selected>Auto-detect (Recommended)</option>
+                                        <option value="heading">Heading-based (for formatted DOCX with Heading 1 styles)</option>
+                                        <option value="pattern">Pattern-based (for plain text documents)</option>
+                                    </select>
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>Auto-detect tries heading-based first, then falls back to pattern matching
+                                    </small>
+                                </div>
+                                
                                 <button id="processBtn" class="btn btn-primary btn-lg">
                                     <i class="fas fa-bolt me-2"></i>Extract Citations Instantly
                                 </button>
@@ -246,6 +262,10 @@ processBtn.addEventListener('click', async () => {
     
     const formData = new FormData();
     formData.append('file', selectedFile);
+    
+    // Add selected extraction method
+    const method = document.getElementById('extractionMethod').value;
+    formData.append('method', method);
     
     try {
         const response = await fetch('{{ url_for("admin_api.process_batch_citations") }}', {
