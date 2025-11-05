@@ -6,143 +6,75 @@
 
 {% block content %}
 <div class="container-fluid py-4">
-    <div class="row">
-        <!-- Filters Sidebar -->
-        <div class="col-lg-3 col-md-4">
-            <div class="filters-sidebar">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filters</h5>
-                    <button class="btn btn-sm btn-outline-secondary" id="clearFilters">Clear All</button>
-                </div>
+    <!-- Compact Filter Banners -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <span class="text-muted me-2"><i class="fas fa-filter me-1"></i>Filters:</span>
                 
-                <!-- Court Filter -->
-                <div class="filter-group">
-                    <h6><i class="fas fa-gavel me-2"></i>Court</h6>
-                    <div class="filter-option">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="sc" id="court_sc" data-filter-type="courts">
-                            <label class="form-check-label" for="court_sc">
-                                Supreme Court <span class="badge bg-light text-dark ms-2">245</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="filter-option">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="shc" id="court_shc" data-filter-type="courts">
-                            <label class="form-check-label" for="court_shc">
-                                Sindh High Court <span class="badge bg-light text-dark ms-2">182</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="filter-option">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="lhc" id="court_lhc" data-filter-type="courts">
-                            <label class="form-check-label" for="court_lhc">
-                                Lahore High Court <span class="badge bg-light text-dark ms-2">156</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="filter-option">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="phc" id="court_phc" data-filter-type="courts">
-                            <label class="form-check-label" for="court_phc">
-                                Peshawar High Court <span class="badge bg-light text-dark ms-2">89</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
+                <!-- Court Filters -->
+                <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter-type="courts" data-filter-value="sc">
+                    Supreme Court
+                </button>
+                <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter-type="courts" data-filter-value="shc">
+                    Sindh HC
+                </button>
+                <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter-type="courts" data-filter-value="lhc">
+                    Lahore HC
+                </button>
+                <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter-type="courts" data-filter-value="phc">
+                    Peshawar HC
+                </button>
                 
-                <!-- Year Filter -->
-                <div class="filter-group">
-                    <h6><i class="fas fa-calendar me-2"></i>Year</h6>
-                    <div class="filter-option">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="2024" id="year_2024" data-filter-type="years">
-                            <label class="form-check-label" for="year_2024">
-                                2024 <span class="badge bg-light text-dark ms-2">45</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="filter-option">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="2023" id="year_2023" data-filter-type="years">
-                            <label class="form-check-label" for="year_2023">
-                                2023 <span class="badge bg-light text-dark ms-2">89</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="filter-option">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="2022" id="year_2022" data-filter-type="years">
-                            <label class="form-check-label" for="year_2022">
-                                2022 <span class="badge bg-light text-dark ms-2">156</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
+                <span class="mx-2">|</span>
                 
-                <!-- Jurisdiction Filter -->
-                <div class="filter-group">
-                    <h6><i class="fas fa-map-marker-alt me-2"></i>Jurisdiction</h6>
-                    <div class="filter-option">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="federal" id="jurisdiction_federal" data-filter-type="jurisdictions">
-                            <label class="form-check-label" for="jurisdiction_federal">
-                                Federal <span class="badge bg-light text-dark ms-2">234</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="filter-option">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="punjab" id="jurisdiction_punjab" data-filter-type="jurisdictions">
-                            <label class="form-check-label" for="jurisdiction_punjab">
-                                Punjab <span class="badge bg-light text-dark ms-2">167</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="filter-option">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="sindh" id="jurisdiction_sindh" data-filter-type="jurisdictions">
-                            <label class="form-check-label" for="jurisdiction_sindh">
-                                Sindh <span class="badge bg-light text-dark ms-2">123</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
+                <!-- Year Filters -->
+                <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter-type="years" data-filter-value="2024">
+                    2024
+                </button>
+                <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter-type="years" data-filter-value="2023">
+                    2023
+                </button>
+                <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter-type="years" data-filter-value="2022">
+                    2022
+                </button>
                 
-                <!-- Document Type Filter -->
-                <div class="filter-group">
-                    <h6><i class="fas fa-file-alt me-2"></i>Document Type</h6>
-                    <div class="filter-option">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="judgment" id="type_judgment" data-filter-type="types">
-                            <label class="form-check-label" for="type_judgment">
-                                Judgments <span class="badge bg-light text-dark ms-2">456</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="filter-option">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="statute" id="type_statute" data-filter-type="types">
-                            <label class="form-check-label" for="type_statute">
-                                Statutes <span class="badge bg-light text-dark ms-2">234</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="filter-option">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="rule" id="type_rule" data-filter-type="types">
-                            <label class="form-check-label" for="type_rule">
-                                Rules <span class="badge bg-light text-dark ms-2">89</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
+                <span class="mx-2">|</span>
+                
+                <!-- Jurisdiction Filters -->
+                <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter-type="jurisdictions" data-filter-value="federal">
+                    Federal
+                </button>
+                <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter-type="jurisdictions" data-filter-value="punjab">
+                    Punjab
+                </button>
+                <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter-type="jurisdictions" data-filter-value="sindh">
+                    Sindh
+                </button>
+                
+                <span class="mx-2">|</span>
+                
+                <!-- Document Type Filters -->
+                <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter-type="types" data-filter-value="case">
+                    Judgments
+                </button>
+                <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter-type="types" data-filter-value="statute">
+                    Statutes
+                </button>
+                <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter-type="types" data-filter-value="rule">
+                    Rules
+                </button>
+                
+                <button class="btn btn-sm btn-link text-danger" id="clearFilters">
+                    <i class="fas fa-times me-1"></i>Clear All
+                </button>
             </div>
         </div>
-        
+    </div>
+    
+    <div class="row">
         <!-- Results Content -->
-        <div class="col-lg-9 col-md-8">
+        <div class="col-12">
             <div class="results-container">
                 <!-- Results Header -->
                 <div class="results-header">
@@ -174,47 +106,20 @@
                 <div class="p-4">
                     {% if results %}
                         {% for result in results %}
-                        <div class="result-card">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <a href="#" class="result-title">{{ result.title }}</a>
-                                <div class="d-flex gap-2">
-                                    <span class="result-citation">{{ result.citation }}</span>
-                                    {% if result.document_type == 'case' %}
-                                        <span class="badge bg-primary">Case</span>
-                                    {% elif result.document_type in ['statute', 'act'] %}
-                                        <span class="badge bg-success">Statute</span>
-                                    {% else %}
-                                        <span class="badge bg-info">Rule</span>
-                                    {% endif %}
+                        <div class="result-card-compact border-bottom py-3">
+                            <div class="d-flex justify-content-between align-items-center gap-3">
+                                <!-- Citation Badge -->
+                                <span class="badge bg-primary result-citation-badge">{{ result.citation }}</span>
+                                
+                                <!-- Summary Text (flexible width) -->
+                                <div class="flex-grow-1 text-truncate">
+                                    <span class="text-muted">{{ result.summary if result.summary else 'No summary available...' }}</span>
                                 </div>
-                            </div>
-                            
-                            <div class="result-meta">
-                                <i class="fas fa-gavel me-1"></i>{{ result.court if result.court else result.document_type|title }}
-                                <span class="mx-2">•</span>
-                                <i class="fas fa-calendar me-1"></i>{{ result.year }}
-                                {% if result.jurisdiction %}
-                                <span class="mx-2">•</span>
-                                <i class="fas fa-map-marker-alt me-1"></i>{{ result.jurisdiction|title }}
-                                {% endif %}
-                            </div>
-                            
-                            <div class="result-snippet">
-                                {{ result.summary[:200] if result.summary else 'No summary available' }}...
-                            </div>
-                            
-                            <div class="mt-3">
-                                <div class="btn-group btn-group-sm" role="group">
-                                    <a href="{{ url_for('cases.case_detail', case_id=result.id) }}" class="btn btn-outline-primary">
-                                        <i class="fas fa-eye me-1"></i>View Full Text
-                                    </a>
-                                    <button type="button" class="btn btn-outline-secondary copy-citation-btn">
-                                        <i class="fas fa-copy me-1"></i>Copy Citation
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary">
-                                        <i class="fas fa-download me-1"></i>Download
-                                    </button>
-                                </div>
+                                
+                                <!-- View Full Text Button -->
+                                <a href="{{ url_for('cases.case_detail', case_id=result.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i>View Full Text
+                                </a>
                             </div>
                         </div>
                         {% endfor %}
@@ -269,33 +174,155 @@ document.addEventListener('DOMContentLoaded', function() {
     // Scroll to results section when page loads (if there are results)
     {% if results %}
     setTimeout(function() {
-        const resultsSection = document.querySelector('.result-card');
+        const resultsSection = document.querySelector('.result-card-compact');
         if (resultsSection) {
             resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }, 100);
     {% endif %}
     
-    // Copy citation functionality
-    document.querySelectorAll('.copy-citation-btn').forEach(button => {
+    // Filter button toggle functionality
+    document.querySelectorAll('.filter-btn').forEach(button => {
         button.addEventListener('click', function() {
-            const resultCard = this.closest('.result-card');
-            const citation = resultCard.querySelector('.result-citation').textContent;
-            navigator.clipboard.writeText(citation).then(() => {
-                // Show success feedback
-                const originalText = this.innerHTML;
-                this.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
-                this.classList.remove('btn-outline-secondary');
-                this.classList.add('btn-success');
+            const filterType = this.dataset.filterType;
+            const filterValue = this.dataset.filterValue;
+            
+            // Get current URL parameters
+            const url = new URL(window.location.href);
+            const params = url.searchParams;
+            
+            // Toggle filter based on type
+            if (this.classList.contains('active')) {
+                // Remove filter
+                this.classList.remove('active', 'btn-primary');
+                this.classList.add('btn-outline-secondary');
                 
-                setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.classList.remove('btn-success');
-                    this.classList.add('btn-outline-secondary');
-                }, 2000);
-            });
+                // Remove from URL based on filter type
+                if (filterType === 'courts') {
+                    params.delete('court');
+                } else if (filterType === 'years') {
+                    params.delete('year');
+                } else if (filterType === 'jurisdictions') {
+                    params.delete('jurisdiction');
+                } else if (filterType === 'types') {
+                    params.delete('type');
+                }
+            } else {
+                // Add filter
+                // First, deactivate other buttons of same type
+                document.querySelectorAll(`.filter-btn[data-filter-type="${filterType}"]`).forEach(btn => {
+                    btn.classList.remove('active', 'btn-primary');
+                    btn.classList.add('btn-outline-secondary');
+                });
+                
+                this.classList.add('active', 'btn-primary');
+                this.classList.remove('btn-outline-secondary');
+                
+                // Add to URL based on filter type
+                if (filterType === 'courts') {
+                    params.set('court', filterValue);
+                } else if (filterType === 'years') {
+                    params.set('year', filterValue);
+                } else if (filterType === 'jurisdictions') {
+                    params.set('jurisdiction', filterValue);
+                } else if (filterType === 'types') {
+                    params.set('type', filterValue);
+                }
+            }
+            
+            // Reload page with new filters
+            window.location.href = url.toString();
         });
     });
+    
+    // Clear all filters
+    document.getElementById('clearFilters').addEventListener('click', function() {
+        // Remove all filter parameters from URL
+        const url = new URL(window.location.href);
+        const params = url.searchParams;
+        
+        params.delete('court');
+        params.delete('year');
+        params.delete('jurisdiction');
+        params.delete('type');
+        
+        window.location.href = url.toString();
+    });
+    
+    // On page load, highlight active filters based on URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Highlight court filter
+    const court = urlParams.get('court');
+    if (court) {
+        const courtBtn = document.querySelector(`.filter-btn[data-filter-type="courts"][data-filter-value="${court}"]`);
+        if (courtBtn) {
+            courtBtn.classList.add('active', 'btn-primary');
+            courtBtn.classList.remove('btn-outline-secondary');
+        }
+    }
+    
+    // Highlight year filter
+    const year = urlParams.get('year');
+    if (year) {
+        const yearBtn = document.querySelector(`.filter-btn[data-filter-type="years"][data-filter-value="${year}"]`);
+        if (yearBtn) {
+            yearBtn.classList.add('active', 'btn-primary');
+            yearBtn.classList.remove('btn-outline-secondary');
+        }
+    }
+    
+    // Highlight jurisdiction filter
+    const jurisdiction = urlParams.get('jurisdiction');
+    if (jurisdiction) {
+        const jurisdictionBtn = document.querySelector(`.filter-btn[data-filter-type="jurisdictions"][data-filter-value="${jurisdiction}"]`);
+        if (jurisdictionBtn) {
+            jurisdictionBtn.classList.add('active', 'btn-primary');
+            jurisdictionBtn.classList.remove('btn-outline-secondary');
+        }
+    }
+    
+    // Highlight type filter
+    const type = urlParams.get('type');
+    if (type) {
+        const typeBtn = document.querySelector(`.filter-btn[data-filter-type="types"][data-filter-value="${type}"]`);
+        if (typeBtn) {
+            typeBtn.classList.add('active', 'btn-primary');
+            typeBtn.classList.remove('btn-outline-secondary');
+        }
+    }
 });
 </script>
+
+<style>
+/* Compact result card styling */
+.result-card-compact {
+    transition: background-color 0.2s;
+}
+
+.result-card-compact:hover {
+    background-color: #f8f9fa;
+}
+
+.result-citation-badge {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+    white-space: nowrap;
+    min-width: 120px;
+    text-align: center;
+}
+
+/* Filter button styling */
+.filter-btn {
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.filter-btn.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}
+</style>
 {% endblock %}
