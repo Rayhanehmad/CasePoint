@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+
+{% block title %}Batch Citation Extractor - CasePoint{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_api.admin_panel') }}">Admin</a></li>
+                    <li class="breadcrumb-item active">Batch Citation Extractor</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-gradient text-white" style="background: var(--gradient-primary);">
+                    <h4 class="mb-0"><i class="fas fa-file-import me-2"></i>Smart Batch Citation Extractor</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>How it works:</strong> Upload a DOCX or TXT file containing multiple Pakistani legal citations. The system will:
+                        <ul class="mb-0 mt-2">
+                            <li>Automatically detect all citations (PLD, CLC, CLD, MLD, PCrLJ, PLC, PTD, SCMR, YLR)</li>
+                            <li>Split the document into individual case blocks</li>
+                            <li>Generate AI summaries for each case (150 words max)</li>
+                            <li>Save each citation separately to the database</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <i class="fas fa-dollar-sign me-2"></i>
+                        <strong>Cost Optimized:</strong> Uses GPT-3.5-turbo with batch processing. Typical cost: $0.001-0.003 per citation (~$3 for 1000 cases)
+                    </div>
+
+                    <!-- Upload Zone -->
+                    <div id="uploadZone" class="upload-zone mb-4">
+                        <i class="fas fa-file-upload fa-3x mb-3 text-primary"></i>
+                        <h5>Drop Multi-Citation Document Here</h5>
+                        <p class="text-muted">or click to browse</p>
+                        <p class="text-muted small">Supports: DOCX, TXT files with Pakistani legal citations</p>
+                        <input type="file" id="fileInput" accept=".docx,.txt" style="display: none;">
+                    </div>
+
+                    <!-- File Info -->
+                    <div id="fileInfo" class="mb-4" style="display: none;">
+                        <div class="card border-primary">
+                            <div class="card-body">
+                                <h6><i class="fas fa-file me-2"></i><span id="fileName"></span></h6>
+                                <p class="text-muted mb-2">Ready to extract citations</p>
+                                <button id="processBtn" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-robot me-2"></i>Extract & Summarize Citations
+                                </button>
+                                <button id="cancelBtn" class="btn btn-outline-secondary btn-lg ms-2">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Processing -->
+                    <div id="processingSection" style="display: none;">
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                                <span class="visually-hidden">Processing...</span>
+                            </div>
+                            <h5 id="processingStatus">Processing document...</h5>
+                            <p class="text-muted">This may take 30-60 seconds depending on document size</p>
+                        </div>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="resultsSection" style="display: none;">
+                        <div class="alert alert-success">
+                            <h5><i class="fas fa-check-circle me-2"></i>Processing Complete!</h5>
+                            <div class="row mt-3">
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h3 id="totalFound" class="text-primary">0</h3>
+                                        <small>Citations Found</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h3 id="savedCount" class="text-success">0</h3>
+                                        <small>Saved to DB</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h3 id="skippedCount" class="text-warning">0</h3>
+                                        <small>Duplicates</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h3 id="errorCount" class="text-danger">0</h3>
+                                        <small>Errors</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="errorDetails" class="alert alert-danger" style="display: none;">
+                            <h6>Errors:</h6>
+                            <ul id="errorList"></ul>
+                        </div>
+
+                        <button id="uploadMoreBtn" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Upload Another Document
+                        </button>
+                        <a href="{{ url_for('case.search_cases') }}" class="btn btn-success ms-2">
+                            <i class="fas fa-search me-2"></i>Search Citations
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supported Citation Formats -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-list me-2"></i>Supported Citation Formats</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul>
+                                <li><strong>PLD</strong> - Pakistan Legal Decisions (e.g., PLD 2024 SC 1)</li>
+                                <li><strong>CLC</strong> - Civil Law Cases (e.g., 2025 CLC 1)</li>
+                                <li><strong>CLD</strong> - Civil Law Digest (e.g., 2025 CLD 1)</li>
+                                <li><strong>MLD</strong> - Monthly Law Digest (e.g., 2025 MLD 1)</li>
+                                <li><strong>PCrLJ</strong> - Pakistan Criminal Law Journal (e.g., 2025 PCrLJ 1)</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul>
+                                <li><strong>PLC</strong> - Pakistan Labour Cases (e.g., 2025 PLC 1)</li>
+                                <li><strong>PTD</strong> - Pakistan Tax Decisions (e.g., 2025 PTD 1)</li>
+                                <li><strong>SCMR</strong> - Supreme Court Monthly Review (e.g., 2025 SCMR 1)</li>
+                                <li><strong>YLR</strong> - Yearly Law Reports (e.g., 2025 YLR 1)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.upload-zone {
+    border: 3px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 60px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: var(--light-bg);
+}
+
+.upload-zone:hover {
+    border-color: var(--secondary-color);
+    background: #E6F2FF;
+}
+
+.upload-zone.dragover {
+    border-color: var(--secondary-color);
+    background: #E6F2FF;
+    transform: scale(1.02);
+}
+</style>
+
+<script>
+const uploadZone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('fileInput');
+const fileInfo = document.getElementById('fileInfo');
+const fileName = document.getElementById('fileName');
+const processBtn = document.getElementById('processBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const processingSection = document.getElementById('processingSection');
+const resultsSection = document.getElementById('resultsSection');
+const uploadMoreBtn = document.getElementById('uploadMoreBtn');
+
+let selectedFile = null;
+
+// Upload zone interactions
+uploadZone.addEventListener('click', () => fileInput.click());
+
+uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+});
+
+uploadZone.addEventListener('dragleave', () => {
+    uploadZone.classList.remove('dragover');
+});
+
+uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length > 0) {
+        handleFile(e.dataTransfer.files[0]);
+    }
+});
+
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+    }
+});
+
+function handleFile(file) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (ext !== 'docx' && ext !== 'txt') {
+        alert('Please upload a DOCX or TXT file');
+        return;
+    }
+    
+    selectedFile = file;
+    fileName.textContent = file.name;
+    uploadZone.style.display = 'none';
+    fileInfo.style.display = 'block';
+}
+
+cancelBtn.addEventListener('click', () => {
+    selectedFile = null;
+    fileInput.value = '';
+    uploadZone.style.display = 'block';
+    fileInfo.style.display = 'none';
+});
+
+processBtn.addEventListener('click', async () => {
+    if (!selectedFile) return;
+    
+    fileInfo.style.display = 'none';
+    processingSection.style.display = 'block';
+    
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    
+    try {
+        const response = await fetch('{{ url_for("admin_api.process_batch_citations") }}', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        processingSection.style.display = 'none';
+        resultsSection.style.display = 'block';
+        
+        if (result.success) {
+            document.getElementById('totalFound').textContent = result.total_found;
+            document.getElementById('savedCount').textContent = result.saved;
+            document.getElementById('skippedCount').textContent = result.skipped;
+            document.getElementById('errorCount').textContent = result.errors;
+            
+            if (result.errors > 0 && result.error_details) {
+                document.getElementById('errorDetails').style.display = 'block';
+                const errorList = document.getElementById('errorList');
+                errorList.innerHTML = result.error_details.map(e => `<li>${e}</li>`).join('');
+            }
+        } else {
+            resultsSection.innerHTML = `
+                <div class="alert alert-danger">
+                    <h5><i class="fas fa-exclamation-circle me-2"></i>Error</h5>
+                    <p>${result.message}</p>
+                </div>
+                <button id="retryBtn" class="btn btn-primary">
+                    <i class="fas fa-redo me-2"></i>Try Again
+                </button>
+            `;
+            document.getElementById('retryBtn').addEventListener('click', () => {
+                location.reload();
+            });
+        }
+    } catch (error) {
+        processingSection.style.display = 'none';
+        resultsSection.style.display = 'block';
+        resultsSection.innerHTML = `
+            <div class="alert alert-danger">
+                <h5><i class="fas fa-exclamation-circle me-2"></i>Error</h5>
+                <p>Failed to process document: ${error.message}</p>
+            </div>
+            <button onclick="location.reload()" class="btn btn-primary">
+                <i class="fas fa-redo me-2"></i>Try Again
+            </button>
+        `;
+    }
+});
+
+uploadMoreBtn.addEventListener('click', () => {
+    location.reload();
+});
+</script>
+{% endblock %}
