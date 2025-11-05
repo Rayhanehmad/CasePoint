@@ -42,14 +42,21 @@
                 {% endif %}
                 
                 <div class="card-body no-print">
-                    <div class="mb-4 d-flex align-items-center gap-2">
-                        <h4 class="fw-bold text-dark mb-0">{{ citation.citation }}</h4>
-                        <a href="{{ url_for('search') }}?q={{ citation.citation }}" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-search me-1"></i>Search Citations
-                        </a>
-                        <button class="btn btn-sm btn-outline-warning" onclick="toggleBookmark({{ citation.id }}, {{ citation.citation|tojson }})" id="bookmark-btn-{{ citation.id }}">
-                            <i class="far fa-bookmark me-1"></i>Bookmark
-                        </button>
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <h4 class="fw-bold text-dark mb-0">{{ citation.citation }}</h4>
+                            {% if citation.journal %}
+                            <span class="badge bg-secondary">{{ citation.journal }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('search') }}?q={{ citation.citation }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-search me-1"></i>Search Citations
+                            </a>
+                            <button class="btn btn-sm btn-outline-warning" onclick="toggleBookmark({{ citation.id }}, {{ citation.citation|tojson }})" id="bookmark-btn-{{ citation.id }}">
+                                <i class="far fa-bookmark me-1"></i>Bookmark
+                            </button>
+                        </div>
                     </div>
                     
                     {% if citation.judges %}

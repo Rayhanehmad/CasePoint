@@ -35,7 +35,8 @@ def api_search():
             'year': request.args.get('year'),
             'court': request.args.get('court'),
             'legal_area': request.args.get('legal_area'),
-            'jurisdiction': request.args.get('jurisdiction')
+            'jurisdiction': request.args.get('jurisdiction'),
+            'journal': request.args.get('journal')
         }
     
     page = request.args.get('page', 1, type=int)
@@ -71,6 +72,8 @@ def api_search():
             search_query = search_query.filter_by(legal_area=filters['legal_area'])
         if filters.get('jurisdiction'):
             search_query = search_query.filter_by(jurisdiction=filters['jurisdiction'])
+        if filters.get('journal'):
+            search_query = search_query.filter_by(journal=filters['journal'].upper())
         
         # Paginate
         pagination = search_query.order_by(
@@ -211,10 +214,14 @@ def api_upload_document():
             }), 400
         
         # Create citation record
+        citation_text = f"Uploaded: {filename}"
+        from services.utils import extract_journal_from_citation
+        
         citation = LegalCitation(
             document_type=document_type,
             title=title or filename,
-            citation=f"Uploaded: {filename}",
+            citation=citation_text,
+            journal=extract_journal_from_citation(citation_text),
             full_text=text_content[:10000],  # Limit text size
             summary=text_content[:500],
             file_path=filepath,

@@ -12,6 +12,7 @@ from services.citation_extractor import citation_extractor
 from services.bulk_processor import bulk_processor
 from services.citation_parser import citation_parser
 from services.batch_summarizer import batch_summarizer
+from services.utils import extract_journal_from_citation
 from routes.auth_routes import admin_required
 import os
 import logging
@@ -64,14 +65,16 @@ def upload_citation():
     if request.method == 'POST':
         try:
             # Extract form data
+            citation_text = request.form.get('citation')
             citation_data = {
                 'document_type': request.form.get('document_type', 'case'),
                 'title': request.form.get('title'),
-                'citation': request.form.get('citation'),
+                'citation': citation_text,
                 'court': request.form.get('court'),
                 'jurisdiction': request.form.get('jurisdiction'),
                 'date_decided': datetime.strptime(request.form.get('date_decided'), '%Y-%m-%d').date() if request.form.get('date_decided') else None,
                 'year': int(request.form.get('year')) if request.form.get('year') else None,
+                'journal': extract_journal_from_citation(citation_text),
                 'legal_area': request.form.get('legal_area'),
                 'case_type': request.form.get('case_type'),
                 'judges': request.form.get('judges'),
@@ -165,6 +168,7 @@ def upload_file():
                 'court': request.form.get('court') or metadata.get('court') or '',
                 'jurisdiction': request.form.get('jurisdiction') or metadata.get('jurisdiction') or '',
                 'year': int(request.form.get('year')) if request.form.get('year') else metadata.get('year'),
+                'journal': extract_journal_from_citation(extracted_citation),
                 'legal_area': request.form.get('legal_area') or metadata.get('legal_area') or '',
                 'judges': metadata.get('judges'),
                 'summary': request.form.get('summary') or metadata.get('summary') or '',
@@ -266,6 +270,7 @@ def bulk_upload_csv():
                     'jurisdiction': row.get('jurisdiction', ''),
                     'date_decided': date_decided,
                     'year': year,
+                    'journal': extract_journal_from_citation(row.get('citation', '')),
                     'legal_area': row.get('legal_area', ''),
                     'case_type': row.get('case_type', ''),
                     'judges': row.get('judges', ''),
@@ -394,6 +399,7 @@ def api_bulk_upload_csv():
                     'citation': row.get('citation', ''),
                     'court': row.get('court', ''),
                     'year': year,
+                    'journal': extract_journal_from_citation(row.get('citation', '')),
                     'legal_area': row.get('legal_area', ''),
                     'summary': row.get('summary', ''),
                     'full_text': row.get('full_text', ''),
@@ -598,6 +604,7 @@ def process_batch_citations():
                         'title': title or f"Case {block['citation']}",
                         'court': block['court'],
                         'year': block['year'],
+                        'journal': extract_journal_from_citation(block['citation']),
                         'legal_area': None,
                         'summary': None,  # Summary not generated for instant upload
                         'full_text': block['text'],
