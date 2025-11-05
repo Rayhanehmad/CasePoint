@@ -169,52 +169,92 @@ class CitationParser:
     
     def split_document_by_citations_improved(self, text: str) -> List[Dict[str, any]]:
         """
-        Improved citation extraction using lookahead regex to avoid breaking at internal references
+        Improved citation extraction that identifies main citations and captures their full blocks
+        Uses paragraph boundaries to avoid breaking at internal references
         """
-        # Lookahead pattern that captures complete blocks including internal references
-        pattern = r'((?:PLD|SCMR|YLR|CLC|CLD|MLD|PCrLJ|PLC|PTD)\s+\d{4}\s+(?:[A-Z]+\s+)?\d+.*?)(?=(?:PLD|SCMR|YLR|CLC|CLD|MLD|PCrLJ|PLC|PTD)\s+\d{4}\s+(?:[A-Z]+\s+)?\d+|$)'
+        # Split into paragraphs first (double newlines typically separate cases)
+        paragraphs = re.split(r'\n\s*\n', text)
         
-        matches = re.findall(pattern, text, re.DOTALL)
+        citation_blocks_raw = []
+        current_block = ""
+        current_citation = None
         
-        if not matches:
-            logger.warning("No citations found with improved pattern")
-            return []
-        
-        logger.info(f"Found {len(matches)} raw citation blocks")
-        
-        # Merge small fragments back into complete citations
-        cleaned_citations = self._merge_small_fragments(matches)
-        
-        logger.info(f"After merging: {len(cleaned_citations)} complete citation blocks")
-        
-        # Convert to structured format
-        citation_blocks = []
-        for i, block_text in enumerate(cleaned_citations, 1):
-            block_text = block_text.strip()
-            
-            if not block_text:
+        for para in paragraphs:
+            para = para.strip()
+            if not para:
                 continue
             
-            # Extract citation info from the block
-            citation_info = self._extract_citation_from_block(block_text)
+            # Check if this paragraph starts with a main citation
+            # Main citations typically appear at the start of a line
+            first_line = para.split('\n')[0].strip()
             
-            if citation_info:
-                citation_blocks.append({
-                    'citation': citation_info['citation'],
-                    'code': citation_info['code'],
-                    'year': citation_info['year'],
-                    'court': citation_info['court'],
-                    'number': citation_info.get('number', 0),
-                    'text': block_text,
-                    'text_length': len(block_text)
-                })
+            # Try to match citation at the beginning of the paragraph
+            main_citation = None
+            for pattern in self.COMPILED_PATTERNS:
+                match = pattern.match(first_line)
+                if match:
+                    citation_info = self._extract_citation_info(match, first_line)
+                    if citation_info:
+                        main_citation = citation_info
+                        break
+            
+            if main_citation:
+                # Save previous block if exists
+                if current_block and current_citation:
+                    citation_blocks_raw.append({
+                        'text': current_block,
+                        'citation_info': current_citation
+                    })
                 
-                # Debug output with clear markers
-                logger.debug(f"\n===== START CITATION {i} =====")
-                logger.debug(f"[CITATION] {citation_info['citation']}")
-                logger.debug(f"[PREVIEW] {block_text[:100]}...")
-                logger.debug(f"[LENGTH] {len(block_text)} chars")
-                logger.debug(f"===== END CITATION {i} =====\n")
+                # Start new block
+                current_block = para
+                current_citation = main_citation
+            else:
+                # Add to current block
+                if current_block:
+                    current_block += "\n\n" + para
+                else:
+                    # Orphan paragraph - try to find any citation in it
+                    for pattern in self.COMPILED_PATTERNS:
+                        match = pattern.search(para)
+                        if match:
+                            citation_info = self._extract_citation_info(match, para)
+                            if citation_info:
+                                current_block = para
+                                current_citation = citation_info
+                                break
+        
+        # Add last block
+        if current_block and current_citation:
+            citation_blocks_raw.append({
+                'text': current_block,
+                'citation_info': current_citation
+            })
+        
+        logger.info(f"Found {len(citation_blocks_raw)} citation blocks")
+        
+        # Convert to final format
+        citation_blocks = []
+        for i, block_data in enumerate(citation_blocks_raw, 1):
+            citation_info = block_data['citation_info']
+            block_text = block_data['text']
+            
+            citation_blocks.append({
+                'citation': citation_info['citation'],
+                'code': citation_info['code'],
+                'year': citation_info['year'],
+                'court': citation_info['court'],
+                'number': citation_info.get('number', 0),
+                'text': block_text,
+                'text_length': len(block_text)
+            })
+            
+            # Debug output with clear markers
+            logger.debug(f"\n===== START CITATION {i} =====")
+            logger.debug(f"[CITATION] {citation_info['citation']}")
+            logger.debug(f"[PREVIEW] {block_text[:100]}...")
+            logger.debug(f"[LENGTH] {len(block_text)} chars")
+            logger.debug(f"===== END CITATION {i} =====\n")
         
         logger.info(f"Extracted {len(citation_blocks)} complete citation blocks")
         return citation_blocks
