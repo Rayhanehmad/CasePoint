@@ -562,9 +562,8 @@ def process_batch_citations():
                     'message': 'No Pakistani legal citations found in document'
                 }), 200
             
-            # Generate summaries in batch (cost-optimized)
-            logger.info(f"Generating summaries for {len(citation_blocks)} citations")
-            citation_blocks = batch_summarizer.generate_summaries_batch(citation_blocks)
+            # Skip AI summary generation for instant upload (no timeout)
+            logger.info(f"Found {len(citation_blocks)} citations - processing without AI summaries for fast upload")
             
             # Save citations to database
             saved_count = 0
@@ -590,8 +589,8 @@ def process_batch_citations():
                         'title': title or f"Case {block['citation']}",
                         'court': block['court'],
                         'year': block['year'],
-                        'legal_area': None,  # Could be extracted with more AI processing
-                        'summary': block.get('summary'),
+                        'legal_area': None,
+                        'summary': None,  # Summary not generated for instant upload
                         'full_text': block['text'],
                         'uploaded_by': session.get('user_id')
                     }

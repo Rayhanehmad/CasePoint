@@ -28,14 +28,14 @@
                         <ul class="mb-0 mt-2">
                             <li>Automatically detect all citations (PLD, CLC, CLD, MLD, PCrLJ, PLC, PTD, SCMR, YLR)</li>
                             <li>Split the document into individual case blocks</li>
-                            <li>Generate AI summaries for each case (150 words max)</li>
-                            <li>Save each citation separately to the database</li>
+                            <li>Extract full text for each citation</li>
+                            <li>Save each citation separately to the database instantly</li>
                         </ul>
                     </div>
 
                     <div class="alert alert-success">
-                        <i class="fas fa-dollar-sign me-2"></i>
-                        <strong>Cost Optimized:</strong> Uses GPT-3.5-turbo with batch processing. Typical cost: $0.001-0.003 per citation (~$3 for 1000 cases)
+                        <i class="fas fa-bolt me-2"></i>
+                        <strong>Fast & Free:</strong> Instant extraction with no AI costs. Upload hundreds of citations in seconds!
                     </div>
 
                     <!-- Upload Zone -->
@@ -54,7 +54,7 @@
                                 <h6><i class="fas fa-file me-2"></i><span id="fileName"></span></h6>
                                 <p class="text-muted mb-2">Ready to extract citations</p>
                                 <button id="processBtn" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-robot me-2"></i>Extract & Summarize Citations
+                                    <i class="fas fa-bolt me-2"></i>Extract Citations Instantly
                                 </button>
                                 <button id="cancelBtn" class="btn btn-outline-secondary btn-lg ms-2">
                                     <i class="fas fa-times me-2"></i>Cancel
@@ -69,8 +69,8 @@
                             <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
                                 <span class="visually-hidden">Processing...</span>
                             </div>
-                            <h5 id="processingStatus">Processing document...</h5>
-                            <p class="text-muted">This may take 30-60 seconds depending on document size</p>
+                            <h5 id="processingStatus">Extracting citations...</h5>
+                            <p class="text-muted">This should complete in a few seconds</p>
                         </div>
                     </div>
 
