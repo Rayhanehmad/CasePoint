@@ -11,6 +11,7 @@ import ActsPage from './pages/ActsPage'
 import CompareCasesPage from './pages/CompareCasesPage'
 import AIAnalysisPage from './pages/AIAnalysisPage'
 import AdminPage from './pages/AdminPage'
+import EmbedView from './pages/EmbedView'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -25,34 +26,42 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <main>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          
-          {/* Legal research routes */}
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/cases/:id" element={<CaseDetailPage />} />
-          <Route path="/acts" element={<ActsPage />} />
-          <Route path="/compare" element={<CompareCasesPage />} />
-          <Route path="/ai-analysis" element={<AIAnalysisPage />} />
-          
-          {/* Protected admin route */}
-          <Route 
-            path="/admin" 
-            element={
-              <ProtectedRoute requireAdmin>
-                <AdminPage />
-              </ProtectedRoute>
-            } 
-          />
-        </Routes>
-      </main>
-    </div>
+    <Routes>
+      {/* Embed route without navbar (for iframe) */}
+      <Route path="/embed/:id" element={<EmbedView />} />
+      
+      {/* Main app with navbar */}
+      <Route path="*" element={
+        <div className="min-h-screen bg-gray-50">
+          <Navbar />
+          <main>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              
+              {/* Legal research routes */}
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/cases/:id" element={<CaseDetailPage />} />
+              <Route path="/acts" element={<ActsPage />} />
+              <Route path="/compare" element={<CompareCasesPage />} />
+              <Route path="/ai-analysis" element={<AIAnalysisPage />} />
+              
+              {/* Protected admin route */}
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <AdminPage />
+                  </ProtectedRoute>
+                } 
+              />
+            </Routes>
+          </main>
+        </div>
+      } />
+    </Routes>
   )
 }
 

@@ -370,3 +370,45 @@ def api_get_years():
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ==================== TRACKING & ANALYTICS API ====================
+
+@api_bp.route('/track_share/<string:citation>', methods=['GET', 'POST'])
+def api_track_share(citation):
+    """
+    Track when a citation is shared
+    GET/POST /api/track_share/2003 MLD 1075
+    """
+    from datetime import datetime
+    try:
+        c = LegalCitation.query.filter_by(citation=citation).first()
+        if c:
+            c.share_count = (c.share_count or 0) + 1
+            c.last_shared = datetime.utcnow()
+            db.session.commit()
+            logging.info(f"Share tracked for citation: {citation}")
+        return ('', 204)
+    except Exception as e:
+        logging.error(f"Error tracking share for {citation}: {e}")
+        return ('', 500)
+
+
+@api_bp.route('/track_embed/<string:citation>', methods=['GET', 'POST'])
+def api_track_embed(citation):
+    """
+    Track when a citation is embedded
+    GET/POST /api/track_embed/2003 MLD 1075
+    """
+    from datetime import datetime
+    try:
+        c = LegalCitation.query.filter_by(citation=citation).first()
+        if c:
+            c.embed_views = (c.embed_views or 0) + 1
+            c.last_embedded = datetime.utcnow()
+            db.session.commit()
+            logging.info(f"Embed tracked for citation: {citation}")
+        return ('', 204)
+    except Exception as e:
+        logging.error(f"Error tracking embed for {citation}: {e}")
+        return ('', 500)

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Calendar, Gavel, MapPin, FileText } from 'lucide-react'
 import axios from 'axios'
+import ShareButtons from '../components/ShareButtons'
 
 export default function CaseDetailPage() {
   const { id } = useParams()
@@ -110,6 +111,12 @@ export default function CaseDetailPage() {
               <p className="text-gray-700 leading-relaxed">{caseData.summary}</p>
             </div>
           )}
+
+          {/* Share Buttons */}
+          <div className="border-t pt-6">
+            <h2 className="text-xl font-bold text-navy-900 mb-3">Share This Citation</h2>
+            <ShareButtons caseId={caseData.id} citation={caseData.citation} summary={caseData.summary} />
+          </div>
 
           {/* Full Text */}
           {caseData.full_text && (
