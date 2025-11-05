@@ -1,0 +1,221 @@
+Upgrade my existing CasePoint Flask + React web app for legal research and citations.
+The app already has full keyword search implemented — don’t modify it.
+
+Now, I want to add social share, embed, and tracking features, plus React UI upgrades.
+
+The database model (LegalCitation) already includes these fields:
+citation, summary, full_text, year, court, journal, share_count, embed_views.
+
+🧠 BACKEND (Flask / Python)
+1️⃣ Add Tracking Routes
+
+Add the following Flask routes for share and embed actions:
+
+from datetime import datetime
+from flask import jsonify
+
+@app.route("/api/track_share/<string:citation>")
+def track_share(citation):
+    c = LegalCitation.query.filter_by(citation=citation).first()
+    if c:
+        c.share_count = (c.share_count or 0) + 1
+        c.last_shared = datetime.utcnow()
+        db.session.commit()
+    return ("", 204)
+
+@app.route("/api/track_embed/<string:citation>")
+def track_embed(citation):
+    c = LegalCitation.query.filter_by(citation=citation).first()
+    if c:
+        c.embed_views = (c.embed_views or 0) + 1
+        c.last_embedded = datetime.utcnow()
+        db.session.commit()
+    return ("", 204)
+
+
+✅ Purpose:
+
+/api/track_share increments total shares
+
+/api/track_embed increments embed views
+
+Updates timestamps (last_shared, last_embedded) if fields exist
+
+2️⃣ Flask-Admin Enhancements
+
+Display share_count and embed_views in the admin dashboard.
+
+Allow sorting/filtering by these fields.
+
+Example:
+
+class LegalCitationAdmin(ModelView):
+    column_list = ('citation', 'year', 'court', 'journal', 'share_count', 'embed_views')
+    column_sortable_list = ('share_count', 'embed_views', 'year')
+    column_labels = {
+        'share_count': 'Total Shares',
+        'embed_views': 'Embed Views'
+    }
+
+💻 FRONTEND (React + Tailwind)
+🏠 HomeSearch.jsx
+
+Keep your existing keyword search logic.
+
+Add these small UI updates:
+
+Filters: Year, Court, Journal
+
+Highlight matched keyword using <mark> (if not already done).
+
+Each result links to /citation/:citation.
+
+📄 CitationDetail.jsx
+
+Display full citation details, summary, and share/embed buttons:
+
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import ShareButtons from "./ShareButtons";
+
+export default function CitationDetail({ citationId }) {
+  const [citation, setCitation] = useState(null);
+
+  useEffect(() => {
+    axios.get(`/api/citation/${encodeURIComponent(citationId)}`).then((res) => {
+      setCitation(res.data);
+    });
+  }, [citationId]);
+
+  if (!citation) return <p>Loading...</p>;
+
+  return (
+    <div className="max-w-5xl mx-auto p-6 bg-white shadow rounded">
+      <h1 className="text-2xl font-bold text-blue-700 mb-2">{citation.citation}</h1>
+      <p className="text-sm text-gray-600 mb-4">
+        {citation.journal} | {citation.year} | {citation.court}
+      </p>
+      <p className="text-gray-800 mb-6">{citation.summary}</p>
+      <ShareButtons citation={citation.citation} summary={citation.summary} />
+    </div>
+  );
+}
+
+🔗 ShareButtons.jsx
+
+Implements WhatsApp, Messenger, Copy Link, and Embed in Website options
+with backend tracking.
+
+import React from "react";
+import axios from "axios";
+
+export default function ShareButtons({ citation, summary }) {
+  const baseUrl = window.location.origin;
+  const citationLink = `${baseUrl}/citation/${encodeURIComponent(citation)}`;
+
+  const message = `CasePoint Citation: ${citation}\n\n${summary?.slice(0, 200)}...\nRead more: ${citationLink}`;
+  const encodedMessage = encodeURIComponent(message);
+
+  const whatsapp = `https://wa.me/?text=${encodedMessage}`;
+  const messenger = `https://www.facebook.com/dialog/send?app_id=YOUR_APP_ID&link=${encodeURIComponent(
+    citationLink
+  )}&redirect_uri=${encodeURIComponent(citationLink)}`;
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(citationLink);
+      await axios.get(`/api/track_share/${encodeURIComponent(citation)}`);
+      alert("🔗 Link copied!");
+    } catch {
+      alert("Copy failed");
+    }
+  };
+
+  const embedHTML = `<iframe src="${citationLink}/embed" width="100%" height="450" style="border:none;border-radius:8px;" title="CasePoint - ${citation}"></iframe>`;
+
+  const handleCopyEmbed = async () => {
+    try {
+      await navigator.clipboard.writeText(embedHTML);
+      await axios.get(`/api/track_embed/${encodeURIComponent(citation)}`);
+      alert("✅ Embed code copied!");
+    } catch {
+      alert("Failed to copy embed code");
+    }
+  };
+
+  return (
+    <div className="flex flex-wrap gap-3 mt-6">
+      <a
+        href={whatsapp}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() => axios.get(`/api/track_share/${encodeURIComponent(citation)}`)}
+        className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded"
+      >
+        WhatsApp
+      </a>
+
+      <a
+        href={messenger}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() => axios.get(`/api/track_share/${encodeURIComponent(citation)}`)}
+        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded"
+      >
+        Messenger
+      </a>
+
+      <button
+        onClick={handleCopyLink}
+        className="bg-gray-700 hover:bg-gray-800 text-white px-3 py-2 rounded"
+      >
+        Copy Link
+      </button>
+
+      <button
+        onClick={handleCopyEmbed}
+        className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded"
+      >
+        Embed in Website
+      </button>
+    </div>
+  );
+}
+
+🧱 Embed Page (Optional but Recommended)
+
+Add a route /embed/:citation to render a minimal iframe-friendly page:
+
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+export default function EmbedView({ citationId }) {
+  const [citation, setCitation] = useState(null);
+
+  useEffect(() => {
+    axios.get(`/api/citation/${encodeURIComponent(citationId)}`).then((res) => {
+      setCitation(res.data);
+      axios.get(`/api/track_embed/${encodeURIComponent(citationId)}`);
+    });
+  }, [citationId]);
+
+  if (!citation) return null;
+
+  return (
+    <div className="p-4 bg-white text-gray-800">
+      <h2 className="text-lg font-bold text-blue-700">{citation.citation}</h2>
+      <p className="text-sm text-gray-600 mb-2">
+        {citation.journal} | {citation.year} | {citation.court}
+      </p>
+      <p className="text-sm">{citation.summary}</p>
+      <a
+        href={`/citation/${encodeURIComponent(citation.citation)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block mt-4 text-blue-600 underline text-sm"
+      >
+        View full case on CasePoint →
+      </a>
+    </div>
+  );
+}
