@@ -44,16 +44,20 @@ Preferred communication style: Simple, everyday language.
 - **CORS Configuration**: Properly configured for React frontend at localhost:3000 and localhost:5173
 
 ### Legal Research Features
-- **Pakistan Law Filters**: Jurisdiction, legal area, document type, court level filtering via SQL
+- **Pakistan Law Filters**: Jurisdiction, legal area, document type, court level, journal filtering via SQL
 - **Database Search**: Full-text search across cases, acts, and statutes
+- **Journal Auto-Extraction**: Automatic extraction and indexing of legal journals (PLD, MLD, SCMR, YLR, CLC, CLD, PCrLJ, PTD, PLC) from citation text
 - **Related Cases**: Find similar cases by legal area
 - **AI Analysis**: OpenAI-powered legal question answering (via /ai routes)
+- **Usage Analytics**: Built-in tracking for share counts, embed views, and last activity timestamps
 - **Services Available**: Vector search (ChromaDB) and classification services implemented but not yet integrated into main API
 
 ### Database Architecture
 - **PostgreSQL Database**: SQLAlchemy ORM with full ACID compliance
 - **User Management**: User accounts with authentication and profiles
 - **Legal Citations**: Cases, acts, statutes with metadata and full-text
+  - Auto-extracted journal field (indexed for fast filtering)
+  - Usage tracking fields: share_count, embed_views, last_shared, last_embedded
 - **Vector Storage**: ChromaDB for document embeddings and semantic search
 
 ### Document Management System
@@ -61,6 +65,8 @@ Preferred communication style: Simple, everyday language.
 - **File Upload**: Secure document upload with file type validation
 - **Database Storage**: Citation metadata and full-text stored in PostgreSQL
 - **OCR Services**: OCR extraction service available in backend/services/ocr_service.py
+- **Smart Metadata Extraction**: Automatic journal extraction from citation text during upload
+- **Batch Processing**: Backfill script (backend/backfill_journals.py) for updating existing citations
 
 
 ### Security Features
