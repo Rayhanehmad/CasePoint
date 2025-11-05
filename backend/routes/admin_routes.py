@@ -542,19 +542,27 @@ def process_batch_citations():
         file.save(file_path)
         
         try:
+            # Get extraction method from form (default: auto)
+            extraction_method = request.form.get('method', 'auto')
+            logger.info(f"Using extraction method: {extraction_method}")
+            
             # Extract text from file
             logger.info(f"Extracting text from {filename}")
             if file_ext == 'docx':
-                from docx import Document
-                doc = Document(file_path)
-                full_text = '\n'.join([paragraph.text for paragraph in doc.paragraphs])
+                # For DOCX, use auto-detect method which can use headings or patterns
+                citation_blocks, method_used = citation_parser.auto_detect_and_split(
+                    filepath=file_path,
+                    method=extraction_method
+                )
+                logger.info(f"Used method: {method_used}")
             else:  # txt
+                # For TXT, always use pattern-based since there are no heading styles
                 with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                     full_text = f.read()
+                citation_blocks = citation_parser.split_document_by_citations(full_text)
+                logger.info("Used method: pattern-based (TXT file)")
             
-            # Parse citations from document
-            logger.info("Parsing citations from document")
-            citation_blocks = citation_parser.split_document_by_citations(full_text)
+            # citation_blocks is already populated by auto_detect_and_split or split_document_by_citations
             
             if not citation_blocks:
                 return jsonify({
