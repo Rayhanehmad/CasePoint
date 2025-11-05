@@ -29,31 +29,12 @@
     <div class="row flex-column-reverse flex-lg-row">
         <div class="col-lg-6" id="citation-details">
             <div class="card shadow-custom mb-4">
-                <!-- Header Section - For Print Only -->
-                <div class="citation-header text-center p-4">
-                    <h4 class="mb-3">{{ citation.title }}</h4>
-                    
-                    <div class="citation-metadata mb-3">
-                        <p class="mb-1"><strong>Citation:</strong> {{ citation.citation }}</p>
-                        <p class="mb-1"><strong>Court:</strong> {{ citation.court or 'N/A' }}</p>
-                        <p class="mb-1"><strong>Jurisdiction:</strong> {{ citation.jurisdiction or 'N/A' }}</p>
-                        <p class="mb-1"><strong>Date Decided:</strong> {{ citation.date_decided.strftime('%B %d, %Y') if citation.date_decided else 'N/A' }}</p>
-                        
-                        {% if citation.legal_area %}
-                        <p class="mb-1"><strong>Legal Area:</strong> {{ citation.legal_area }}</p>
-                        {% endif %}
-                        
-                        {% if citation.case_type %}
-                        <p class="mb-1"><strong>Case Type:</strong> {{ citation.case_type }}</p>
-                        {% endif %}
-                        
-                        {% if citation.judges %}
-                        <p class="mb-1"><strong>Judges:</strong> {{ citation.judges }}</p>
-                        {% endif %}
-                    </div>
+                <!-- Citation Reference - For Print Only -->
+                <div class="print-citation-reference">
+                    <p><strong>Citation:</strong> {{ citation.citation }}</p>
                 </div>
                 
-                <!-- QR Code - Top Right for Print Only -->
+                <!-- QR Code - Top Right for Print Only (First Page) -->
                 {% if qr_code %}
                 <div class="qr-code-container">
                     <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" class="qr-code-image">
@@ -126,22 +107,26 @@
                 <!-- Full Text Section - For Print -->
                 {% if citation.full_text %}
                 <div class="full-text-section">
-                    <div class="no-print d-flex justify-content-between align-items-center px-3 mb-2">
+                    <div class="no-print px-3 mb-2">
                         <h6 class="mb-0">Full Text</h6>
-                        <div>
-                            <a href="{{ url_for('cases.search_cases') }}" class="btn btn-sm btn-primary me-1" title="Search Citations">
+                    </div>
+                    <div class="border p-3 bg-light full-text-content" style="max-height: 400px; overflow-y: auto;">
+                        <pre id="fullTextContent" class="full-text-pre" style="white-space: pre-wrap; font-family: inherit;">{{ citation.full_text }}</pre>
+                    </div>
+                    
+                    <!-- Actions Panel Below Full Text -->
+                    <div class="no-print px-3 mt-3">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="{{ url_for('cases.search_cases') }}" class="btn btn-sm btn-primary" title="Search Citations">
                                 <i class="fas fa-search me-1"></i>Search
                             </a>
-                            <a href="{{ url_for('ai.ai_analysis') }}?context={{ citation.full_text[:500] }}" class="btn btn-sm btn-success me-1" title="Analyze with AI">
+                            <a href="{{ url_for('ai.ai_analysis') }}?context={{ citation.full_text[:500] }}" class="btn btn-sm btn-success" title="Analyze with AI">
                                 <i class="fas fa-brain me-1"></i>AI Analysis
                             </a>
                             <a href="{{ url_for('cases.compare_cases') }}?ids={{ citation.id }}" class="btn btn-sm btn-info" title="Compare with other cases">
                                 <i class="fas fa-balance-scale me-1"></i>Compare
                             </a>
                         </div>
-                    </div>
-                    <div class="border p-3 bg-light full-text-content" style="max-height: 400px; overflow-y: auto;">
-                        <pre id="fullTextContent" class="full-text-pre" style="white-space: pre-wrap; font-family: inherit;">{{ citation.full_text }}</pre>
                     </div>
                 </div>
                 {% endif %}
@@ -323,7 +308,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 
-                formattedHTML += lineHTML + '\n';
+                // Add single line spacing between paragraphs (detect empty lines)
+                if (line.trim() === '' && lineIndex > 6) {
+                    formattedHTML += lineHTML + '\n\n';
+                } else {
+                    formattedHTML += lineHTML + '\n';
+                }
             }
         }
         
@@ -394,9 +384,9 @@ function togglePreview() {
     }
 }
 
-/* Screen view - hide citation header, QR code and watermarks */
+/* Screen view - hide print elements */
 @media screen {
-    .citation-header {
+    .print-citation-reference {
         display: none;
     }
     
@@ -425,19 +415,27 @@ function togglePreview() {
         display: none !important;
     }
     
-    /* Hide citation header and metadata in print */
-    .citation-header {
-        display: none !important;
+    /* Show citation reference in print - only citation line in bold */
+    .print-citation-reference {
+        display: block !important;
+        text-align: left;
+        padding: 20px 0;
+        margin-bottom: 20px;
     }
     
-    .citation-metadata {
-        display: none !important;
+    .print-citation-reference p {
+        font-size: 12pt;
+        margin: 0;
     }
     
-    /* Show QR code in top right corner for print */
+    .print-citation-reference strong {
+        font-weight: bold;
+    }
+    
+    /* Show QR code in top right corner for print - first page only */
     .qr-code-container {
         display: block !important;
-        position: fixed;
+        position: absolute;
         top: 20px;
         right: 20px;
         z-index: 1000;
