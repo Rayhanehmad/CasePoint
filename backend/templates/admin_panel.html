@@ -57,26 +57,41 @@
     
     <!-- Quick Actions -->
     <div class="row mb-4">
-        <div class="col-md-6 mb-3">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-info h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-file-import fa-3x text-info mb-3"></i>
+                    <h5>Batch Citation Extractor</h5>
+                    <p class="text-muted">Upload multi-citation DOCX/TXT and auto-extract each case with AI summaries</p>
+                    <a href="{{ url_for('admin_api.batch_citation_upload_page') }}" class="btn btn-info text-white">
+                        <i class="fas fa-robot me-2"></i>Smart Extractor
+                    </a>
+                    <div class="mt-2">
+                        <small class="badge bg-success">Cost Optimized</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
             <div class="card shadow-sm border-primary h-100">
                 <div class="card-body text-center">
                     <i class="fas fa-upload fa-3x text-primary mb-3"></i>
                     <h5>AI Bulk Upload</h5>
-                    <p class="text-muted">Upload multiple documents and let AI extract metadata automatically</p>
+                    <p class="text-muted">Upload multiple PDF/DOCX documents and extract full metadata with AI</p>
                     <a href="{{ url_for('admin_api.bulk_upload_page') }}" class="btn btn-primary">
-                        <i class="fas fa-magic me-2"></i>Start Bulk Upload
+                        <i class="fas fa-magic me-2"></i>Bulk Upload
                     </a>
                 </div>
             </div>
         </div>
-        <div class="col-md-6 mb-3">
+        <div class="col-md-4 mb-3">
             <div class="card shadow-sm border-success h-100">
                 <div class="card-body text-center">
-                    <i class="fas fa-file-csv fa-3x text-success mb-3"></i>
+                    <i class="fas fa-file-alt fa-3x text-success mb-3"></i>
                     <h5>Manual Upload</h5>
-                    <p class="text-muted">Upload single citation with form below or CSV file</p>
+                    <p class="text-muted">Upload single citation with manual form entry or CSV file</p>
                     <a href="#upload-form" class="btn btn-success">
-                        <i class="fas fa-file-alt me-2"></i>Manual Entry
+                        <i class="fas fa-edit me-2"></i>Manual Entry
                     </a>
                 </div>
             </div>

@@ -10,6 +10,8 @@ from models.case import LegalCitation
 from services import ocr_service, vector_search
 from services.citation_extractor import citation_extractor
 from services.bulk_processor import bulk_processor
+from services.citation_parser import citation_parser
+from services.batch_summarizer import batch_summarizer
 from routes.auth_routes import admin_required
 import os
 import logging
@@ -500,6 +502,137 @@ def process_bulk_document():
     
     except Exception as e:
         logger.error(f"Error in bulk document processing: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+@admin_bp.route('/batch-citation-upload', methods=['GET'])
+@admin_required
+def batch_citation_upload_page():
+    """Batch citation extraction page"""
+    return render_template('batch_citation_upload.html')
+
+
+@admin_bp.route('/api/process-batch-citations', methods=['POST'])
+@admin_required
+def process_batch_citations():
+    """Process a multi-citation document and extract individual citations"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'message': 'No file provided'}), 400
+        
+        file = request.files['file']
+        
+        if not file.filename:
+            return jsonify({'success': False, 'message': 'Empty filename'}), 400
+        
+        # Check file type (only DOCX and TXT for batch extraction)
+        file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+        if file_ext not in ['docx', 'txt']:
+            return jsonify({'success': False, 'message': 'Only DOCX and TXT files supported for batch extraction'}), 400
+        
+        # Save file temporarily
+        filename = secure_filename(file.filename)
+        upload_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
+        os.makedirs(upload_folder, exist_ok=True)
+        
+        file_path = os.path.join(upload_folder, filename)
+        file.save(file_path)
+        
+        try:
+            # Extract text from file
+            logger.info(f"Extracting text from {filename}")
+            if file_ext == 'docx':
+                from docx import Document
+                doc = Document(file_path)
+                full_text = '\n'.join([paragraph.text for paragraph in doc.paragraphs])
+            else:  # txt
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    full_text = f.read()
+            
+            # Parse citations from document
+            logger.info("Parsing citations from document")
+            citation_blocks = citation_parser.split_document_by_citations(full_text)
+            
+            if not citation_blocks:
+                return jsonify({
+                    'success': False,
+                    'message': 'No Pakistani legal citations found in document'
+                }), 200
+            
+            # Generate summaries in batch (cost-optimized)
+            logger.info(f"Generating summaries for {len(citation_blocks)} citations")
+            citation_blocks = batch_summarizer.generate_summaries_batch(citation_blocks)
+            
+            # Save citations to database
+            saved_count = 0
+            skipped_count = 0
+            errors = []
+            
+            for block in citation_blocks:
+                try:
+                    # Check for duplicate
+                    existing = LegalCitation.query.filter_by(citation=block['citation']).first()
+                    if existing:
+                        skipped_count += 1
+                        logger.debug(f"Skipping duplicate: {block['citation']}")
+                        continue
+                    
+                    # Extract title from text
+                    title = citation_parser.extract_title_from_text(block['text'], block['code'])
+                    
+                    # Create citation record
+                    citation_data = {
+                        'document_type': 'case',
+                        'citation': block['citation'],
+                        'title': title or f"Case {block['citation']}",
+                        'court': block['court'],
+                        'year': block['year'],
+                        'legal_area': None,  # Could be extracted with more AI processing
+                        'summary': block.get('summary'),
+                        'full_text': block['text'],
+                        'uploaded_by': session.get('user_id')
+                    }
+                    
+                    citation = LegalCitation(**citation_data)
+                    db.session.add(citation)
+                    db.session.commit()
+                    saved_count += 1
+                    logger.info(f"Saved: {block['citation']}")
+                    
+                except Exception as e:
+                    db.session.rollback()
+                    error_msg = f"{block['citation']}: {str(e)}"
+                    errors.append(error_msg)
+                    logger.error(f"Error saving citation: {error_msg}")
+            
+            return jsonify({
+                'success': True,
+                'total_found': len(citation_blocks),
+                'saved': saved_count,
+                'skipped': skipped_count,
+                'errors': len(errors),
+                'error_details': errors[:10],  # Return first 10 errors
+                'message': f'Processed {len(citation_blocks)} citations: {saved_count} saved, {skipped_count} duplicates skipped'
+            }), 200
+            
+        except Exception as e:
+            logger.error(f"Error processing batch citations: {str(e)}")
+            return jsonify({
+                'success': False,
+                'message': f'Processing error: {str(e)}'
+            }), 500
+        finally:
+            # Clean up temp file
+            if os.path.exists(file_path):
+                try:
+                    os.remove(file_path)
+                except:
+                    pass
+    
+    except Exception as e:
+        logger.error(f"Error in batch citation processing: {str(e)}")
         return jsonify({
             'success': False,
             'message': str(e)
