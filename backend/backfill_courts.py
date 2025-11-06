@@ -6,10 +6,30 @@ Uses extract_court_from_citation to parse court names from citation text
 import os
 import sys
 
-# Add parent directory to path so we can import from services
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Set the correct path for imports
+backend_path = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, backend_path)
 
-from app import app, db
+# Now import Flask and models
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
+
+class Base(DeclarativeBase):
+    pass
+
+db = SQLAlchemy(model_class=Base)
+
+# Create the app
+app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_recycle": 300,
+    "pool_pre_ping": True,
+}
+db.init_app(app)
+
+# Import models after app initialization
 from models.case import LegalCitation
 from services.utils import extract_court_from_citation
 import logging
