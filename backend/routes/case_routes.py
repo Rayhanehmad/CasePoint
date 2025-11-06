@@ -99,6 +99,51 @@ def search_cases():
                          breadcrumbs=breadcrumbs)
 
 
+@case_bp.route('/journal/<journal_code>')
+def journal_index(journal_code):
+    """View journal index - all citations for a specific journal grouped by year"""
+    journal_code = journal_code.upper()
+    
+    # Get all citations for this journal
+    citations = LegalCitation.query.filter_by(
+        journal=journal_code
+    ).order_by(LegalCitation.year.desc(), LegalCitation.citation).all()
+    
+    # Group citations by year
+    citations_by_year = {}
+    for citation in citations:
+        year = citation.year if citation.year else 'Unknown Year'
+        if year not in citations_by_year:
+            citations_by_year[year] = []
+        citations_by_year[year].append(citation)
+    
+    # Get journal full name
+    journal_names = {
+        'PLD': 'Pakistan Legal Decisions',
+        'MLD': 'Monthly Law Digest',
+        'SCMR': 'Supreme Court Monthly Review',
+        'YLR': 'Yearly Law Reports',
+        'CLC': 'Civil Law Cases',
+        'CLD': 'Civil Law Digest',
+        'PCrLJ': 'Pakistan Criminal Law Journal',
+        'PTD': 'Pakistan Tax Decisions',
+        'PLC': 'Pakistan Labour Cases'
+    }
+    journal_name = journal_names.get(journal_code, journal_code)
+    
+    breadcrumbs = [
+        {'text': 'Home', 'url': url_for('home')},
+        {'text': f'{journal_code} Index', 'url': url_for('cases.journal_index', journal_code=journal_code)}
+    ]
+    
+    return render_template('journal_index.html',
+                         journal_code=journal_code,
+                         journal_name=journal_name,
+                         citations_by_year=citations_by_year,
+                         total_citations=len(citations),
+                         breadcrumbs=breadcrumbs)
+
+
 @case_bp.route('/<int:case_id>')
 def case_detail(case_id):
     """View single case details"""
