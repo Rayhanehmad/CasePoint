@@ -12,6 +12,7 @@ import pytesseract
 import json
 import re
 from datetime import datetime
+from services.utils import extract_journal_from_citation, extract_court_from_citation
 
 logger = logging.getLogger(__name__)
 
@@ -160,15 +161,22 @@ Document text:
                     'message': 'Could not extract case title from document'
                 }
             
+            # Auto-extract court if not provided by AI
+            citation_text = metadata.get('citation')
+            court_value = metadata.get('court')
+            if not court_value and citation_text:
+                court_value = extract_court_from_citation(citation_text, full_text)
+            
             # Prepare citation data
             citation_data = {
                 'document_type': 'case',
                 'title': metadata.get('title'),
-                'citation': metadata.get('citation'),
-                'court': metadata.get('court'),
+                'citation': citation_text,
+                'court': court_value,
                 'jurisdiction': metadata.get('jurisdiction'),
                 'date_decided': datetime.strptime(metadata['date_decided'], '%Y-%m-%d').date() if metadata.get('date_decided') else None,
                 'year': metadata.get('year'),
+                'journal': extract_journal_from_citation(citation_text),
                 'legal_area': metadata.get('legal_area'),
                 'case_type': metadata.get('case_type'),
                 'judges': metadata.get('judges'),
