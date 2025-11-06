@@ -601,164 +601,174 @@
 </div>
 
 <script>
-// Filter functionality
-let filterData = { courts: [], years: [], journals: [] };
-let selectedFilters = { court: '', journal: '', year: '' };
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter functionality
+    let filterData = { courts: [], years: [], journals: [] };
+    let selectedFilters = { court: '', journal: '', year: '' };
 
-// Fetch filter options from API
-fetch("{{ url_for('cases.get_filter_options') }}")
-    .then(response => response.json())
-    .then(data => {
-        filterData = data;
-        populateFilters();
-    })
-    .catch(error => console.error('Error loading filters:', error));
+    // Fetch filter options from API
+    fetch("{{ url_for('cases.get_filter_options') }}")
+        .then(response => response.json())
+        .then(data => {
+            filterData = data;
+            populateFilters();
+        })
+        .catch(error => console.error('Error loading filters:', error));
 
-function populateFilters() {
-    // Populate Court dropdown
-    const courtOptions = document.getElementById('court-options');
-    if (filterData.courts.length > 0) {
-        courtOptions.innerHTML = filterData.courts.map(court => 
-            `<div class="filter-option" data-value="${court}">${court}</div>`
-        ).join('') + '<div class="filter-clear-btn" onclick="clearFilter(\'court\')">Clear Selection</div>';
-    } else {
-        courtOptions.innerHTML = '<div class="text-center py-3 text-muted">No courts available</div>';
-    }
-    
-    // Populate Journal dropdown
-    const journalOptions = document.getElementById('journal-options');
-    if (filterData.journals.length > 0) {
-        journalOptions.innerHTML = filterData.journals.map(journal => 
-            `<div class="filter-option" data-value="${journal}">${journal}</div>`
-        ).join('') + '<div class="filter-clear-btn" onclick="clearFilter(\'journal\')">Clear Selection</div>';
-    } else {
-        journalOptions.innerHTML = '<div class="text-center py-3 text-muted">No journals available</div>';
-    }
-    
-    // Populate Year dropdown
-    const yearOptions = document.getElementById('year-options');
-    if (filterData.years.length > 0) {
-        yearOptions.innerHTML = filterData.years.map(year => 
-            `<div class="filter-option" data-value="${year}">${year}</div>`
-        ).join('') + '<div class="filter-clear-btn" onclick="clearFilter(\'year\')">Clear Selection</div>';
-    } else {
-        yearOptions.innerHTML = '<div class="text-center py-3 text-muted">No years available</div>';
-    }
-    
-    // Add click handlers
-    document.querySelectorAll('.filter-option').forEach(option => {
-        option.addEventListener('click', function() {
-            const filterType = this.closest('.filter-dropdown-menu').id.replace('-dropdown', '');
-            const value = this.dataset.value;
-            selectFilter(filterType, value);
-        });
-    });
-}
-
-// Toggle dropdown visibility
-function toggleDropdown(dropdownId, buttonId) {
-    const dropdown = document.getElementById(dropdownId);
-    const allDropdowns = document.querySelectorAll('.filter-dropdown-menu');
-    
-    // Close all other dropdowns
-    allDropdowns.forEach(d => {
-        if (d.id !== dropdownId) d.classList.remove('show');
-    });
-    
-    dropdown.classList.toggle('show');
-}
-
-// Select a filter
-function selectFilter(type, value) {
-    selectedFilters[type] = value;
-    
-    // Update button text and style
-    const button = document.getElementById(`${type}-filter-btn`);
-    const buttonText = document.getElementById(`${type}-filter-text`);
-    buttonText.textContent = value;
-    button.classList.add('active');
-    
-    // Update hidden input
-    document.getElementById(`${type}-filter-value`).value = value;
-    
-    // Update selected state in dropdown
-    const dropdown = document.getElementById(`${type}-dropdown`);
-    dropdown.querySelectorAll('.filter-option').forEach(opt => {
-        opt.classList.remove('selected');
-        if (opt.dataset.value === value) {
-            opt.classList.add('selected');
+    function populateFilters() {
+        // Populate Court dropdown
+        const courtOptions = document.getElementById('court-options');
+        if (filterData.courts.length > 0) {
+            courtOptions.innerHTML = filterData.courts.map(court => 
+                `<div class="filter-option" data-value="${court}">${court}</div>`
+            ).join('') + '<div class="filter-clear-btn">Clear Selection</div>';
+        } else {
+            courtOptions.innerHTML = '<div class="text-center py-3 text-muted">No courts available</div>';
         }
-    });
-    
-    // Close dropdown
-    dropdown.classList.remove('show');
-    
-    // Auto-submit form for immediate results
-    document.getElementById('main-search-form').submit();
-}
-
-// Clear a filter
-function clearFilter(type) {
-    selectedFilters[type] = '';
-    
-    // Reset button
-    const button = document.getElementById(`${type}-filter-btn`);
-    const buttonText = document.getElementById(`${type}-filter-text`);
-    const typeCapitalized = type.charAt(0).toUpperCase() + type.slice(1);
-    buttonText.textContent = typeCapitalized;
-    button.classList.remove('active');
-    
-    // Clear hidden input
-    document.getElementById(`${type}-filter-value`).value = '';
-    
-    // Clear selected state
-    const dropdown = document.getElementById(`${type}-dropdown`);
-    dropdown.querySelectorAll('.filter-option').forEach(opt => {
-        opt.classList.remove('selected');
-    });
-    
-    // Close dropdown
-    dropdown.classList.remove('show');
-}
-
-// Search functionality for Court and Year dropdowns
-function setupFilterSearch(searchInputId, optionsContainerId) {
-    const searchInput = document.getElementById(searchInputId);
-    if (!searchInput) return;
-    
-    searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        const options = document.getElementById(optionsContainerId).querySelectorAll('.filter-option');
         
-        options.forEach(option => {
-            const text = option.textContent.toLowerCase();
-            if (text.includes(searchTerm)) {
-                option.style.display = 'block';
-            } else {
-                option.style.display = 'none';
+        // Populate Journal dropdown
+        const journalOptions = document.getElementById('journal-options');
+        if (filterData.journals.length > 0) {
+            journalOptions.innerHTML = filterData.journals.map(journal => 
+                `<div class="filter-option" data-value="${journal}">${journal}</div>`
+            ).join('') + '<div class="filter-clear-btn">Clear Selection</div>';
+        } else {
+            journalOptions.innerHTML = '<div class="text-center py-3 text-muted">No journals available</div>';
+        }
+        
+        // Populate Year dropdown
+        const yearOptions = document.getElementById('year-options');
+        if (filterData.years.length > 0) {
+            yearOptions.innerHTML = filterData.years.map(year => 
+                `<div class="filter-option" data-value="${year}">${year}</div>`
+            ).join('') + '<div class="filter-clear-btn">Clear Selection</div>';
+        } else {
+            yearOptions.innerHTML = '<div class="text-center py-3 text-muted">No years available</div>';
+        }
+        
+        // Add click handlers for filter options
+        document.querySelectorAll('.filter-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const filterType = this.closest('.filter-dropdown-menu').id.replace('-dropdown', '');
+                const value = this.dataset.value;
+                selectFilter(filterType, value);
+            });
+        });
+        
+        // Add click handlers for clear buttons
+        document.querySelectorAll('.filter-clear-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filterType = this.closest('.filter-dropdown-menu').id.replace('-dropdown', '');
+                clearFilter(filterType);
+            });
+        });
+    }
+
+    // Toggle dropdown visibility
+    function toggleDropdown(dropdownId, buttonId) {
+        const dropdown = document.getElementById(dropdownId);
+        const allDropdowns = document.querySelectorAll('.filter-dropdown-menu');
+        
+        // Close all other dropdowns
+        allDropdowns.forEach(d => {
+            if (d.id !== dropdownId) d.classList.remove('show');
+        });
+        
+        dropdown.classList.toggle('show');
+    }
+
+    // Select a filter
+    function selectFilter(type, value) {
+        selectedFilters[type] = value;
+        
+        // Update button text and style
+        const button = document.getElementById(`${type}-filter-btn`);
+        const buttonText = document.getElementById(`${type}-filter-text`);
+        buttonText.textContent = value;
+        button.classList.add('active');
+        
+        // Update hidden input
+        document.getElementById(`${type}-filter-value`).value = value;
+        
+        // Update selected state in dropdown
+        const dropdown = document.getElementById(`${type}-dropdown`);
+        dropdown.querySelectorAll('.filter-option').forEach(opt => {
+            opt.classList.remove('selected');
+            if (opt.dataset.value === value) {
+                opt.classList.add('selected');
             }
         });
-    });
-}
+        
+        // Close dropdown
+        dropdown.classList.remove('show');
+        
+        // Auto-submit form for immediate results
+        document.getElementById('main-search-form').submit();
+    }
 
-// Add click handlers for filter buttons
-document.getElementById('court-filter-btn').addEventListener('click', () => toggleDropdown('court-dropdown', 'court-filter-btn'));
-document.getElementById('journal-filter-btn').addEventListener('click', () => toggleDropdown('journal-dropdown', 'journal-filter-btn'));
-document.getElementById('year-filter-btn').addEventListener('click', () => toggleDropdown('year-dropdown', 'year-filter-btn'));
+    // Clear a filter
+    function clearFilter(type) {
+        selectedFilters[type] = '';
+        
+        // Reset button
+        const button = document.getElementById(`${type}-filter-btn`);
+        const buttonText = document.getElementById(`${type}-filter-text`);
+        const typeCapitalized = type.charAt(0).toUpperCase() + type.slice(1);
+        buttonText.textContent = typeCapitalized;
+        button.classList.remove('active');
+        
+        // Clear hidden input
+        document.getElementById(`${type}-filter-value`).value = '';
+        
+        // Clear selected state
+        const dropdown = document.getElementById(`${type}-dropdown`);
+        dropdown.querySelectorAll('.filter-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        
+        // Close dropdown
+        dropdown.classList.remove('show');
+    }
 
-// Setup search for court and year dropdowns
-setTimeout(() => {
-    setupFilterSearch('court-search', 'court-options');
-    setupFilterSearch('year-search', 'year-options');
-}, 500);
-
-// Close dropdowns when clicking outside
-document.addEventListener('click', function(event) {
-    if (!event.target.closest('.filter-dropdown')) {
-        document.querySelectorAll('.filter-dropdown-menu').forEach(dropdown => {
-            dropdown.classList.remove('show');
+    // Search functionality for Court and Year dropdowns
+    function setupFilterSearch(searchInputId, optionsContainerId) {
+        const searchInput = document.getElementById(searchInputId);
+        if (!searchInput) return;
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const options = document.getElementById(optionsContainerId).querySelectorAll('.filter-option');
+            
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
         });
     }
+
+    // Add click handlers for filter buttons
+    document.getElementById('court-filter-btn').addEventListener('click', () => toggleDropdown('court-dropdown', 'court-filter-btn'));
+    document.getElementById('journal-filter-btn').addEventListener('click', () => toggleDropdown('journal-dropdown', 'journal-filter-btn'));
+    document.getElementById('year-filter-btn').addEventListener('click', () => toggleDropdown('year-dropdown', 'year-filter-btn'));
+
+    // Setup search for court and year dropdowns
+    setTimeout(() => {
+        setupFilterSearch('court-search', 'court-options');
+        setupFilterSearch('year-search', 'year-options');
+    }, 500);
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.filter-dropdown')) {
+            document.querySelectorAll('.filter-dropdown-menu').forEach(dropdown => {
+                dropdown.classList.remove('show');
+            });
+        }
+    });
 });
 </script>
 {% endblock %}
