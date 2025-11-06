@@ -112,10 +112,15 @@ def journal_index(journal_code):
     # Group citations by year
     citations_by_year = {}
     for citation in citations:
-        year = citation.year if citation.year else 'Unknown Year'
+        year = citation.year if citation.year else 0  # Use 0 for unknown years for sorting
         if year not in citations_by_year:
             citations_by_year[year] = []
         citations_by_year[year].append(citation)
+    
+    # Sort years (descending) - 0 (unknown) will appear last
+    sorted_years = sorted([y for y in citations_by_year.keys() if y != 0], reverse=True)
+    if 0 in citations_by_year:
+        sorted_years.append(0)  # Add unknown year at the end
     
     # Get journal full name
     journal_names = {
@@ -140,6 +145,7 @@ def journal_index(journal_code):
                          journal_code=journal_code,
                          journal_name=journal_name,
                          citations_by_year=citations_by_year,
+                         sorted_years=sorted_years,
                          total_citations=len(citations),
                          breadcrumbs=breadcrumbs)
 
