@@ -25,28 +25,31 @@ app = create_app(os.getenv('FLASK_ENV', 'default'))
 
 
 def backfill_courts():
-    """Backfill court field for all citations that don't have it"""
+    """Backfill court field for all citations (re-extract to fix incomplete names)"""
     
     with app.app_context():
-        # Find all citations without court information
-        citations_without_court = LegalCitation.query.filter(
-            (LegalCitation.court == None) | (LegalCitation.court == '')
-        ).all()
+        # Get ALL citations to re-extract court names (to fix "High Court" → "Lahore High Court")
+        all_citations = LegalCitation.query.all()
         
-        logger.info(f"Found {len(citations_without_court)} citations without court information")
+        logger.info(f"Re-extracting court information for {len(all_citations)} citations")
         
         updated_count = 0
         failed_count = 0
+        unchanged_count = 0
         
-        for citation in citations_without_court:
+        for citation in all_citations:
             try:
                 # Extract court from citation text
                 court = extract_court_from_citation(citation.citation, citation.full_text)
                 
                 if court:
-                    citation.court = court
-                    updated_count += 1
-                    logger.info(f"Updated citation {citation.citation} with court: {court}")
+                    if citation.court != court:
+                        old_court = citation.court or 'None'
+                        citation.court = court
+                        updated_count += 1
+                        logger.info(f"Updated citation {citation.citation}: {old_court} → {court}")
+                    else:
+                        unchanged_count += 1
                 else:
                     failed_count += 1
                     logger.warning(f"Could not extract court from citation: {citation.citation}")
@@ -59,6 +62,7 @@ def backfill_courts():
         try:
             db.session.commit()
             logger.info(f"Successfully updated {updated_count} citations")
+            logger.info(f"Unchanged: {unchanged_count} citations")
             logger.info(f"Failed to extract court for {failed_count} citations")
         except Exception as e:
             db.session.rollback()
