@@ -268,21 +268,28 @@ def bulk_upload_csv():
                     except ValueError:
                         pass
                 
+                # Auto-extract court if not provided
+                citation_text = row.get('citation', '')
+                full_text = row.get('full_text', '')
+                court_value = row.get('court', '')
+                if not court_value:
+                    court_value = extract_court_from_citation(citation_text, full_text)
+                
                 # Create citation
                 citation_data = {
                     'document_type': row.get('document_type', 'case').lower(),
                     'title': row.get('title', ''),
-                    'citation': row.get('citation', ''),
-                    'court': row.get('court', ''),
+                    'citation': citation_text,
+                    'court': court_value,
                     'jurisdiction': row.get('jurisdiction', ''),
                     'date_decided': date_decided,
                     'year': year,
-                    'journal': extract_journal_from_citation(row.get('citation', '')),
+                    'journal': extract_journal_from_citation(citation_text),
                     'legal_area': row.get('legal_area', ''),
                     'case_type': row.get('case_type', ''),
                     'judges': row.get('judges', ''),
                     'summary': row.get('summary', ''),
-                    'full_text': row.get('full_text', ''),
+                    'full_text': full_text,
                     'headnotes': row.get('headnotes', ''),
                     'keywords': row.get('keywords', ''),
                     'citations_referred': row.get('citations_referred', ''),
