@@ -59,6 +59,14 @@
                         </div>
                     </div>
                     
+                    {% if citation.court %}
+                    <div class="mb-3">
+                        <p class="text-sm font-medium text-gray-600 mb-2">
+                            <strong>Court:</strong> <span style="color: #1D4ED8; font-weight: 600;">{{ citation.court }}</span>
+                        </p>
+                    </div>
+                    {% endif %}
+                    
                     {% if citation.judges %}
                     <div class="mb-3">
                         <strong>Judges:</strong> {{ citation.judges }}
