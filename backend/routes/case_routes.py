@@ -13,6 +13,40 @@ import base64
 case_bp = Blueprint('cases', __name__)
 
 
+@case_bp.route('/api/filters')
+def get_filter_options():
+    """Get unique values for Court, Journal, and Year filters"""
+    # Get unique courts (excluding None and empty strings)
+    courts = db.session.query(LegalCitation.court).distinct().filter(
+        LegalCitation.court != None,
+        LegalCitation.court != ''
+    ).order_by(LegalCitation.court).all()
+    courts_list = [c[0] for c in courts if c[0]]
+    
+    # Get unique years (excluding None)
+    years = db.session.query(LegalCitation.year).distinct().filter(
+        LegalCitation.year != None
+    ).order_by(LegalCitation.year.desc()).all()
+    years_list = [y[0] for y in years if y[0]]
+    
+    # Get unique journals (excluding None and empty strings)
+    journals = db.session.query(LegalCitation.journal).distinct().filter(
+        LegalCitation.journal != None,
+        LegalCitation.journal != ''
+    ).order_by(LegalCitation.journal).all()
+    journals_list = [j[0] for j in journals if j[0]]
+    
+    # If no journals in DB, use default list
+    if not journals_list:
+        journals_list = ['PLD', 'SCMR', 'MLD', 'YLR', 'CLC', 'CLD', 'PCrLJ', 'PTD', 'PLC']
+    
+    return jsonify({
+        'courts': courts_list,
+        'years': years_list,
+        'journals': journals_list
+    })
+
+
 @case_bp.route('/search')
 def search_cases():
     """Search cases page"""
