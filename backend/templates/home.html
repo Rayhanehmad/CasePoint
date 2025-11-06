@@ -279,8 +279,11 @@
     display: flex;
     gap: 0.75rem;
     margin-top: 1rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .filter-dropdown {
@@ -300,6 +303,9 @@
     align-items: center;
     gap: 0.25rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    flex: 1;
+    justify-content: center;
+    min-width: 150px;
 }
 
 .filter-button:hover {
@@ -399,6 +405,41 @@
     background: #FECACA;
 }
 
+/* Results section on homepage */
+.filter-results-section {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+    display: none;
+}
+
+.filter-results-section.show {
+    display: block;
+}
+
+.results-header-home {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.result-card-home {
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.result-card-home:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #3B82F6;
+}
+
 @media (max-width: 768px) {
     .journal-grid {
         grid-template-columns: 1fr;
@@ -409,12 +450,11 @@
     }
     
     .filter-buttons {
-        flex-direction: column;
+        flex-wrap: wrap;
     }
     
     .filter-button {
-        width: 100%;
-        justify-content: center;
+        min-width: calc(33.333% - 0.5rem);
     }
     
     .filter-dropdown-menu {
@@ -511,6 +551,22 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Filter Results Section -->
+    <div class="filter-results-section" id="filter-results-section">
+        <div class="results-header-home">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1" id="results-title">Filter Results</h5>
+                    <p class="text-muted mb-0" id="results-count">0 results found</p>
+                </div>
+                <button class="btn btn-sm btn-outline-danger" onclick="clearAllFilters()">
+                    <i class="fas fa-times me-1"></i>Clear Filters
+                </button>
+            </div>
+        </div>
+        <div id="results-container"></div>
     </div>
 
     <!-- AI Search Box -->
@@ -702,8 +758,71 @@ document.addEventListener('DOMContentLoaded', function() {
         // Close dropdown
         dropdown.classList.remove('show');
         
-        // Auto-submit form for immediate results
-        document.getElementById('main-search-form').submit();
+        // Fetch and display results on same page
+        fetchFilterResults();
+    }
+    
+    // Fetch results based on filters
+    function fetchFilterResults() {
+        // Build query string
+        const params = new URLSearchParams();
+        if (selectedFilters.court) params.append('court', selectedFilters.court);
+        if (selectedFilters.journal) params.append('journal', selectedFilters.journal);
+        if (selectedFilters.year) params.append('year', selectedFilters.year);
+        
+        // Show loading state
+        const resultsContainer = document.getElementById('results-container');
+        resultsContainer.innerHTML = '<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i></div>';
+        document.getElementById('filter-results-section').classList.add('show');
+        
+        // Fetch results
+        fetch(`{{ url_for('cases.search_cases') }}?${params.toString()}`)
+            .then(response => response.text())
+            .then(html => {
+                // Parse the HTML to extract results
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const results = doc.querySelectorAll('.result-card-compact');
+                
+                // Update results count and title
+                document.getElementById('results-count').textContent = `${results.length} result${results.length !== 1 ? 's' : ''} found`;
+                
+                let filterText = [];
+                if (selectedFilters.court) filterText.push(`Court: ${selectedFilters.court}`);
+                if (selectedFilters.journal) filterText.push(`Journal: ${selectedFilters.journal}`);
+                if (selectedFilters.year) filterText.push(`Year: ${selectedFilters.year}`);
+                document.getElementById('results-title').textContent = filterText.join(' • ');
+                
+                // Display results
+                if (results.length > 0) {
+                    resultsContainer.innerHTML = '';
+                    results.forEach(result => {
+                        const card = document.createElement('div');
+                        card.className = 'result-card-home';
+                        card.innerHTML = result.innerHTML;
+                        resultsContainer.appendChild(card);
+                    });
+                } else {
+                    resultsContainer.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                            <h5>No results found</h5>
+                            <p class="text-muted">Try adjusting your filter criteria</p>
+                        </div>
+                    `;
+                }
+                
+                // Scroll to results
+                document.getElementById('filter-results-section').scrollIntoView({ behavior: 'smooth' });
+            })
+            .catch(error => {
+                console.error('Error fetching results:', error);
+                resultsContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Error loading results. Please try again.
+                    </div>
+                `;
+            });
     }
 
     // Clear a filter
@@ -728,6 +847,38 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Close dropdown
         dropdown.classList.remove('show');
+        
+        // If any filters remain, refresh results; otherwise hide results section
+        if (selectedFilters.court || selectedFilters.journal || selectedFilters.year) {
+            fetchFilterResults();
+        } else {
+            document.getElementById('filter-results-section').classList.remove('show');
+        }
+    }
+    
+    // Clear all filters - global function
+    window.clearAllFilters = function() {
+        // Clear all filter values
+        selectedFilters = { court: '', journal: '', year: '' };
+        
+        // Reset all buttons
+        ['court', 'journal', 'year'].forEach(type => {
+            const button = document.getElementById(`${type}-filter-btn`);
+            const buttonText = document.getElementById(`${type}-filter-text`);
+            const typeCapitalized = type.charAt(0).toUpperCase() + type.slice(1);
+            buttonText.textContent = typeCapitalized;
+            button.classList.remove('active');
+            document.getElementById(`${type}-filter-value`).value = '';
+            
+            // Clear selected states
+            const dropdown = document.getElementById(`${type}-dropdown`);
+            dropdown.querySelectorAll('.filter-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+        });
+        
+        // Hide results section
+        document.getElementById('filter-results-section').classList.remove('show');
     }
 
     // Search functionality for Court and Year dropdowns
