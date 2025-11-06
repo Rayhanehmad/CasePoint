@@ -42,11 +42,11 @@
     <div class="row">
         <div class="col-12">
             {% if citations_by_year %}
-                {% for year in citations_by_year.keys()|sort(reverse=True) %}
+                {% for year in sorted_years %}
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-light">
                         <h4 class="mb-0">
-                            <i class="fas fa-calendar-alt me-2 text-primary"></i>Year {{ year }}
+                            <i class="fas fa-calendar-alt me-2 text-primary"></i>Year {{ year if year != 0 else 'Unknown' }}
                             <span class="badge bg-secondary ms-2">{{ citations_by_year[year]|length }} citation{{ 's' if citations_by_year[year]|length != 1 else '' }}</span>
                         </h4>
                     </div>
