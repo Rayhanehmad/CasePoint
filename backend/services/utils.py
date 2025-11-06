@@ -45,10 +45,10 @@ def extract_court_from_citation(citation_text, full_text=None):
     # Jurisdiction to Court mapping for High Courts
     jurisdiction_map = {
         'Lahore': 'Lahore High Court',
-        'Karachi': 'Sindh High Court',
+        'Karachi': 'Karachi High Court',
         'Sindh': 'Sindh High Court',
         'Peshawar': 'Peshawar High Court',
-        'Quetta': 'Balochistan High Court',
+        'Quetta': 'Quetta High Court',
         'Balochistan': 'Balochistan High Court',
         'Islamabad': 'Islamabad High Court',
         'AJK': 'Azad Jammu and Kashmir High Court',
