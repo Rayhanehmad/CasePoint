@@ -12,7 +12,7 @@ from services.citation_extractor import citation_extractor
 from services.bulk_processor import bulk_processor
 from services.citation_parser import citation_parser
 from services.batch_summarizer import batch_summarizer
-from services.utils import extract_journal_from_citation
+from services.utils import extract_journal_from_citation, extract_court_from_citation
 from routes.auth_routes import admin_required
 import os
 import logging
@@ -66,11 +66,18 @@ def upload_citation():
         try:
             # Extract form data
             citation_text = request.form.get('citation')
+            full_text = request.form.get('full_text')
+            
+            # Auto-extract court if not provided
+            court_value = request.form.get('court')
+            if not court_value:
+                court_value = extract_court_from_citation(citation_text, full_text)
+            
             citation_data = {
                 'document_type': request.form.get('document_type', 'case'),
                 'title': request.form.get('title'),
                 'citation': citation_text,
-                'court': request.form.get('court'),
+                'court': court_value,
                 'jurisdiction': request.form.get('jurisdiction'),
                 'date_decided': datetime.strptime(request.form.get('date_decided'), '%Y-%m-%d').date() if request.form.get('date_decided') else None,
                 'year': int(request.form.get('year')) if request.form.get('year') else None,
@@ -79,7 +86,7 @@ def upload_citation():
                 'case_type': request.form.get('case_type'),
                 'judges': request.form.get('judges'),
                 'summary': request.form.get('summary'),
-                'full_text': request.form.get('full_text'),
+                'full_text': full_text,
                 'headnotes': request.form.get('headnotes'),
                 'keywords': request.form.get('keywords'),
                 'citations_referred': request.form.get('citations_referred'),
