@@ -45,9 +45,13 @@
                                 <!-- Citation Badge -->
                                 <span class="badge bg-primary result-citation-badge">{{ result.citation }}</span>
                                 
-                                <!-- Summary Text (flexible width) -->
-                                <div class="flex-grow-1 text-truncate">
-                                    <span class="text-muted">{{ result.summary if result.summary else 'No summary available...' }}</span>
+                                <!-- Court Name (flexible width) -->
+                                <div class="flex-grow-1">
+                                    {% if result.court %}
+                                        <span class="text-muted court-name">{{ result.court }}</span>
+                                    {% else %}
+                                        <span class="text-muted fst-italic">Court information not available</span>
+                                    {% endif %}
                                 </div>
                                 
                                 <!-- View Full Text Button -->
