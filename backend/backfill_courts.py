@@ -10,32 +10,18 @@ import sys
 backend_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, backend_path)
 
-# Now import Flask and models
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
-
-class Base(DeclarativeBase):
-    pass
-
-db = SQLAlchemy(model_class=Base)
-
-# Create the app
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_recycle": 300,
-    "pool_pre_ping": True,
-}
-db.init_app(app)
-
-# Import models after app initialization
+# Import from existing app
+from app import create_app
+from models import db
 from models.case import LegalCitation
 from services.utils import extract_court_from_citation
 import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Create app instance
+app = create_app(os.getenv('FLASK_ENV', 'default'))
 
 
 def backfill_courts():
