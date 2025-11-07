@@ -84,6 +84,10 @@ def create_app(config_name='default'):
     from routes.api_routes import api_bp
     app.register_blueprint(api_bp, url_prefix='/api')
     
+    # Register multi-PDF upload route
+    from routes.upload_multi_pdf import upload_multi_pdf_bp
+    app.register_blueprint(upload_multi_pdf_bp)
+    
     # Main routes
     @app.route('/')
     def home():
