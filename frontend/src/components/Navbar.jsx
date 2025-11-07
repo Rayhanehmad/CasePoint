@@ -8,7 +8,8 @@ import {
   Settings, 
   LogOut, 
   Scale,
-  KeyRound
+  KeyRound,
+  Brain
 } from 'lucide-react'
 
 const Navbar = () => {
@@ -19,6 +20,7 @@ const Navbar = () => {
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
     { name: 'Search', href: '/search', icon: Search },
     { name: 'Keyword Search', href: '/keyword-search', icon: KeyRound },
+    { name: 'Case Analyzer', href: '/case-analyzer', icon: Brain },
     { name: 'Documents', href: '/documents', icon: FileText },
     { name: 'Subscription', href: '/subscription', icon: Settings },
   ]
