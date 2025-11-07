@@ -102,7 +102,7 @@ def upload_multi_pdf():
         
         file = request.files['file']
         
-        if file.filename == '':
+        if not file.filename or file.filename == '':
             return jsonify({
                 'success': False,
                 'error': 'Empty filename'
