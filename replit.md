@@ -49,6 +49,11 @@ Preferred communication style: Simple, everyday language.
 - **Journal Auto-Extraction**: Automatic extraction and indexing of legal journals (PLD, MLD, SCMR, YLR, CLC, CLD, PCrLJ, PTD, PLC) from citation text
 - **Related Cases**: Find similar cases by legal area
 - **AI Analysis**: OpenAI-powered legal question answering (via /ai routes)
+- **AI Case Analyzer**: Comprehensive case analysis tool with three integrated features:
+  - `/api/auto_counter_arguments` - GPT-4 powered counter arguments generation from prosecution narratives
+  - `/api/analyze_case` - Automatic citation and statute detection with database matching
+  - `/api/which_laws_apply` - Smart detection of applicable laws/sections using regex patterns
+  - React frontend at `/case-analyzer` with 3-column results layout and modal-based law display
 - **Usage Analytics**: Built-in tracking for share counts, embed views, and last activity timestamps
 - **Services Available**: Vector search (ChromaDB) and classification services implemented but not yet integrated into main API
 
