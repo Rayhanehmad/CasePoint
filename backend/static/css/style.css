@@ -534,3 +534,69 @@ body {
 .bg-pattern {
     background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230066CC' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
+
+/* Keyword Search Highlighting */
+.keyword-highlight {
+    background-color: #ffeb3b;
+    color: #d32f2f;
+    font-weight: 700;
+    padding: 2px 4px;
+    border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(211, 47, 47, 0.2);
+}
+
+.search-result-preview {
+    line-height: 1.8;
+    color: var(--text-primary);
+    margin-top: 0.5rem;
+}
+
+.keyword-search-container {
+    margin-bottom: 2rem;
+}
+
+.keyword-search-input {
+    border: 2px solid var(--border-color);
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    transition: border-color 0.3s ease;
+}
+
+.keyword-search-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+}
+
+.keyword-results-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.keyword-result-item {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.keyword-result-item:hover {
+    box-shadow: 0 5px 15px rgba(6, 182, 212, 0.15);
+    border-color: var(--accent-color);
+}
+
+.keyword-result-citation {
+    color: var(--secondary-color);
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.keyword-result-meta {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+}
