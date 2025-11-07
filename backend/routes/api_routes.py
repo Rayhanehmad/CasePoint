@@ -485,9 +485,11 @@ def auto_counter_arguments():
         if not api_key:
             return jsonify({'success': False, 'error': 'OpenAI API key not configured'}), 500
         
-        # Generate counter arguments using OpenAI
-        client = openai.OpenAI(api_key=api_key)
-        response = client.chat.completions.create(
+        # Set API key for openai module (v0.28.x syntax)
+        openai.api_key = api_key
+        
+        # Generate counter arguments using OpenAI (v0.28.x syntax)
+        response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are an expert Pakistani legal defense attorney. Analyze the prosecution narrative and generate strong counter-arguments from a defense perspective. Be specific, cite legal principles, and suggest defenses under Pakistani law."},
@@ -497,7 +499,7 @@ def auto_counter_arguments():
             max_tokens=1500
         )
         
-        counter_arguments = response.choices[0].message.content
+        counter_arguments = response['choices'][0]['message']['content']
         
         return jsonify({
             'success': True,
