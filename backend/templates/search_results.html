@@ -48,7 +48,7 @@
                                 <!-- Court Name (flexible width) -->
                                 <div class="flex-grow-1">
                                     {% if result.party_line %}
-                                        <div style="font-size: 0.9rem; color: #1F2937; font-weight: 500; margin-bottom: 0.25rem;">{{ result.party_line }}</div>
+                                        <div class="party-line-text">{{ result.party_line }}</div>
                                     {% endif %}
                                     {% if result.court %}
                                         <span class="text-muted court-name">{{ result.court }}</span>
@@ -133,11 +133,79 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .result-citation-badge {
-    font-size: 0.85rem;
-    padding: 0.4rem 0.8rem;
+    font-size: 0.7rem;
+    padding: 0.3rem 0.5rem;
     white-space: nowrap;
-    min-width: 120px;
+    min-width: 90px;
     text-align: center;
+}
+
+.result-card-compact .court-name {
+    font-size: 0.75rem;
+}
+
+.result-card-compact .btn-sm {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.party-line-text {
+    font-size: 0.75rem;
+    color: #1F2937;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    line-height: 1.3;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+    .result-card-compact {
+        font-size: 0.85rem;
+    }
+    
+    .result-citation-badge {
+        font-size: 0.65rem;
+        padding: 0.25rem 0.4rem;
+        min-width: 70px;
+    }
+    
+    .result-card-compact .court-name {
+        font-size: 0.7rem;
+    }
+    
+    .result-card-compact .btn-sm {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.4rem;
+    }
+    
+    .party-line-text {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .result-citation-badge {
+        font-size: 0.6rem;
+        padding: 0.2rem 0.3rem;
+        min-width: 60px;
+    }
+    
+    .result-card-compact .btn-sm {
+        font-size: 0.6rem;
+        padding: 0.15rem 0.3rem;
+    }
+    
+    .result-card-compact .btn-sm i {
+        display: none;
+    }
+    
+    .party-line-text {
+        font-size: 0.65rem;
+    }
+    
+    .result-card-compact .court-name {
+        font-size: 0.65rem;
+    }
 }
 
 </style>
