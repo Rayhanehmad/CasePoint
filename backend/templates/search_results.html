@@ -47,6 +47,9 @@
                                 
                                 <!-- Court Name (flexible width) -->
                                 <div class="flex-grow-1">
+                                    {% if result.party_line %}
+                                        <div style="font-size: 0.9rem; color: #1F2937; font-weight: 500; margin-bottom: 0.25rem;">{{ result.party_line }}</div>
+                                    {% endif %}
                                     {% if result.court %}
                                         <span class="text-muted court-name">{{ result.court }}</span>
                                     {% else %}
