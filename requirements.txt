@@ -62,3 +62,7 @@ python-docx
 fitz
 pillow
 qrcode
+pdf2image
+pdfplumber
+pikepdf
+pytesseract
