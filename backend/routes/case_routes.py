@@ -50,6 +50,7 @@ def get_filter_options():
 @case_bp.route('/search')
 def search_cases():
     """Search cases page"""
+    from services.utils_extract_parties import extract_parties
     query = request.args.get('q', '')
     year = request.args.get('year', '')
     court = request.args.get('court', '')
@@ -90,6 +91,10 @@ def search_cases():
         cases_query = cases_query.filter_by(journal=journal.upper())
     
     results = cases_query.order_by(LegalCitation.year.desc()).all()
+    
+    # Extract party names for each result
+    for result in results:
+        result.party_line = extract_parties(result.full_text, result.journal)
     
     breadcrumbs = [{'text': 'Cases', 'url': url_for('cases.search_cases')}]
     return render_template('search_results.html', 
