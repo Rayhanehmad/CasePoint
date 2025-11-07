@@ -1,0 +1,56 @@
+Add an “AI Summary” feature to CasePoint citation viewer.
+
+GOALS:
+1. When a user opens a citation detail page (e.g., PLD 2025 1), the page should show:
+   - Citation title
+   - Parties
+   - Court
+   - Full text of the citation
+   - NEW: AI Summary section at the bottom
+
+2. Add a button:
+   “Generate AI Summary”
+   - When clicked, send citation full_text to backend API
+   - API returns AI-generated summary
+   - Display summary below full text
+   - Save summary in database (LegalCitation.ai_summary) for future use
+   - If summary already exists, show it without calling AI again
+
+3. Backend Changes (Flask):
+   - Create new API endpoint: /api/generate_summary/<citation_id>
+   - Load citation from LegalCitation table
+   - Pass citation.full_text to LLM with a legal-style summarization prompt
+   - Save returned summary to citation.ai_summary field
+   - Return JSON {summary: “…text…”}
+
+   Prompt example:
+   “You are a senior Pakistani legal expert. Summarize this citation focusing on facts, legal question, judicial reasoning, and conclusion. Summary must be concise, accurate, and in simple language.”
+
+4. Database Model Changes:
+   - Ensure LegalCitation model has field:
+       ai_summary = db.Column(db.Text)
+
+5. Frontend (React):
+   - Update CitationDetail.jsx (or equivalent)
+   - Add a section below the full citation text:
+       <h2>AI Summary</h2>
+       If ai_summary exists → display it
+       If not → show button “Generate AI Summary”
+   - When user clicks button:
+       - Call POST /api/generate_summary/:id
+       - Show loader while generating
+       - Display summary result in page
+       - Do not require page refresh
+
+6. UI Requirements:
+   - AI Summary box must be styled with CasePoint theme (Tailwind)
+   - Add slight shadow + border + rounded
+   - Summary text must be easy to read
+   - Place summary AFTER the full citation text
+
+7. Performance:
+   - Summaries must be cached in DB
+   - Do not regenerate summary every time unless user clicks “Regenerate Summary”
+   - Optional small button: “Regenerate Summary”
+
+Implement all changes cleanly across backend + frontend.
