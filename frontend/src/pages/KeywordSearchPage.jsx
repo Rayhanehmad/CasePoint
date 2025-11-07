@@ -111,6 +111,13 @@ const KeywordSearchPage = () => {
                     {item.citation}
                   </h2>
                   
+                  {/* Party Names */}
+                  {item.party_line && (
+                    <p className="text-sm text-gray-800 font-medium mt-1">
+                      {item.party_line}
+                    </p>
+                  )}
+                  
                   {/* Court and Journal Info */}
                   <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-600">
                     {item.court && (
