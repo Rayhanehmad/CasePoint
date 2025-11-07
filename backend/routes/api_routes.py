@@ -10,44 +10,12 @@ from models import db
 from models.user import User
 from models.case import LegalCitation
 from routes.auth_routes import login_required
+from services.utils_extract_parties import highlight_keywords, extract_preview_paragraph, extract_parties
 import os
 import logging
 import re
 
 api_bp = Blueprint('api', __name__)
-
-
-# ==================== KEYWORD SEARCH HELPERS ====================
-
-def highlight_keywords(text, keywords):
-    """Highlight keywords in red + bold."""
-    if not text:
-        return ""
-
-    for kw in keywords:
-        pattern = re.compile(re.escape(kw), re.IGNORECASE)
-        text = pattern.sub(
-            lambda m: f'<span class="keyword-highlight">{m.group(0)}</span>',
-            text
-        )
-    return text
-
-
-def extract_preview_paragraph(full_text):
-    """Skip top 6 lines and return next preview paragraph."""
-    if not full_text:
-        return ""
-
-    lines = [line.strip() for line in full_text.split("\n")]
-    lines = [line for line in lines if line]   # remove empty lines
-
-    if len(lines) <= 6:
-        return " ".join(lines)
-
-    trimmed = lines[6:]  # skip first 6 lines
-
-    paragraph = " ".join(trimmed[:5])  # next 3–5 lines as preview
-    return paragraph
 
 
 # ==================== SEARCH API ====================
@@ -145,9 +113,9 @@ def api_search():
 @api_bp.route('/search/keyword', methods=['GET'])
 def search_keyword():
     """
-    Full keyword search in citation, summary, and full_text with highlighting.
+    Full keyword search in citation, summary, and full_text with highlighting and party extraction.
     GET /api/search/keyword?q=keywords
-    Returns results with highlighted keywords and preview paragraphs.
+    Returns results with highlighted keywords, preview paragraphs, and party names.
     """
     q = request.args.get("q", "").strip()
     if not q:
@@ -158,7 +126,6 @@ def search_keyword():
     # Build keyword filter for multiple fields
     keyword_filter = or_(
         LegalCitation.full_text.ilike(f"%{q}%"),
-        LegalCitation.full_text.ilike(f"%{keywords[0]}%"),
         LegalCitation.summary.ilike(f"%{keywords[0]}%"),
         LegalCitation.citation.ilike(f"%{keywords[0]}%"),
     )
@@ -170,12 +137,15 @@ def search_keyword():
         preview = extract_preview_paragraph(r.full_text)
         preview = highlight_keywords(preview, keywords)
 
+        party_line = extract_parties(r.full_text, r.journal)
+
         output.append({
             "id": r.id,
             "citation": r.citation,
             "court": r.court,
             "journal": r.journal,
             "year": r.year,
+            "party_line": party_line,
             "summary_preview": preview
         })
 
