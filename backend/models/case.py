@@ -45,6 +45,7 @@ class LegalCitation(db.Model):
     file_path = db.Column(db.String(500))
     file_type = db.Column(db.String(20))
     ocr_confidence = db.Column(db.Float)
+    pdf_path = db.Column(db.String(500), nullable=True)  # Path to individual citation PDF (for multi-PDF splits)
     
     # Metadata
     uploaded_by = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -81,6 +82,7 @@ class LegalCitation(db.Model):
             'summary': self.summary,
             'full_text': self.full_text,
             'keywords': self.keywords,
+            'pdf_path': self.pdf_path,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
