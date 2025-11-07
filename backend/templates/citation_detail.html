@@ -19,14 +19,43 @@
 
 <div class="container-fluid py-4">
     <div class="row no-print">
-        <div class="col-12 mb-3">
+        <div class="col-12 mb-3 d-flex justify-content-between align-items-center">
             <button onclick="window.history.back()" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i>Back to Citations
             </button>
+            
+            {% if citation.pdf_path %}
+            <div class="btn-group" role="group" aria-label="View toggle">
+                <button type="button" class="btn btn-primary btn-sm" id="pdf-view-btn" onclick="toggleView('pdf')">
+                    <i class="fas fa-file-pdf me-1"></i>PDF View
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-sm" id="text-view-btn" onclick="toggleView('text')">
+                    <i class="fas fa-file-alt me-1"></i>Text View
+                </button>
+            </div>
+            {% endif %}
         </div>
     </div>
     
-    <div class="row flex-column-reverse flex-lg-row">
+    {% if citation.pdf_path %}
+    <!-- PDF Viewer Section -->
+    <div class="row no-print mb-4" id="pdf-viewer-section">
+        <div class="col-12">
+            <div class="card shadow-custom">
+                <div class="card-body p-0">
+                    <iframe 
+                        src="/{{ citation.pdf_path }}" 
+                        class="w-100 rounded-xl border" 
+                        style="height: 85vh; min-height: 600px;"
+                        type="application/pdf"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="row flex-column-reverse flex-lg-row" id="text-content-section">
         <div class="col-lg-6" id="citation-details">
             <div class="card shadow-custom mb-4">
                 <!-- Citation Reference - For Print Only -->
@@ -307,6 +336,34 @@ async function trackShare() {
         console.error('Failed to track share:', error);
     }
 }
+
+{% if citation.pdf_path %}
+// Toggle between PDF view and Text view
+function toggleView(view) {
+    const pdfSection = document.getElementById('pdf-viewer-section');
+    const textSection = document.getElementById('text-content-section');
+    const pdfBtn = document.getElementById('pdf-view-btn');
+    const textBtn = document.getElementById('text-view-btn');
+    
+    if (view === 'pdf') {
+        // Show PDF, hide text
+        pdfSection.style.display = '';
+        textSection.style.display = 'none';
+        pdfBtn.classList.remove('btn-outline-primary');
+        pdfBtn.classList.add('btn-primary');
+        textBtn.classList.remove('btn-primary');
+        textBtn.classList.add('btn-outline-primary');
+    } else {
+        // Show text, hide PDF
+        pdfSection.style.display = 'none';
+        textSection.style.display = '';
+        textBtn.classList.remove('btn-outline-primary');
+        textBtn.classList.add('btn-primary');
+        pdfBtn.classList.remove('btn-primary');
+        pdfBtn.classList.add('btn-outline-primary');
+    }
+}
+{% endif %}
 
 // Add invisible watermarks to full text and format first 6 lines
 {% if citation.full_text %}

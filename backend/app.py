@@ -156,6 +156,17 @@ def create_app(config_name='default'):
                              category=category,
                              breadcrumbs=breadcrumbs)
     
+    @app.route('/upload/multi-pdf')
+    def upload_multi_pdf_page():
+        """Multi-PDF citation upload page (admin only)"""
+        # Check if user is admin
+        if session.get('role') != 'admin':
+            from flask import flash, redirect, url_for
+            flash('You must be an admin to access this page.', 'danger')
+            return redirect(url_for('home'))
+        
+        return render_template('upload_multi_pdf.html')
+    
     @app.route('/health')
     def health_check():
         """Health check endpoint"""
