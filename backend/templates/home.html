@@ -805,6 +805,95 @@
 document.addEventListener('DOMContentLoaded', function() {
     // CasePoint Homepage - Case Analyzer Hero Card
     console.log('CasePoint homepage loaded - featuring AI Case Analyzer');
+    
+    // Keyword Search Functionality
+    const keywordSearchBtn = document.getElementById('keyword-search-btn');
+    const keywordSearchInput = document.getElementById('keyword-search-input');
+    const keywordLoading = document.getElementById('keyword-loading');
+    const keywordResultsCount = document.getElementById('keyword-results-count');
+    const keywordResultsContainer = document.getElementById('keyword-results-container');
+
+    function performKeywordSearch() {
+        const query = keywordSearchInput.value.trim();
+        
+        if (!query) {
+            alert('Please enter keywords to search');
+            return;
+        }
+
+        // Show loading, hide results
+        keywordLoading.style.display = 'block';
+        keywordResultsCount.style.display = 'none';
+        keywordResultsContainer.innerHTML = '';
+
+        // Make API request
+        fetch(`/api/search/keyword?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading
+                keywordLoading.style.display = 'none';
+
+                // Show results count
+                keywordResultsCount.style.display = 'block';
+                keywordResultsCount.innerHTML = `<i class="fas fa-check-circle me-2"></i>Found ${data.total} result${data.total !== 1 ? 's' : ''}`;
+
+                // Display results
+                if (data.results && data.results.length > 0) {
+                    const resultsHTML = data.results.map(result => `
+                        <div class="keyword-result-item">
+                            <div class="keyword-result-citation">
+                                <i class="fas fa-gavel me-2"></i>${result.citation}
+                            </div>
+                            ${result.party_line ? `<div style="font-size: 0.9rem; color: #1F2937; font-weight: 500; margin-top: 0.5rem;">${result.party_line}</div>` : ''}
+                            <div class="keyword-result-meta">
+                                ${result.court ? `<i class="fas fa-landmark me-1"></i>${result.court}` : ''}
+                                ${result.journal ? `<span class="ms-2"><i class="fas fa-book me-1"></i>${result.journal}</span>` : ''}
+                                ${result.year ? `<span class="ms-2"><i class="fas fa-calendar me-1"></i>${result.year}</span>` : ''}
+                            </div>
+                            <div class="search-result-preview">
+                                ${result.summary_preview}
+                            </div>
+                            <a href="/cases/${result.id}" class="btn btn-sm btn-outline-primary mt-2">
+                                <i class="fas fa-file-alt me-1"></i>View Full Citation
+                            </a>
+                        </div>
+                    `).join('');
+                    
+                    keywordResultsContainer.innerHTML = resultsHTML;
+                } else {
+                    keywordResultsContainer.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #5A6C7D;">
+                            <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                            <p>No results found for "${query}"</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Keyword search error:', error);
+                keywordLoading.style.display = 'none';
+                keywordResultsContainer.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #EF4444;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <p>Error performing search. Please try again.</p>
+                    </div>
+                `;
+            });
+    }
+
+    // Add click handler for search button
+    if (keywordSearchBtn) {
+        keywordSearchBtn.addEventListener('click', performKeywordSearch);
+    }
+
+    // Add Enter key handler for search input
+    if (keywordSearchInput) {
+        keywordSearchInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                performKeywordSearch();
+            }
+        });
+    }
 });
 </script>
 {% endblock %}
