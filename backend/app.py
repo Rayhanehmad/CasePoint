@@ -113,6 +113,7 @@ def create_app(config_name='default'):
     def search():
         """General search results page"""
         from flask import request
+        from services.utils_extract_parties import extract_parties
         query = request.args.get('q', '')
         category = request.args.get('category', 'all')
         
@@ -139,6 +140,10 @@ def create_app(config_name='default'):
                     (LegalCitation.keywords.ilike(f'%{query}%'))
                 ).all()
                 results.extend(acts)
+        
+        # Extract party names for each result
+        for result in results:
+            result.party_line = extract_parties(result.full_text, result.journal)
         
         breadcrumbs = [{'text': 'Search Results', 'url': url_for('search')}]
         return render_template('search_results.html', 
