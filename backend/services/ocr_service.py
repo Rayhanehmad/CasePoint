@@ -190,28 +190,62 @@ class OCRService:
             return None, None
     
     def _extract_from_docx(self, file_path: str) -> Tuple[Optional[str], Optional[float]]:
-        """Extract text from DOCX file"""
+        """
+        Extract ALL text from DOCX file including:
+        - Normal paragraphs
+        - Table cells (all rows / columns)
+        - Headers and footers
+        - Multi-column section text
+        """
         
         try:
             from docx import Document
             
             doc = Document(file_path)
-            text_content = []
-            
-            # Extract text from paragraphs
-            for paragraph in doc.paragraphs:
-                if paragraph.text.strip():
-                    text_content.append(paragraph.text)
-            
-            # Extract text from tables
+            output = []
+
+            # 1. Extract normal paragraphs
+            for para in doc.paragraphs:
+                text = para.text.strip()
+                if text:
+                    output.append(text)
+
+            # 2. Extract text from tables (ALL columns + rows)
             for table in doc.tables:
                 for row in table.rows:
+                    row_text = []
                     for cell in row.cells:
-                        if cell.text.strip():
-                            text_content.append(cell.text)
-            
-            if text_content:
-                combined_text = '\n'.join(text_content)
+                        cell_text = cell.text.strip()
+                        if cell_text:
+                            row_text.append(cell_text)
+                    if row_text:
+                        # Join the row's text with a separator
+                        output.append(" | ".join(row_text))
+
+            # 3. Extract headers and footers from sections
+            for section in doc.sections:
+                if hasattr(section, "header") and section.header:
+                    for paragraph in section.header.paragraphs:
+                        header_text = paragraph.text.strip()
+                        if header_text:
+                            output.append(header_text)
+
+                if hasattr(section, "footer") and section.footer:
+                    for paragraph in section.footer.paragraphs:
+                        footer_text = paragraph.text.strip()
+                        if footer_text:
+                            output.append(footer_text)
+
+            # Remove duplicates but keep order
+            clean_output = []
+            seen = set()
+            for line in output:
+                if line not in seen:
+                    clean_output.append(line)
+                    seen.add(line)
+
+            if clean_output:
+                combined_text = "\n".join(clean_output)
                 return combined_text, 100.0  # DOCX extraction has 100% confidence
             
             return None, None
