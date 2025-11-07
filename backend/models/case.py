@@ -37,6 +37,10 @@ class LegalCitation(db.Model):
     headnotes = db.Column(db.Text)
     keywords = db.Column(db.Text)  # Comma-separated keywords
     
+    # AI-Generated Content
+    ai_summary = db.Column(db.Text)
+    ai_headnotes = db.Column(db.Text)
+    
     # References
     citations_referred = db.Column(db.Text)  # Citations mentioned in judgment
     statutes_referred = db.Column(db.Text)  # Statutes/Acts mentioned
@@ -81,6 +85,9 @@ class LegalCitation(db.Model):
             'judges': self.judges,
             'summary': self.summary,
             'full_text': self.full_text,
+            'headnotes': self.headnotes,
+            'ai_summary': self.ai_summary,
+            'ai_headnotes': self.ai_headnotes,
             'keywords': self.keywords,
             'pdf_path': self.pdf_path,
             'created_at': self.created_at.isoformat() if self.created_at else None,
