@@ -598,6 +598,43 @@
         </form>
     </div>
 
+    <!-- Keyword Search Section -->
+    <div class="keyword-search-container" style="max-width: 800px; margin: 0 auto 2.5rem; padding: 0 1.5rem;">
+        <div style="background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(147, 197, 253, 0.3); border-radius: 1.5rem; padding: 1.5rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                <i class="fas fa-search" style="color: #3B82F6; font-size: 1.5rem;"></i>
+                <h2 style="font-size: 1.5rem; font-weight: 700; color: #1E3A5F; margin: 0;">Keyword Search</h2>
+            </div>
+            <p style="color: #5A6C7D; margin-bottom: 1.5rem;">Search across case citations, summaries, and full text with highlighted results</p>
+            
+            <div class="modern-search-form" style="margin-bottom: 1rem;">
+                <i class="fas fa-keyboard" style="color: #9CA3AF;"></i>
+                <input 
+                    type="text" 
+                    id="keyword-search-input" 
+                    class="modern-search-input" 
+                    placeholder="Enter keywords to search (e.g., contract breach, criminal liability)"
+                />
+                <button type="button" id="keyword-search-btn" class="modern-search-button">
+                    <i class="fas fa-search"></i>
+                    Search
+                </button>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="keyword-loading" style="display: none; text-align: center; padding: 1rem; color: #3B82F6;">
+                <i class="fas fa-circle-notch fa-spin"></i>
+                <span style="margin-left: 0.5rem;">Searching...</span>
+            </div>
+
+            <!-- Results Count -->
+            <div id="keyword-results-count" style="display: none; margin-bottom: 1rem; padding: 0.75rem; background: rgba(59, 130, 246, 0.1); border-radius: 0.5rem; color: #1E3A5F; font-weight: 600;"></div>
+
+            <!-- Results Container -->
+            <div id="keyword-results-container" style="margin-top: 1.5rem;"></div>
+        </div>
+    </div>
+
     <!-- Citation Explorer -->
     <div class="citation-explorer">
         <h3 class="explorer-title">Citation Explorer</h3>
@@ -918,6 +955,90 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.filter-dropdown-menu').forEach(dropdown => {
                 dropdown.classList.remove('show');
             });
+        }
+    });
+
+    // Keyword Search Functionality
+    const keywordSearchBtn = document.getElementById('keyword-search-btn');
+    const keywordSearchInput = document.getElementById('keyword-search-input');
+    const keywordLoading = document.getElementById('keyword-loading');
+    const keywordResultsCount = document.getElementById('keyword-results-count');
+    const keywordResultsContainer = document.getElementById('keyword-results-container');
+
+    function performKeywordSearch() {
+        const query = keywordSearchInput.value.trim();
+        
+        if (!query) {
+            alert('Please enter keywords to search');
+            return;
+        }
+
+        // Show loading, hide results
+        keywordLoading.style.display = 'block';
+        keywordResultsCount.style.display = 'none';
+        keywordResultsContainer.innerHTML = '';
+
+        // Make API request
+        fetch(`/api/search/keyword?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading
+                keywordLoading.style.display = 'none';
+
+                // Show results count
+                keywordResultsCount.style.display = 'block';
+                keywordResultsCount.innerHTML = `<i class="fas fa-check-circle me-2"></i>Found ${data.total} result${data.total !== 1 ? 's' : ''}`;
+
+                // Display results
+                if (data.results && data.results.length > 0) {
+                    const resultsHTML = data.results.map(result => `
+                        <div class="keyword-result-item">
+                            <div class="keyword-result-citation">
+                                <i class="fas fa-gavel me-2"></i>${result.citation}
+                            </div>
+                            <div class="keyword-result-meta">
+                                ${result.court ? `<i class="fas fa-landmark me-1"></i>${result.court}` : ''}
+                                ${result.journal ? `<span class="ms-2"><i class="fas fa-book me-1"></i>${result.journal}</span>` : ''}
+                                ${result.year ? `<span class="ms-2"><i class="fas fa-calendar me-1"></i>${result.year}</span>` : ''}
+                            </div>
+                            <div class="search-result-preview">
+                                ${result.summary_preview}
+                            </div>
+                            <a href="/cases/${result.id}" class="btn btn-sm btn-outline-primary mt-2">
+                                <i class="fas fa-file-alt me-1"></i>View Full Citation
+                            </a>
+                        </div>
+                    `).join('');
+                    
+                    keywordResultsContainer.innerHTML = resultsHTML;
+                } else {
+                    keywordResultsContainer.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #5A6C7D;">
+                            <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                            <p>No results found for "${query}"</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Keyword search error:', error);
+                keywordLoading.style.display = 'none';
+                keywordResultsContainer.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #EF4444;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <p>Error performing search. Please try again.</p>
+                    </div>
+                `;
+            });
+    }
+
+    // Add click handler for search button
+    keywordSearchBtn.addEventListener('click', performKeywordSearch);
+
+    // Add Enter key handler for search input
+    keywordSearchInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            performKeywordSearch();
         }
     });
 });
