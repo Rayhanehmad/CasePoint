@@ -60,9 +60,161 @@
 }
 
 .search-section {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto 2.5rem;
     padding: 0 1.5rem;
+}
+
+.case-analyzer-hero {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(147, 197, 253, 0.3);
+    padding: 2.5rem;
+    text-align: center;
+}
+
+.case-analyzer-icons {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.hero-icon {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.hero-icon-brain {
+    background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+    color: #2563EB;
+}
+
+.hero-icon-balance {
+    background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
+    color: #7C3AED;
+}
+
+.case-analyzer-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #1D4ED8;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.case-analyzer-subtitle {
+    font-size: 1rem;
+    color: #6B7280;
+    line-height: 1.6;
+    max-width: 700px;
+    margin: 0 auto 2rem;
+}
+
+.case-analyzer-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.cta-button {
+    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button-primary {
+    background: linear-gradient(135deg, #2563EB, #3B82F6);
+    color: white;
+}
+
+.cta-button-primary:hover {
+    background: linear-gradient(135deg, #1D4ED8, #2563EB);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+    color: white;
+}
+
+.cta-button-secondary {
+    background: linear-gradient(135deg, #7C3AED, #8B5CF6);
+    color: white;
+}
+
+.cta-button-secondary:hover {
+    background: linear-gradient(135deg, #6D28D9, #7C3AED);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+    color: white;
+}
+
+.case-analyzer-features {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.feature-badge {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #E5E7EB;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #374151;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.feature-badge i {
+    color: #3B82F6;
+}
+
+@media (max-width: 768px) {
+    .case-analyzer-hero {
+        padding: 2rem 1.5rem;
+    }
+    
+    .case-analyzer-title {
+        font-size: 1.5rem;
+    }
+    
+    .case-analyzer-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .case-analyzer-actions {
+        flex-direction: column;
+    }
+    
+    .cta-button {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .hero-icon {
+        width: 3rem;
+        height: 3rem;
+        font-size: 1.5rem;
+    }
 }
 
 .modern-search-form {
@@ -479,94 +631,50 @@
         </a>
     </div>
 
-    <!-- Main Search Bar -->
+    <!-- Case Analyzer Hero Card -->
     <div class="search-section">
-        <form action="{{ url_for('search') }}" method="GET" class="modern-search-form" id="main-search-form">
-            <input
-                type="text"
-                name="q"
-                id="search-input"
-                class="modern-search-input"
-                placeholder="Search by citation, title, or keyword..."
-            />
-            <input type="hidden" name="court" id="court-filter-value" />
-            <input type="hidden" name="journal" id="journal-filter-value" />
-            <input type="hidden" name="year" id="year-filter-value" />
-            <button type="submit" class="modern-search-button">
-                <i class="fas fa-search"></i>
-                <span>Search</span>
-            </button>
-        </form>
-        
-        <!-- Filter Buttons -->
-        <div class="filter-buttons">
-            <div class="filter-dropdown">
-                <button type="button" class="filter-button" id="court-filter-btn">
-                    <i class="fas fa-landmark me-1"></i>
-                    <span id="court-filter-text">Court</span>
-                    <i class="fas fa-chevron-down ms-1"></i>
-                </button>
-                <div class="filter-dropdown-menu" id="court-dropdown">
-                    <div class="filter-search-box">
-                        <input type="text" placeholder="Search courts..." class="filter-search-input" id="court-search">
-                    </div>
-                    <div class="filter-options" id="court-options">
-                        <div class="text-center py-3 text-muted">
-                            <i class="fas fa-spinner fa-spin"></i> Loading...
-                        </div>
-                    </div>
+        <div class="case-analyzer-hero">
+            <div class="case-analyzer-icons">
+                <div class="hero-icon hero-icon-brain">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div class="hero-icon hero-icon-balance">
+                    <i class="fas fa-balance-scale"></i>
                 </div>
             </div>
             
-            <div class="filter-dropdown">
-                <button type="button" class="filter-button" id="journal-filter-btn">
-                    <i class="fas fa-book me-1"></i>
-                    <span id="journal-filter-text">Journal</span>
-                    <i class="fas fa-chevron-down ms-1"></i>
-                </button>
-                <div class="filter-dropdown-menu" id="journal-dropdown">
-                    <div class="filter-options" id="journal-options">
-                        <div class="text-center py-3 text-muted">
-                            <i class="fas fa-spinner fa-spin"></i> Loading...
-                        </div>
-                    </div>
-                </div>
+            <h2 class="case-analyzer-title">Case Analyzer / Which Laws Apply</h2>
+            <p class="case-analyzer-subtitle">
+                Enter your legal narrative and instantly discover AI-powered defense arguments, 
+                related case laws, applicable statutes, and comprehensive legal analysis
+            </p>
+            
+            <div class="case-analyzer-actions">
+                <a href="{{ url_for('ai.case_analyzer') }}" class="cta-button cta-button-primary">
+                    <i class="fas fa-search me-2"></i>
+                    <span>Analyze Case</span>
+                </a>
+                <a href="{{ url_for('ai.case_analyzer') }}" class="cta-button cta-button-secondary">
+                    <i class="fas fa-balance-scale me-2"></i>
+                    <span>Which Laws Apply?</span>
+                </a>
             </div>
             
-            <div class="filter-dropdown">
-                <button type="button" class="filter-button" id="year-filter-btn">
-                    <i class="fas fa-calendar me-1"></i>
-                    <span id="year-filter-text">Year</span>
-                    <i class="fas fa-chevron-down ms-1"></i>
-                </button>
-                <div class="filter-dropdown-menu" id="year-dropdown">
-                    <div class="filter-search-box">
-                        <input type="text" placeholder="Search years..." class="filter-search-input" id="year-search">
-                    </div>
-                    <div class="filter-options" id="year-options">
-                        <div class="text-center py-3 text-muted">
-                            <i class="fas fa-spinner fa-spin"></i> Loading...
-                        </div>
-                    </div>
+            <div class="case-analyzer-features">
+                <div class="feature-badge">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Counter Arguments</span>
+                </div>
+                <div class="feature-badge">
+                    <i class="fas fa-gavel"></i>
+                    <span>Citation Detection</span>
+                </div>
+                <div class="feature-badge">
+                    <i class="fas fa-book"></i>
+                    <span>Statute Identification</span>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Filter Results Section -->
-    <div class="filter-results-section" id="filter-results-section">
-        <div class="results-header-home">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="mb-1" id="results-title">Filter Results</h5>
-                    <p class="text-muted mb-0" id="results-count">0 results found</p>
-                </div>
-                <button class="btn btn-sm btn-outline-danger" onclick="clearAllFilters()">
-                    <i class="fas fa-times me-1"></i>Clear Filters
-                </button>
-            </div>
-        </div>
-        <div id="results-container"></div>
     </div>
 
     <!-- AI Search Box -->
