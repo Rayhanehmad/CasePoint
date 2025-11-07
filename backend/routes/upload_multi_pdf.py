@@ -158,7 +158,7 @@ def upload_multi_pdf():
         
         # Step 2: Detect citations
         logger.info("Detecting citations...")
-        headings = detect_headings(full_text, page_texts)
+        headings = detect_headings(page_texts)
         
         # Validate headings
         is_valid, warning = validate_heading_quality(headings)
