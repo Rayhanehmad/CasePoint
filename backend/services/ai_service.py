@@ -4,10 +4,13 @@ AI Service for legal analysis using OpenAI
 
 import openai
 import os
+import logging
 from services import vector_search
 
 # Configure OpenAI with legacy API
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
+logger = logging.getLogger(__name__)
 
 
 def generate_legal_analysis(query, context="", use_semantic_search=True):
@@ -80,3 +83,123 @@ Response should be professional and accurate."""
     except Exception as e:
         print(f"Legacy OpenAI API error: {e}")
         return f"AI analysis temporarily unavailable. Error: {str(e)}"
+
+
+def generate_summary(citation_text, citation_title=""):
+    """
+    Generate AI summary for a legal citation.
+    
+    Args:
+        citation_text: Full text of the citation
+        citation_title: Optional citation title/number
+        
+    Returns:
+        str: Generated summary or None if failed
+    """
+    if not openai.api_key:
+        logger.error("OpenAI API key not configured")
+        return None
+        
+    if not citation_text or len(citation_text.strip()) < 50:
+        logger.warning("Citation text too short for summary generation")
+        return None
+    
+    # Limit text to first 8000 characters to stay within token limits
+    text_sample = citation_text[:8000]
+    
+    prompt = f"""You are a senior Pakistani legal expert. Summarize this legal citation focusing on:
+- Key facts of the case
+- Legal question(s) involved
+- Court's judicial reasoning
+- Final conclusion/decision
+
+The summary must be concise (150-200 words), accurate, and written in simple, professional language suitable for legal practitioners.
+
+Citation: {citation_title}
+
+Text:
+{text_sample}
+
+Summary:"""
+    
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are an expert Pakistani legal analyst specializing in case law summarization."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=400,
+            timeout=30
+        )
+        
+        summary = response.choices[0].message.content.strip()
+        logger.info(f"Successfully generated summary for citation: {citation_title}")
+        return summary
+        
+    except Exception as e:
+        logger.error(f"Error generating summary: {str(e)}")
+        return None
+
+
+def generate_headnotes(citation_text, citation_title=""):
+    """
+    Generate AI headnotes for a legal citation in PLD/SCMR style.
+    
+    Args:
+        citation_text: Full text of the citation
+        citation_title: Optional citation title/number
+        
+    Returns:
+        str: Generated headnotes or None if failed
+    """
+    if not openai.api_key:
+        logger.error("OpenAI API key not configured")
+        return None
+        
+    if not citation_text or len(citation_text.strip()) < 50:
+        logger.warning("Citation text too short for headnotes generation")
+        return None
+    
+    # Limit text to first 10000 characters
+    text_sample = citation_text[:10000]
+    
+    prompt = f"""You are a senior Pakistani law expert. Based on the following judgment text, generate professional headnotes similar to PLD/SCMR style.
+
+Each headnote must be precise, issue-based, and legally accurate. Include:
+• Issues involved
+• Legal questions raised
+• Statutory provisions applied
+• Court's key observations and reasoning
+• Ratio decidendi (legal principle)
+• Relief granted / Final decision
+
+Format as numbered points. Be concise but comprehensive. Use formal legal language.
+
+Citation: {citation_title}
+
+Judgment Text:
+{text_sample}
+
+Headnotes:"""
+    
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are an expert Pakistani legal analyst specializing in creating professional headnotes for case law."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=600,
+            timeout=40
+        )
+        
+        headnotes = response.choices[0].message.content.strip()
+        logger.info(f"Successfully generated headnotes for citation: {citation_title}")
+        return headnotes
+        
+    except Exception as e:
+        logger.error(f"Error generating headnotes: {str(e)}")
+        return None
