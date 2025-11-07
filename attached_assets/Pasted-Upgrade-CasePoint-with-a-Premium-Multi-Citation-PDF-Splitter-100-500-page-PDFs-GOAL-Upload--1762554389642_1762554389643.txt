@@ -1,0 +1,140 @@
+Upgrade CasePoint with a Premium Multi-Citation PDF Splitter (100–500 page PDFs).
+
+GOAL
+- Upload ONE multi-citation PDF (e.g., PLD/MLD monthly/part).
+- System must OCR if needed, extract text, auto-detect individual citations (PLD, SCMR, MLD, YLR, CLD, CLC, PCrLJ, PTD, PLC), map headings to pages, slice PDF per citation, save each as a separate LegalCitation record with:
+  citation, journal, year, court, parties, full_text, pdf_path, ai_summary (optional later), ai_headnotes (optional later).
+
+ASSUMPTIONS
+- We already have a LegalCitation model with fields:
+  citation (str), summary (Text, optional), full_text (Text), year (int), court (str), journal (str),
+  share_count (int, optional), embed_views (int, optional), ai_summary (Text, optional), ai_headnotes (Text, optional),
+  pdf_path (str, NEW).
+- Use Flask backend + React frontend. Keep styling in CasePoint theme (Tailwind).
+- PDFs can be text-based or scanned; must support both.
+
+DEPENDENCIES
+- Python: pdfplumber, pdfminer.six, pdf2image, pytesseract, Pillow, pikepdf or PyPDF2, python-docx (already), regex.
+- System: Tesseract OCR installed; for pdf2image requires poppler.
+- If Replit lacks system packages, implement a soft fallback: skip OCR with a clear message, but keep text-mode extraction.
+
+BACKEND – NEW MODULES
+1) utils/extract_text.py
+   - Universal extractor:
+     - If PDF: try pdfplumber text; if empty/very sparse, do OCR via pdf2image+pytesseract (per page).
+     - Return: full_text (string), page_texts (list[str], one per page).
+   - Normalize whitespace; remove duplicated headers/footers if repeated on every page (simple heuristic).
+
+2) utils/citation_detect.py
+   - Regex patterns (case-insensitive):
+     - PLD:    r"\\bPLD\\s+\\d{4}\\s+(?:Supreme Court|SC|Federal Shariat Court|FSC|Lahore|Karachi|Peshawar|Quetta|Islamabad|AJK)\\s+\\d+\\b"
+     - MLD:    r"\\b\\d{4}\\s+MLD\\s+\\d+\\b"
+     - YLR:    r"\\b\\d{4}\\s+YLR\\s+\\d+\\b"
+     - CLD:    r"\\b\\d{4}\\s+CLD\\s+\\d+\\b"
+     - CLC:    r"\\b\\d{4}\\s+CLC\\s+\\d+\\b"
+     - SCMR:   r"\\b\\d{4}\\s+SCMR\\s+\\d+\\b"
+     - PCrLJ:  r"\\b\\d{4}\\s+PCrLJ\\s+\\d+\\b"
+     - PTD:    r"\\b\\d{4}\\s+PTD\\s+\\d+\\b"
+     - PLC:    r"\\b\\d{4}\\s+PLC\\s+\\d+\\b"
+   - detect_headings(text: str) -> list of dicts:
+     [{ "citation": "...", "journal":"PLD|MLD|...", "year":2025, "match_start_idx":12345 }]
+   - Also map each heading to a page number:
+     - Use cumulative char counts of page_texts to find the page index containing match_start_idx.
+     - Return list with "page_index" for each heading.
+   - Sort by page_index; define ranges: current_heading_page .. next_heading_page-1.
+
+3) utils/pdf_slice.py
+   - Slice original PDF by page range into individual small PDFs (PyPDF2 or pikepdf).
+   - Save to /uploads/citations/<journal>/<year>/<safe_citation>.pdf
+   - Return saved relative path.
+
+4) utils/metadata.py
+   - extract_court_from_citation(citation, full_text_optional) with normalization:
+     - "[Lahore]" → "Lahore High Court"
+     - "Karachi" → "Sindh High Court"
+     - "Peshawar" → "Peshawar High Court"
+     - "Quetta" or "Balochistan" → "Balochistan High Court"
+     - "Islamabad" → "Islamabad High Court"
+     - "Supreme Court" or "SC" → "Supreme Court of Pakistan"
+     - "Federal Shariat Court" or "FSC" → "Federal Shariat Court"
+   - extract_parties(full_text, journal):
+     - PLD -> join lines 3,4,5
+     - MLD/CLC/CLD -> join lines 4,5,6
+     (Ignore empty lines; return one clean single line.)
+   - extract_journal_year(citation) -> (journal, year).
+
+BACKEND – NEW ROUTES
+1) POST /api/upload_multi_pdf
+   - Multipart form: file=PDF
+   - Steps:
+     a) Save original PDF to /uploads/source/
+     b) Extract text & page_texts via utils/extract_text.py
+     c) Detect headings with utils/citation_detect.py -> list with page indices
+     d) For each detected citation:
+        - Determine page_range
+        - Slice PDF for that range → child_pdf_path
+        - Build full_text for that range by joining page_texts[range]
+        - Derive (journal, year) from citation
+        - court = extract_court_from_citation(citation, full_text)
+        - parties = extract_parties(full_text, journal)
+        - Create LegalCitation row with: citation, journal, year, court, summary="", full_text, pdf_path=child_pdf_path
+     e) Return JSON: { total_detected, created_ids: [...], warnings: [...] }
+   - Add simple guardrails:
+     - Max 500 pages
+     - If no headings found: return 400 with message.
+     - If OCR fallback triggered, include "used_ocr": true.
+
+2) GET /api/upload_jobs/<job_id>  (optional simple in-memory/job-status)
+   - For long processing, return {progress: 0..100, created: N, errors: []}.
+
+FRONTEND – ADMIN / UPLOAD UI
+- Add a simple page: MultiPDFUploader.jsx
+  - Drag&drop or input type=file (accept=".pdf")
+  - On submit → POST /api/upload_multi_pdf
+  - Show progress bar / spinner
+  - Show result list: each created citation clickable (route to /citation/:id)
+  - If OCR fallback used → show a small badge "OCR used"
+
+FRONTEND – CITATION VIEWER UPDATE
+- In CitationDetail:
+  - If pdf_path exists → show an embedded PDF viewer on top:
+    <iframe src={pdf_url} className="w-full h-[85vh] rounded-xl border shadow"></iframe>
+  - Below viewer show:
+    - Parties (single line)
+    - Court (normalized)
+    - Full text (searchable plain text section)
+    - (Already implemented: Share/Embed, AI Summary, AI Headnotes)
+
+PERFORMANCE / ROBUSTNESS
+- Process 100–500 page PDFs:
+  - Stream OCR per page; free image memory promptly.
+  - If text layer present (pdfplumber returns text), skip OCR to save time.
+- Add try/except around PDF slicing; log pages that fail and continue.
+- Avoid duplicate citations:
+  - Before insert, check if citation exists (case-insensitive).
+- Filename sanitization for pdf_path.
+
+SECURITY
+- Allow only .pdf; reject others.
+- Limit size (e.g., 300MB).
+- Store under /uploads with safe names.
+
+TESTING
+- Include a dry-run flag (querystring ?dry_run=1) that detects and reports headings without creating records or slicing.
+
+DELIVERABLES
+- Create/modify files:
+  backend/
+    utils/extract_text.py
+    utils/citation_detect.py
+    utils/pdf_slice.py
+    utils/metadata.py
+    routes/upload_multi_pdf.py  (register blueprint or import in app)
+  frontend/src/components/MultiPDFUploader.jsx
+  Update CitationDetail.jsx to render iframe when pdf_path exists.
+
+EXTRA (optional but nice):
+- Add a toggle on citation view: “Original View (PDF)” | “Text View”
+- When slicing PDF, also save first page as thumbnail (for lists) using pdf2image.
+
+Implement all of the above now.
