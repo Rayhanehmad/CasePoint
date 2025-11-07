@@ -459,3 +459,201 @@ def api_track_embed(citation):
     except Exception as e:
         logging.error(f"Error tracking embed for {citation}: {e}")
         return ('', 500)
+
+
+# ==================== AI CASE ANALYZER API ====================
+
+@api_bp.route('/auto_counter_arguments', methods=['POST'])
+def auto_counter_arguments():
+    """
+    Generate AI counter arguments from narrative text
+    POST /api/auto_counter_arguments
+    Body: {"text": "narrative"}
+    """
+    import openai
+    try:
+        data = request.get_json()
+        if not data or not data.get('text'):
+            return jsonify({'success': False, 'error': 'Text is required'}), 400
+        
+        text = data.get('text', '').strip()
+        if len(text) < 10:
+            return jsonify({'success': False, 'error': 'Text too short'}), 400
+        
+        # Check OpenAI API key
+        api_key = os.getenv('OPENAI_API_KEY')
+        if not api_key:
+            return jsonify({'success': False, 'error': 'OpenAI API key not configured'}), 500
+        
+        # Generate counter arguments using OpenAI
+        client = openai.OpenAI(api_key=api_key)
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are an expert Pakistani legal defense attorney. Analyze the prosecution narrative and generate strong counter-arguments from a defense perspective. Be specific, cite legal principles, and suggest defenses under Pakistani law."},
+                {"role": "user", "content": f"Prosecution narrative:\n\n{text}\n\nProvide detailed defense counter-arguments:"}
+            ],
+            temperature=0.7,
+            max_tokens=1500
+        )
+        
+        counter_arguments = response.choices[0].message.content
+        
+        return jsonify({
+            'success': True,
+            'counter_arguments': counter_arguments
+        })
+    
+    except Exception as e:
+        logging.error(f"Error generating counter arguments: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@api_bp.route('/analyze_case', methods=['POST'])
+def analyze_case():
+    """
+    Analyze text to detect citations and statutes
+    POST /api/analyze_case
+    Body: {"text": "narrative"}
+    Returns: {citations: [], statutes: []}
+    """
+    try:
+        data = request.get_json()
+        if not data or not data.get('text'):
+            return jsonify({'success': False, 'error': 'Text is required'}), 400
+        
+        text = data.get('text', '').strip()
+        
+        # Detect citations using regex
+        citation_patterns = [
+            r'\b(PLD|SCMR|MLD|YLR|CLD|CLC|PTD|PCrLJ|PLC)\s+(\d{4})\s+([A-Za-z\s]+)\s+(\d+)\b',
+            r'\b(\d{4})\s+(PLD|SCMR|MLD|YLR|CLD|CLC|PTD|PCrLJ|PLC)\s+(\d+)\b'
+        ]
+        
+        detected_citations = []
+        for pattern in citation_patterns:
+            matches = re.finditer(pattern, text, re.IGNORECASE)
+            for match in matches:
+                citation_text = match.group(0)
+                # Try to find in database
+                db_citation = LegalCitation.query.filter(
+                    LegalCitation.citation.ilike(f'%{citation_text}%')
+                ).first()
+                
+                if db_citation:
+                    detected_citations.append({
+                        'text': citation_text,
+                        'id': db_citation.id,
+                        'citation': db_citation.citation,
+                        'court': db_citation.court,
+                        'year': db_citation.year,
+                        'is_database_item': True
+                    })
+                else:
+                    detected_citations.append({
+                        'text': citation_text,
+                        'is_database_item': False
+                    })
+        
+        # Detect statutes using regex
+        statute_patterns = [
+            r'\bSection\s+(\d+[A-Z]?)\b',
+            r'\bArticle\s+(\d+[A-Z]?)\b',
+            r'\b(PPC|CrPC|CPC|QSO)\s+(\d+[A-Z-]?)\b',
+            r'\b([A-Z][A-Za-z\s]+Act\s+\d{4})\b',
+            r'\b(Order\s+\d+\s+Rule\s+\d+)\b'
+        ]
+        
+        detected_statutes = []
+        for pattern in statute_patterns:
+            matches = re.finditer(pattern, text, re.IGNORECASE)
+            for match in matches:
+                statute_text = match.group(0)
+                detected_statutes.append({
+                    'text': statute_text,
+                    'is_database_item': False  # Will auto-upgrade when LegalStatute DB exists
+                })
+        
+        # Remove duplicates
+        unique_citations = []
+        seen_citation_texts = set()
+        for cit in detected_citations:
+            if cit['text'] not in seen_citation_texts:
+                unique_citations.append(cit)
+                seen_citation_texts.add(cit['text'])
+        
+        unique_statutes = []
+        seen_statute_texts = set()
+        for stat in detected_statutes:
+            if stat['text'] not in seen_statute_texts:
+                unique_statutes.append(stat)
+                seen_statute_texts.add(stat['text'])
+        
+        return jsonify({
+            'success': True,
+            'citations': unique_citations,
+            'statutes': unique_statutes
+        })
+    
+    except Exception as e:
+        logging.error(f"Error analyzing case: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@api_bp.route('/which_laws_apply', methods=['POST'])
+def which_laws_apply():
+    """
+    Detect all applicable laws/sections from text
+    POST /api/which_laws_apply
+    Body: {"text": "narrative"}
+    Returns: {laws: [{text, type, is_database_item}]}
+    """
+    try:
+        data = request.get_json()
+        if not data or not data.get('text'):
+            return jsonify({'success': False, 'error': 'Text is required'}), 400
+        
+        text = data.get('text', '').strip()
+        
+        # Use same detection logic as analyze_case
+        all_laws = []
+        
+        # Detect specific law types
+        patterns = {
+            'Section': r'\bSection\s+(\d+[A-Z]?)\b',
+            'Article': r'\bArticle\s+(\d+[A-Z]?)\b',
+            'PPC': r'\bPPC\s+(\d+[A-Z-]?)\b',
+            'CrPC': r'\bCrPC\s+(\d+[A-Z-]?)\b',
+            'CPC': r'\bCPC\s+(\d+[A-Z-]?)\b',
+            'QSO': r'\bQSO\s+(\d+[A-Z-]?)\b',
+            'Act': r'\b([A-Z][A-Za-z\s]+Act\s+\d{4})\b',
+            'Order/Rule': r'\b(Order\s+\d+\s+Rule\s+\d+)\b'
+        }
+        
+        for law_type, pattern in patterns.items():
+            matches = re.finditer(pattern, text, re.IGNORECASE)
+            for match in matches:
+                law_text = match.group(0)
+                all_laws.append({
+                    'text': law_text,
+                    'type': law_type,
+                    'is_database_item': False  # Auto-upgrade when DB exists
+                })
+        
+        # Remove duplicates
+        unique_laws = []
+        seen = set()
+        for law in all_laws:
+            if law['text'] not in seen:
+                unique_laws.append(law)
+                seen.add(law['text'])
+        
+        return jsonify({
+            'success': True,
+            'laws': unique_laws,
+            'total': len(unique_laws)
+        })
+    
+    except Exception as e:
+        logging.error(f"Error detecting laws: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
