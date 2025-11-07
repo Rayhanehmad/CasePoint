@@ -7,7 +7,8 @@ import {
   BarChart3, 
   Settings, 
   LogOut, 
-  Scale 
+  Scale,
+  KeyRound
 } from 'lucide-react'
 
 const Navbar = () => {
@@ -17,6 +18,7 @@ const Navbar = () => {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
     { name: 'Search', href: '/search', icon: Search },
+    { name: 'Keyword Search', href: '/keyword-search', icon: KeyRound },
     { name: 'Documents', href: '/documents', icon: FileText },
     { name: 'Subscription', href: '/subscription', icon: Settings },
   ]
