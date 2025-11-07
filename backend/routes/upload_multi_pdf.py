@@ -5,7 +5,7 @@ Handles bulk PDF upload with automatic citation detection and splitting.
 
 import os
 import logging
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, send_from_directory, abort, session
 from werkzeug.utils import secure_filename
 from datetime import datetime
 
@@ -32,10 +32,41 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+@upload_multi_pdf_bp.route('/uploads/<path:filename>')
+def serve_uploaded_file(filename):
+    """
+    Serve uploaded PDF files (authentication required).
+    
+    Only serves files from the uploads/citations directory to prevent directory traversal.
+    """
+    # Require authentication to view PDFs
+    if not session.get('user_id'):
+        abort(401)
+    
+    # Get the uploads directory
+    uploads_dir = os.path.join(current_app.root_path, '..', 'uploads')
+    
+    # Security: Prevent directory traversal
+    safe_path = os.path.normpath(os.path.join(uploads_dir, filename))
+    if not safe_path.startswith(os.path.abspath(uploads_dir)):
+        logger.warning(f"Directory traversal attempt blocked: {filename}")
+        abort(403)
+    
+    # Check file exists
+    if not os.path.exists(safe_path):
+        abort(404)
+    
+    # Serve the file
+    directory = os.path.dirname(safe_path)
+    filename = os.path.basename(safe_path)
+    
+    return send_from_directory(directory, filename, as_attachment=False, mimetype='application/pdf')
+
+
 @upload_multi_pdf_bp.route('/api/upload_multi_pdf', methods=['POST'])
 def upload_multi_pdf():
     """
-    Upload and process multi-citation PDF.
+    Upload and process multi-citation PDF (ADMIN ONLY).
     
     Form data:
         file: PDF file (multipart/form-data)
@@ -46,6 +77,21 @@ def upload_multi_pdf():
     Returns:
         JSON with detection results and created citation IDs
     """
+    # Authentication and admin role check
+    from flask import session
+    
+    if not session.get('user_id'):
+        return jsonify({
+            'success': False,
+            'error': 'Authentication required'
+        }), 401
+    
+    if session.get('role') != 'admin':
+        return jsonify({
+            'success': False,
+            'error': 'Admin access required'
+        }), 403
+    
     try:
         # Check if file is present
         if 'file' not in request.files:
@@ -101,6 +147,7 @@ def upload_multi_pdf():
         
         num_pages = len(page_texts)
         
+        # Enforce page limit
         if num_pages > MAX_PAGES:
             return jsonify({
                 'success': False,
