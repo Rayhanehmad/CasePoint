@@ -1,0 +1,654 @@
+{% extends "base.html" %}
+
+{% block title %}AI Case Analyzer - CasePoint{% endblock %}
+
+{% block content %}
+<style>
+.analyzer-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 50%, #EFF6FF 100%);
+    padding: 2.5rem 0;
+}
+
+.analyzer-header {
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    padding: 0 1.5rem;
+    text-align: center;
+}
+
+.analyzer-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #1D4ED8;
+    margin-bottom: 0.5rem;
+}
+
+.analyzer-subtitle {
+    font-size: 1.125rem;
+    color: #6B7280;
+}
+
+.input-section {
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    padding: 0 1.5rem;
+}
+
+.input-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(147, 197, 253, 0.3);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.narrative-textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 1rem;
+    border: 2px solid #E5E7EB;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    resize: vertical;
+    transition: border-color 0.3s;
+}
+
+.narrative-textarea:focus {
+    outline: none;
+    border-color: #3B82F6;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.btn-analyze {
+    flex: 1;
+    background: linear-gradient(135deg, #2563EB, #3B82F6);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-analyze:hover:not(:disabled) {
+    background: linear-gradient(135deg, #1D4ED8, #2563EB);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+}
+
+.btn-analyze:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-laws {
+    flex: 1;
+    background: linear-gradient(135deg, #7C3AED, #8B5CF6);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-laws:hover:not(:disabled) {
+    background: linear-gradient(135deg, #6D28D9, #7C3AED);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3);
+}
+
+.btn-laws:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.results-section {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: none;
+}
+
+.results-section.active {
+    display: block;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.result-column {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.column-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #E5E7EB;
+}
+
+.column-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.icon-blue {
+    background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+    color: #2563EB;
+}
+
+.icon-green {
+    background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+    color: #059669;
+}
+
+.icon-purple {
+    background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
+    color: #7C3AED;
+}
+
+.column-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #1F2937;
+    margin: 0;
+}
+
+.counter-arguments {
+    white-space: pre-wrap;
+    line-height: 1.8;
+    color: #374151;
+}
+
+.law-item {
+    padding: 0.75rem 1rem;
+    background: #F3F4F6;
+    border-left: 4px solid #3B82F6;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.law-text {
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 0.25rem;
+}
+
+.law-meta {
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+.law-link {
+    color: #2563EB;
+    text-decoration: none;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+}
+
+.law-link:hover {
+    color: #1D4ED8;
+    text-decoration: underline;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #9CA3AF;
+}
+
+.spinner {
+    display: inline-block;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-backdrop.active {
+    display: flex;
+}
+
+.modal-content-custom {
+    background: white;
+    border-radius: 1.5rem;
+    max-width: 800px;
+    width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header-custom {
+    background: linear-gradient(135deg, #7C3AED, #8B5CF6);
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title-custom {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    transition: background 0.2s;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body-custom {
+    padding: 2rem;
+    overflow-y: auto;
+    max-height: calc(80vh - 100px);
+}
+
+.applicable-law-item {
+    padding: 1rem 1.25rem;
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s;
+}
+
+.applicable-law-item:hover {
+    background: #F3F4F6;
+    border-color: #7C3AED;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+}
+
+.applicable-law-text {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 0.5rem;
+}
+
+.applicable-law-type {
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+@media (max-width: 1024px) {
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 768px) {
+    .analyzer-title {
+        font-size: 2rem;
+    }
+    
+    .analyzer-subtitle {
+        font-size: 1rem;
+    }
+    
+    .input-card {
+        padding: 1.5rem;
+    }
+    
+    .narrative-textarea {
+        min-height: 150px;
+    }
+}
+</style>
+
+<div class="analyzer-container">
+    <!-- Header -->
+    <div class="analyzer-header">
+        <h1 class="analyzer-title">
+            <i class="fas fa-brain me-2"></i>AI Case Analyzer
+        </h1>
+        <p class="analyzer-subtitle">
+            Analyze legal narratives with AI-powered counter arguments, related case laws, and applicable statutes
+        </p>
+    </div>
+
+    <!-- Input Section -->
+    <div class="input-section">
+        <div class="input-card">
+            <label for="narrative" class="form-label fw-semibold mb-2">
+                <i class="fas fa-file-alt me-2"></i>Enter Your Legal Narrative
+            </label>
+            <textarea 
+                id="narrative" 
+                class="narrative-textarea" 
+                placeholder="Enter the case narrative, facts, allegations, or legal scenario...&#10;&#10;Example: The accused was found at the crime scene with the murder weapon. Eyewitnesses saw him fleeing the scene. His fingerprints were on the weapon and he had a prior dispute with the victim."
+            ></textarea>
+            
+            <div id="error-message" class="alert alert-danger mt-3" style="display: none;"></div>
+            
+            <div class="action-buttons">
+                <button id="analyzeBtn" class="btn-analyze" onclick="analyzeCase()">
+                    <i class="fas fa-search"></i>
+                    <span id="analyzeText">Analyze Case</span>
+                    <div class="spinner" style="display: none;" id="analyzeSpinner"></div>
+                </button>
+                <button id="lawsBtn" class="btn-laws" onclick="whichLawsApply()">
+                    <i class="fas fa-balance-scale"></i>
+                    <span id="lawsText">Which Laws Apply?</span>
+                    <div class="spinner" style="display: none;" id="lawsSpinner"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div id="resultsSection" class="results-section">
+        <div class="results-grid">
+            <!-- Counter Arguments Column -->
+            <div class="result-column">
+                <div class="column-header">
+                    <div class="column-icon icon-blue">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h2 class="column-title">AI Counter Arguments</h2>
+                </div>
+                <div id="counterArguments" class="counter-arguments">
+                    <div class="empty-state">No counter arguments generated yet</div>
+                </div>
+            </div>
+
+            <!-- Related Case Laws Column -->
+            <div class="result-column">
+                <div class="column-header">
+                    <div class="column-icon icon-green">
+                        <i class="fas fa-gavel"></i>
+                    </div>
+                    <h2 class="column-title">Related Case Laws</h2>
+                </div>
+                <div id="caseLaws">
+                    <div class="empty-state">No case laws detected</div>
+                </div>
+            </div>
+
+            <!-- Rules / Acts / Statutes Column -->
+            <div class="result-column">
+                <div class="column-header">
+                    <div class="column-icon icon-purple">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h2 class="column-title">Rules / Acts / Statutes</h2>
+                </div>
+                <div id="statutes">
+                    <div class="empty-state">No statutes detected</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Applicable Laws Modal -->
+<div id="lawsModal" class="modal-backdrop">
+    <div class="modal-content-custom">
+        <div class="modal-header-custom">
+            <h3 class="modal-title-custom">
+                <i class="fas fa-balance-scale me-2"></i>Applicable Laws
+            </h3>
+            <button class="modal-close" onclick="closeLawsModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body-custom" id="applicableLaws">
+            <div class="empty-state">No applicable laws detected</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showError(message) {
+    const errorDiv = document.getElementById('error-message');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 5000);
+}
+
+function setLoading(button, isLoading) {
+    const btn = document.getElementById(button === 'analyze' ? 'analyzeBtn' : 'lawsBtn');
+    const text = document.getElementById(button === 'analyze' ? 'analyzeText' : 'lawsText');
+    const spinner = document.getElementById(button === 'analyze' ? 'analyzeSpinner' : 'lawsSpinner');
+    
+    if (isLoading) {
+        btn.disabled = true;
+        text.style.display = 'none';
+        spinner.style.display = 'inline-block';
+    } else {
+        btn.disabled = false;
+        text.style.display = 'inline';
+        spinner.style.display = 'none';
+    }
+}
+
+async function analyzeCase() {
+    const narrative = document.getElementById('narrative').value.trim();
+    
+    if (!narrative) {
+        showError('Please enter a narrative text');
+        return;
+    }
+    
+    if (narrative.length < 10) {
+        showError('Narrative is too short. Please provide more details.');
+        return;
+    }
+    
+    setLoading('analyze', true);
+    
+    try {
+        // Call both APIs in parallel
+        const [counterArgsRes, analyzeCaseRes] = await Promise.all([
+            fetch('/api/auto_counter_arguments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: narrative })
+            }),
+            fetch('/api/analyze_case', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: narrative })
+            })
+        ]);
+        
+        const counterArgsData = await counterArgsRes.json();
+        const analyzeCaseData = await analyzeCaseRes.json();
+        
+        if (!counterArgsData.success || !analyzeCaseData.success) {
+            throw new Error(counterArgsData.error || analyzeCaseData.error || 'Analysis failed');
+        }
+        
+        // Display counter arguments
+        document.getElementById('counterArguments').innerHTML = counterArgsData.counter_arguments || 'No counter arguments generated';
+        
+        // Display case laws
+        const caseLawsDiv = document.getElementById('caseLaws');
+        if (analyzeCaseData.citations && analyzeCaseData.citations.length > 0) {
+            caseLawsDiv.innerHTML = analyzeCaseData.citations.map(law => `
+                <div class="law-item" style="border-left-color: #059669;">
+                    <div class="law-text">${law.text}</div>
+                    ${law.is_database_item ? 
+                        `<a href="/cases/${law.id}" class="law-link">
+                            <i class="fas fa-external-link-alt"></i> View Full Citation
+                        </a>` : 
+                        `<div class="law-meta">Citation detected (not in database)</div>`
+                    }
+                </div>
+            `).join('');
+        } else {
+            caseLawsDiv.innerHTML = '<div class="empty-state">No case laws detected</div>';
+        }
+        
+        // Display statutes
+        const statutesDiv = document.getElementById('statutes');
+        if (analyzeCaseData.statutes && analyzeCaseData.statutes.length > 0) {
+            statutesDiv.innerHTML = analyzeCaseData.statutes.map(statute => `
+                <div class="law-item" style="border-left-color: #7C3AED;">
+                    <div class="law-text">${statute.text}</div>
+                    <div class="law-meta">Statute detected (will auto-link when added to DB)</div>
+                </div>
+            `).join('');
+        } else {
+            statutesDiv.innerHTML = '<div class="empty-state">No statutes detected</div>';
+        }
+        
+        // Show results section
+        document.getElementById('resultsSection').classList.add('active');
+        
+        // Scroll to results
+        setTimeout(() => {
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+        
+    } catch (error) {
+        console.error('Analysis error:', error);
+        showError(error.message || 'Failed to analyze case. Please try again.');
+    } finally {
+        setLoading('analyze', false);
+    }
+}
+
+async function whichLawsApply() {
+    const narrative = document.getElementById('narrative').value.trim();
+    
+    if (!narrative) {
+        showError('Please enter a narrative text');
+        return;
+    }
+    
+    setLoading('laws', true);
+    
+    try {
+        const response = await fetch('/api/which_laws_apply', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: narrative })
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || 'Failed to detect laws');
+        }
+        
+        const applicableLawsDiv = document.getElementById('applicableLaws');
+        
+        if (data.laws && data.laws.length > 0) {
+            applicableLawsDiv.innerHTML = data.laws.map(law => `
+                <div class="applicable-law-item">
+                    <div class="applicable-law-text">${law.text}</div>
+                    <div class="applicable-law-type">Type: ${law.type}</div>
+                </div>
+            `).join('');
+        } else {
+            applicableLawsDiv.innerHTML = '<div class="empty-state">No applicable laws detected in the narrative</div>';
+        }
+        
+        // Show modal
+        document.getElementById('lawsModal').classList.add('active');
+        
+    } catch (error) {
+        console.error('Laws detection error:', error);
+        showError(error.message || 'Failed to detect applicable laws. Please try again.');
+    } finally {
+        setLoading('laws', false);
+    }
+}
+
+function closeLawsModal() {
+    document.getElementById('lawsModal').classList.remove('active');
+}
+
+// Close modal on backdrop click
+document.getElementById('lawsModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeLawsModal();
+    }
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeLawsModal();
+    }
+});
+</script>
+{% endblock %}

@@ -94,3 +94,10 @@ def api_status():
             'service': 'openai',
             'message': f'AI service error: {str(e)}'
         })
+
+
+@ai_bp.route('/case-analyzer', methods=['GET'])
+def case_analyzer():
+    """AI Case Analyzer page"""
+    breadcrumbs = [{'text': 'AI Case Analyzer', 'url': url_for('ai.case_analyzer')}]
+    return render_template('case_analyzer.html', breadcrumbs=breadcrumbs)
