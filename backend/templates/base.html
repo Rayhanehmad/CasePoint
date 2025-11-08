@@ -97,68 +97,63 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <!-- Header -->
-    <header class="navbar navbar-expand-lg navbar-light bg-white-custom sticky-top" style="padding-top: 0.5rem; padding-bottom: 0.5rem;">
+    <!-- Dark Glassmorphism Header -->
+    <header class="navbar navbar-expand-lg sticky-top" style="backdrop-filter: blur(12px); background: rgba(15, 23, 42, 0.85); border-bottom: 1px solid rgba(148, 163, 184, 0.15); padding-top: 0.5rem; padding-bottom: 0.5rem; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);">
         <div class="container">
             <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url_for('home') }}" style="margin: 0;" title="CasePoint - Home">
                 <img src="{{ url_for('static', filename='images/casepoint-logo.png') }}" alt="CasePoint Logo" style="height: 60px; width: auto; cursor: pointer;">
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border-color: rgba(148, 163, 184, 0.3);">
+                <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('home') }}">
+                        <a class="nav-link text-white" href="{{ url_for('home') }}" style="transition: color 0.2s;">
                             <i class="fas fa-home me-1"></i>Home
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('cases.search_cases') }}">
+                        <a class="nav-link text-white" href="{{ url_for('cases.search_cases') }}" style="transition: color 0.2s;">
                             <i class="fas fa-gavel me-1"></i>Cases
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('acts.search_statutes') }}">
-                            <i class="fas fa-book me-1"></i>Statutes & Acts
+                        <a class="nav-link text-white" href="{{ url_for('acts.search_statutes') }}" style="transition: color 0.2s;">
+                            <i class="fas fa-book me-1"></i>Statutes
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('acts.search_rules') }}">
+                        <a class="nav-link text-white" href="{{ url_for('acts.search_rules') }}" style="transition: color 0.2s;">
                             <i class="fas fa-list-ul me-1"></i>Rules
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('ai.ai_analysis') }}">
+                        <a class="nav-link text-cyan-400" href="{{ url_for('ai.ai_analysis') }}" style="transition: color 0.2s;">
                             <i class="fas fa-robot me-1"></i>AI Analysis
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('ai.case_analyzer') }}">
-                            <i class="fas fa-brain me-1"></i>Case Analyzer / Which Laws Apply
+                        <a class="nav-link text-cyan-400" href="{{ url_for('ai.case_analyzer') }}" style="transition: color 0.2s;">
+                            <i class="fas fa-brain me-1"></i>Case Analyzer
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('search') }}">
-                            <i class="fas fa-search me-1"></i>Citation Search
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('cases.compare_cases') }}">
-                            <i class="fas fa-exchange-alt me-1"></i>Compare Cases
+                        <a class="nav-link text-white" href="{{ url_for('search') }}" style="transition: color 0.2s;">
+                            <i class="fas fa-search me-1"></i>Search
                         </a>
                     </li>
                     {% if session.get('role') == 'admin' %}
                     <li class="nav-item">
-                        <a class="nav-link text-success" href="{{ url_for('admin_api.upload_citation') }}">
-                            <i class="fas fa-upload me-1"></i>Upload Data
+                        <a class="nav-link text-success" href="{{ url_for('admin_api.upload_citation') }}" style="transition: color 0.2s;">
+                            <i class="fas fa-upload me-1"></i>Upload
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-info" href="{{ url_for('upload_multi_pdf_page') }}">
-                            <i class="fas fa-file-pdf me-1"></i>Multi-PDF Splitter
+                        <a class="nav-link text-info" href="{{ url_for('upload_multi_pdf_page') }}" style="transition: color 0.2s;">
+                            <i class="fas fa-file-pdf me-1"></i>PDF Splitter
                         </a>
                     </li>
                     {% endif %}
@@ -167,48 +162,53 @@
                 <ul class="navbar-nav">
                     {% if session.get('role') == 'admin' %}
                         <li class="nav-item">
-                            <a class="nav-link text-danger" href="{{ url_for('admin_api.admin_panel') }}">
+                            <a class="nav-link text-danger" href="{{ url_for('admin_api.admin_panel') }}" style="transition: color 0.2s;">
                                 <i class="fas fa-shield-alt me-1"></i>Admin
                             </a>
                         </li>
                     {% endif %}
                     {% if session.get('user_id') %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" style="transition: color 0.2s;">
                                 <i class="fas fa-user-circle me-1"></i>{{ session.get('username') }}
+                                {% if session.get('subscription_tier') == 'pro' %}
+                                    <span class="badge bg-gradient-to-r from-yellow-500 to-amber-600 ms-1" style="background: linear-gradient(135deg, #f59e0b, #d97706); font-size: 0.7rem;">
+                                        <i class="fas fa-crown"></i> PRO
+                                    </span>
+                                {% endif %}
                                 {% if session.get('role') == 'admin' %}
-                                    <span class="badge bg-danger ms-1">Admin</span>
+                                    <span class="badge bg-danger ms-1" style="font-size: 0.7rem;">Admin</span>
                                 {% endif %}
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
+                            <ul class="dropdown-menu dropdown-menu-end" style="background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(148, 163, 184, 0.2);">
+                                <li><a class="dropdown-item text-white" href="{{ url_for('auth.profile') }}" style="transition: background 0.2s;">
                                     <i class="fas fa-user me-2"></i>My Profile
                                 </a></li>
                                 {% if session.get('role') == 'admin' %}
-                                <li><a class="dropdown-item" href="{{ url_for('admin_api.admin_panel') }}">
+                                <li><a class="dropdown-item text-white" href="{{ url_for('admin_api.admin_panel') }}" style="transition: background 0.2s;">
                                     <i class="fas fa-shield-alt me-2"></i>Admin Dashboard
                                 </a></li>
                                 {% endif %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                <li><hr class="dropdown-divider" style="border-color: rgba(148, 163, 184, 0.2);"></li>
+                                <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}" style="transition: background 0.2s;">
                                     <i class="fas fa-sign-out-alt me-2"></i>Logout
                                 </a></li>
                             </ul>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.login') }}">
+                            <a class="nav-link text-white" href="{{ url_for('auth.login') }}" style="transition: color 0.2s;">
                                 <i class="fas fa-sign-in-alt me-1"></i>Login
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.register') }}">
+                            <a class="nav-link" href="{{ url_for('auth.register') }}" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: all 0.2s;">
                                 <i class="fas fa-user-plus me-1"></i>Register
                             </a>
                         </li>
                     {% endif %}
                     <li class="nav-item">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#subscribeModal">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#subscribeModal" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: all 0.2s;">
                             <i class="fas fa-crown me-1"></i>Subscribe
                         </a>
                     </li>
@@ -216,6 +216,16 @@
             </div>
         </div>
     </header>
+    
+    <style>
+        /* Dark header hover effects */
+        header .nav-link:hover {
+            color: #60a5fa !important;
+        }
+        header .dropdown-item:hover {
+            background: rgba(59, 130, 246, 0.2) !important;
+        }
+    </style>
 
     <!-- Main Content -->
     <main>
