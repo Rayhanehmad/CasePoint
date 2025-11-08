@@ -106,12 +106,8 @@
     <!-- Dark Glassmorphism Header -->
     <header class="navbar navbar-expand-lg sticky-top" style="backdrop-filter: blur(12px); background: rgba(15, 23, 42, 0.85); border-bottom: 1px solid rgba(148, 163, 184, 0.15); padding-top: 0.5rem; padding-bottom: 0.5rem; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);">
         <div class="container">
-            <a class="navbar-brand fw-bold d-flex align-items-center flex-column" href="{{ url_for('home') }}" style="margin: 0; gap: 0.15rem;" title="CasePoint - Home">
-                <img src="{{ url_for('static', filename='images/casepoint-logo.png') }}" alt="CasePoint Logo" style="height: 60px; width: auto; cursor: pointer;">
-                <p class="text-[0.75rem] text-blue-200 flex items-center gap-1 m-0" style="font-size: 0.75rem; color: #bfdbfe; display: flex; align-items: center; gap: 0.25rem;">
-                    Legal Intelligence by AI 
-                    <span class="text-blue-400 animate-ping text-xs" style="color: #60a5fa; font-size: 0.75rem;">⚡</span>
-                </p>
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url_for('home') }}" style="margin: 0;" title="CasePoint - Legal Intelligence, Simplified by AI">
+                <img src="{{ url_for('static', filename='images/casepoint-logo.jpg') }}" alt="CasePoint - Legal Intelligence, Simplified by AI" class="logo-glow" style="height: 80px; width: auto; cursor: pointer; filter: drop-shadow(0 0 10px rgba(0, 224, 255, 0.6)) drop-shadow(0 0 20px rgba(0, 224, 255, 0.4));">
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border-color: rgba(148, 163, 184, 0.3);">
@@ -228,6 +224,22 @@
     </header>
     
     <style>
+        /* Logo Glow Animation */
+        @keyframes logoGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 10px rgba(0, 224, 255, 0.6)) 
+                        drop-shadow(0 0 20px rgba(0, 224, 255, 0.4));
+            }
+            50% {
+                filter: drop-shadow(0 0 15px rgba(0, 224, 255, 0.8)) 
+                        drop-shadow(0 0 30px rgba(0, 224, 255, 0.6));
+            }
+        }
+        
+        .logo-glow {
+            animation: logoGlow 3s ease-in-out infinite;
+        }
+        
         /* Dark header hover effects */
         header .nav-link:hover {
             color: #60a5fa !important;
