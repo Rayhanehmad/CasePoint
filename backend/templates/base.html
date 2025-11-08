@@ -175,7 +175,7 @@
                     {% endif %}
                     {% if session.get('user_id') %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" style="transition: color 0.2s;">
+                            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="transition: color 0.2s; cursor: pointer;">
                                 <i class="fas fa-user-circle me-1"></i>{{ session.get('username') }}
                                 {% if session.get('subscription_tier') == 'pro' %}
                                     <span class="badge bg-gradient-to-r from-yellow-500 to-amber-600 ms-1" style="background: linear-gradient(135deg, #f59e0b, #d97706); font-size: 0.7rem;">
@@ -186,7 +186,7 @@
                                     <span class="badge bg-danger ms-1" style="font-size: 0.7rem;">Admin</span>
                                 {% endif %}
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" style="background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(148, 163, 184, 0.2);">
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" style="background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(148, 163, 184, 0.2); z-index: 1050;">
                                 <li><a class="dropdown-item text-white" href="{{ url_for('auth.profile') }}" style="transition: background 0.2s;">
                                     <i class="fas fa-user me-2"></i>My Profile
                                 </a></li>
@@ -367,6 +367,31 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Dropdown Fix Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all dropdowns
+            var dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+            var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+                return new bootstrap.Dropdown(dropdownToggleEl);
+            });
+            
+            // Debug: Log when dropdown is clicked
+            var userDropdown = document.getElementById('navbarDropdown');
+            if (userDropdown) {
+                userDropdown.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Dropdown clicked');
+                    var dropdown = bootstrap.Dropdown.getInstance(userDropdown);
+                    if (dropdown) {
+                        dropdown.toggle();
+                    }
+                });
+            }
+        });
+    </script>
+    
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     
