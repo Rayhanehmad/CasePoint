@@ -5,6 +5,8 @@
 {% endblock %}
 
 {% block content %}
+<!-- Dark theme wrapper -->
+<div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-800 text-white" style="margin: -1.5rem; padding: 1.5rem;">
 <div class="container-fluid py-4">
     <div class="row">
         <!-- Results Content -->
@@ -104,6 +106,8 @@
         </div>
     </div>
 </div>
+</div>
+<!-- End dark theme wrapper -->
 {% endblock %}
 
 {% block extra_scripts %}
@@ -123,13 +127,45 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
+/* Dark theme glassmorphic search results */
+.results-container {
+    backdrop-filter: blur(12px);
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.results-header {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(59, 130, 246, 0.1));
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.results-header h4 {
+    color: #f1f5f9;
+}
+
+.results-header .text-muted {
+    color: #94a3b8 !important;
+}
+
+.results-header .form-select {
+    background: rgba(15, 23, 42, 0.6);
+    color: #e2e8f0;
+    border-color: rgba(148, 163, 184, 0.3);
+}
+
 /* Compact result card styling */
 .result-card-compact {
-    transition: background-color 0.2s;
+    transition: all 0.3s ease;
+    border-color: rgba(148, 163, 184, 0.15) !important;
 }
 
 .result-card-compact:hover {
-    background-color: #f8f9fa;
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), rgba(14, 165, 233, 0.1)) !important;
+    border-color: rgba(59, 130, 246, 0.4) !important;
+    transform: translateX(4px);
 }
 
 .result-citation-badge {
@@ -141,23 +177,51 @@ document.addEventListener('DOMContentLoaded', function() {
     text-align: center;
     line-height: 1.3;
     word-break: keep-all;
+    background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+    border: none;
 }
 
 .result-card-compact .court-name {
     font-size: 0.75rem;
+    color: #94a3b8 !important;
 }
 
 .result-card-compact .btn-sm {
     font-size: 0.7rem;
     padding: 0.25rem 0.5rem;
+    background: rgba(59, 130, 246, 0.2);
+    border-color: #3b82f6 !important;
+    color: #60a5fa !important;
+}
+
+.result-card-compact .btn-sm:hover {
+    background: rgba(59, 130, 246, 0.3);
+    color: #93c5fd !important;
 }
 
 .party-line-text {
     font-size: 0.75rem;
-    color: #1F2937;
+    color: #e2e8f0 !important;
     font-weight: 500;
     margin-bottom: 0.25rem;
     line-height: 1.3;
+}
+
+.pagination .page-link {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(148, 163, 184, 0.3);
+    color: #94a3b8;
+}
+
+.pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    border-color: #3b82f6;
+    color: white;
+}
+
+.pagination .page-link:hover {
+    background: rgba(59, 130, 246, 0.2);
+    color: #93c5fd;
 }
 
 /* Mobile responsive styles */
