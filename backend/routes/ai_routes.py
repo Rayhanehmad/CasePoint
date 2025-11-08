@@ -114,7 +114,8 @@ def api_generate_summary(citation_id):
     """Generate AI summary for a citation (requires authentication)"""
     # Check authentication
     if not session.get('user_id'):
-        return jsonify({'error': 'Authentication required'}), 401
+        logger.warning(f"Unauthorized access attempt to generate summary. Session: {dict(session)}")
+        return jsonify({'error': 'Authentication required. Please log in to use AI features.'}), 401
     
     try:
         # Get citation from database
@@ -163,7 +164,8 @@ def api_generate_headnotes(citation_id):
     """Generate AI headnotes for a citation (requires authentication)"""
     # Check authentication
     if not session.get('user_id'):
-        return jsonify({'error': 'Authentication required'}), 401
+        logger.warning(f"Unauthorized access attempt to generate headnotes. Session: {dict(session)}")
+        return jsonify({'error': 'Authentication required. Please log in to use AI features.'}), 401
     
     try:
         # Get citation from database

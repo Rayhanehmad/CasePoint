@@ -11,6 +11,12 @@ class Config:
     SECRET_KEY = os.environ.get("SESSION_SECRET", "casepoint-dev-secret-2024")
     DEBUG = True
     
+    # Session Configuration
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+    SESSION_COOKIE_HTTPONLY = True
+    PERMANENT_SESSION_LIFETIME = 86400  # 24 hours
+    
     # Database
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
