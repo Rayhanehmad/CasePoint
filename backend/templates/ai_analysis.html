@@ -3,7 +3,96 @@
 {% block title %}AI Legal Analysis - CasePoint{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<!-- Dark theme wrapper -->
+<div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-800 text-white" style="margin: -1.5rem; padding: 1.5rem;">
+
+<style>
+/* AI Analysis dark theme */
+.ai-dark .card {
+    background: rgba(15, 23, 42, 0.75) !important;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(148, 163, 184, 0.15) !important;
+}
+
+.ai-dark .card-header {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.3), rgba(59, 130, 246, 0.2)) !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.15) !important;
+    color: #f1f5f9 !important;
+}
+
+.ai-dark .card-body {
+    color: #e2e8f0 !important;
+}
+
+.ai-dark .ai-analysis-card {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    padding: 2rem;
+    border-radius: 1rem;
+}
+
+.ai-dark .ai-analysis-card h2 {
+    color: #f1f5f9;
+}
+
+.ai-dark .ai-analysis-card .lead {
+    color: #cbd5e1;
+}
+
+.ai-dark .form-control {
+    background: rgba(30, 41, 59, 0.6) !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(148, 163, 184, 0.3) !important;
+}
+
+.ai-dark .form-control:focus {
+    background: rgba(30, 41, 59, 0.8) !important;
+    border-color: rgba(59, 130, 246, 0.5) !important;
+    color: #f1f5f9 !important;
+}
+
+.ai-dark .form-label {
+    color: #e2e8f0 !important;
+}
+
+.ai-dark .form-text {
+    color: #94a3b8 !important;
+}
+
+.ai-dark .btn-primary {
+    background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+    border: none !important;
+}
+
+.ai-dark .btn-outline-secondary {
+    color: #94a3b8 !important;
+    border-color: #64748b !important;
+}
+
+.ai-dark .btn-outline-secondary:hover {
+    background: rgba(100, 116, 139, 0.2) !important;
+    color: #cbd5e1 !important;
+}
+
+.ai-dark .bg-light {
+    background: rgba(30, 41, 59, 0.6) !important;
+}
+
+.ai-dark .text-muted {
+    color: #94a3b8 !important;
+}
+
+.ai-dark h6 {
+    color: #f1f5f9 !important;
+}
+
+.ai-dark .fst-italic {
+    color: #cbd5e1 !important;
+}
+</style>
+
+<div class="container py-5 ai-dark">
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <!-- AI Analysis Hero -->
@@ -264,4 +353,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+</div>
+<!-- End dark theme wrapper -->
 {% endblock %}
