@@ -1,0 +1,161 @@
+// App.jsx
+import React from "react";
+import { motion } from "framer-motion";
+import {
+  Search,
+  Scale,
+  BookOpen,
+  Database,
+  Brain,
+  FileText,
+  BarChart3,
+} from "lucide-react";
+
+// ----- MAIN APP -----
+export default function App() {
+  const quickActions = [
+    {
+      name: "New Search",
+      icon: Search,
+      desc: "Start a new legal query",
+      color: "from-indigo-500 to-blue-600",
+    },
+    {
+      name: "Which Laws Apply",
+      icon: Scale,
+      desc: "AI suggests applicable acts & rules",
+      color: "from-cyan-500 to-teal-500",
+    },
+    {
+      name: "Upload Acts",
+      icon: FileText,
+      desc: "Add legal documents to your database",
+      color: "from-purple-500 to-pink-500",
+    },
+  ];
+
+  return (
+    <div className="min-h-screen flex bg-gradient-to-br from-slate-900 via-blue-950 to-slate-800 text-white font-inter">
+      {/* Sidebar */}
+      <Sidebar />
+
+      {/* Main Dashboard */}
+      <div className="flex-1 p-10 ml-64 space-y-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="bg-gradient-to-r from-blue-600 via-indigo-700 to-blue-500 rounded-2xl p-8 text-white shadow-lg"
+        >
+          <h1 className="text-3xl font-extrabold">Welcome back, John Doe ⚖️</h1>
+          <p className="mt-2 text-blue-100 text-sm">
+            Access Pakistan’s most advanced AI-powered legal research platform.
+          </p>
+        </motion.div>
+
+        {/* Quick Actions */}
+        <section>
+          <h2 className="text-xl font-semibold mb-4 text-gray-200">
+            Quick Actions
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {quickActions.map((item, i) => (
+              <motion.div
+                key={i}
+                whileHover={{ scale: 1.05 }}
+                className="p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 hover:border-blue-400 transition shadow-md"
+              >
+                <div
+                  className={`p-3 mb-3 inline-block rounded-xl bg-gradient-to-r ${item.color}`}
+                >
+                  <item.icon className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-semibold">{item.name}</h3>
+                <p className="text-sm text-gray-300">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Recent Searches Mock */}
+        <section>
+          <h2 className="text-xl font-semibold mb-4 text-gray-200">
+            Recent Searches
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              { q: "constitutional law", time: "2 hours ago", results: 15 },
+              { q: "contract dispute", time: "1 day ago", results: 8 },
+              { q: "criminal procedure", time: "2 days ago", results: 23 },
+            ].map((r, i) => (
+              <div
+                key={i}
+                className="p-4 bg-white/5 border border-white/10 rounded-xl flex justify-between items-center hover:border-blue-500 transition"
+              >
+                <div>
+                  <p className="text-sm font-medium">{r.q}</p>
+                  <p className="text-xs text-gray-400">
+                    {r.results} results found
+                  </p>
+                </div>
+                <span className="text-xs text-gray-400">{r.time}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+// ----- SIDEBAR COMPONENT -----
+const Sidebar = () => {
+  return (
+    <div className="fixed left-0 top-0 h-full w-64 bg-gradient-to-b from-slate-900 via-blue-900 to-slate-800 shadow-lg flex flex-col items-center py-8">
+      {/* Glowing Logo */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8 }}
+        className="flex flex-col items-center mb-10 relative"
+      >
+        <div className="relative">
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Scales_of_Justice.svg/1024px-Scales_of_Justice.svg.png"
+            alt="CasePoint Logo"
+            className="w-20 h-20 animate-glow"
+          />
+          <div className="absolute inset-0 rounded-full blur-2xl bg-blue-500/40 animate-pulse-glow"></div>
+        </div>
+
+        {/* LOGO FONT VARIATIONS */}
+        <h1 className="text-2xl font-extrabold text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-400 bg-clip-text animate-text-glow font-orbitron mt-2">
+          CasePoint
+        </h1>
+        <p className="text-[0.7rem] text-blue-200 opacity-90">
+          Legal Intelligence, Simplified by AI ⚡
+        </p>
+      </motion.div>
+
+      {/* NAVIGATION */}
+      <nav className="flex flex-col space-y-4 w-full px-6 text-gray-300">
+        {[
+          { name: "Dashboard", icon: Scale },
+          { name: "Search Cases", icon: Search },
+          { name: "Acts & Rules", icon: BookOpen },
+          { name: "Legal Dictionary", icon: Database },
+          { name: "AI Analysis", icon: Brain },
+        ].map((item, i) => (
+          <button
+            key={i}
+            className="flex items-center space-x-3 py-2 px-3 rounded-md hover:bg-white/10 hover:text-blue-400 transition"
+          >
+            <item.icon className="h-5 w-5" />
+            <span>{item.name}</span>
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+};
