@@ -24,11 +24,18 @@ Preferred communication style: Simple, everyday language.
 
 ### Frontend Architecture
 - **Modern UI**: React 18 + Vite + TailwindCSS for responsive design
+- **Dark Theme Design**: Production-ready dark glassmorphism UI across all major pages (November 2025)
+  - Consistent dark gradient backgrounds (slate-900 via blue-950 to slate-800)
+  - Glassmorphism effects with backdrop-blur and translucent rgba backgrounds
+  - Professional typography using Orbitron (headings), Exo 2 (subheadings), and Inter (body text)
+  - Glowing text animations for AI-powered sections
+  - Tailwind CSS CDN integration with custom animations and utilities
 - **Component-Based**: Reusable components with clean separation
 - **Service Layer**: Dedicated API service files (authService, caseService)
 - **State Management**: Zustand for lightweight state management
 - **Routing**: React Router DOM for client-side navigation
 - **Proxy Configuration**: Vite proxy for seamless API communication during development
+- **User Dashboard**: Modern dashboard with search stats, document counts, recent searches, and subscription info
 
 ### Backend Architecture
 - **Blueprint Organization**: 
@@ -97,9 +104,29 @@ Preferred communication style: Simple, everyday language.
 
 ### Web Framework and UI
 - **Flask**: Python web framework for backend API and routing
-- **Bootstrap**: Frontend styling framework with dark theme support
+- **Tailwind CSS**: Modern utility-first CSS framework via CDN for rapid UI development
+- **Bootstrap**: Frontend styling framework coexisting with Tailwind for specific components
+- **Google Fonts**: Orbitron, Exo 2, and Inter for professional typography
 - **Font Awesome**: Icon library for user interface elements
 - **Werkzeug**: File upload security and utilities
+
+### UI/UX Design System (November 2025)
+- **Color Palette**: Dark gradients using Tailwind slate-900, blue-950, and slate-800
+- **Glassmorphism**: Translucent backgrounds with backdrop-blur-xl and rgba opacity
+- **Typography Hierarchy**:
+  - Headings: Orbitron font with glow effects for emphasis
+  - Subheadings: Exo 2 font with medium weight
+  - Body: Inter font for optimal readability
+- **AI Section Styling**: Glowing text animations and special emphasis for AI-powered features
+- **Interactive Elements**: Hover effects with scale transforms and gradient shifts
+- **Responsive Design**: Mobile-first approach with responsive breakpoints
+- **Updated Templates**: All major pages transformed with consistent dark theme
+  - Homepage: Dashboard with user stats and quick actions
+  - Citation Detail: Glassmorphic cards with glowing AI Summary and Headnotes
+  - Search Results: Dark cards with gradient hover effects
+  - Upload Multi-PDF: Glassmorphic upload area with progress indicators
+  - AI Analysis: Futuristic dark theme matching dashboard
+  - Case Analyzer: Three-column results layout with dark glassmorphic cards
 
 ### Development and Deployment
 - **Python Environment**: Flask development server with debug mode
