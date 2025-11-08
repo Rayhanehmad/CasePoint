@@ -11,10 +11,11 @@ class Config:
     SECRET_KEY = os.environ.get("SESSION_SECRET", "casepoint-dev-secret-2024")
     DEBUG = True
     
-    # Session Configuration
-    SESSION_COOKIE_SAMESITE = 'Lax'
+    # Session Configuration (compatible with mobile browsers)
+    SESSION_COOKIE_SAMESITE = None  # Allow cross-site cookies for better compatibility
     SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
-    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_HTTPONLY = False  # Allow JavaScript to read cookies for debugging
+    SESSION_COOKIE_PATH = '/'  # Make cookies available site-wide
     PERMANENT_SESSION_LIFETIME = 86400  # 24 hours
     
     # Database
