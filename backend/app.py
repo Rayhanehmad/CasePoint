@@ -5,7 +5,7 @@ Professional Legal Research Platform with AI, OCR, and Vector Search
 
 import os
 import logging
-from flask import Flask, render_template, url_for, session
+from flask import Flask, render_template, url_for, session, redirect, jsonify
 from flask_cors import CORS
 from datetime import datetime
 
@@ -88,14 +88,16 @@ def create_app(config_name='default'):
     from routes.upload_multi_pdf import upload_multi_pdf_bp
     app.register_blueprint(upload_multi_pdf_bp)
     
-    # Main routes
-    @app.route('/')
-    def home():
-        """Modern dashboard homepage"""
-        # Get user info
-        user_info = {
-            'full_name': session.get('username', 'Guest User'),
-            'subscription_tier': 'pro'  # Default to pro for now
+    # --- Unified Data Source ---
+    def get_dashboard_data():
+        """Generate user + stats data in a unified format."""
+        # Get user info from session
+        user = {
+            "id": session.get('user_id', 1),
+            "full_name": session.get('username', 'Guest User'),
+            "email": session.get('email', 'guest@casepoint.pk'),
+            "subscription_tier": session.get('subscription_tier', 'pro'),
+            "subscription_status": session.get('subscription_status', 'active')
         }
         
         # Get statistics
@@ -107,20 +109,18 @@ def create_app(config_name='default'):
             ).count()
             
             # Mock search count for now - can be tracked later
-            search_count = 1247
+            search_count = 47
             
             # Get recent activity - mock data for now
             recent_searches = [
-                {'query': 'Contract Law Breach', 'results': 42, 'date': '2 hours ago'},
-                {'query': 'Criminal Liability PPC', 'results': 28, 'date': 'Yesterday'},
-                {'query': 'Property Disputes', 'results': 156, 'date': '3 days ago'}
+                {'query': 'constitutional law', 'date': '2 hours ago', 'results': 15},
+                {'query': 'contract dispute', 'date': '1 day ago', 'results': 8},
+                {'query': 'criminal procedure', 'date': '2 days ago', 'results': 23}
             ]
             
         except Exception as e:
             logging.error(f"Error fetching statistics: {e}")
             total_citations = 0
-            total_cases = 0
-            total_acts = 0
             search_count = 0
             recent_searches = []
         
@@ -130,7 +130,24 @@ def create_app(config_name='default'):
             'recent_searches': recent_searches
         }
         
-        return render_template('home.html', user=user_info, stats=stats)
+        return {"user": user, "stats": stats}
+    
+    # --- Main Routes ---
+    @app.route('/')
+    def home():
+        """Modern dashboard homepage"""
+        data = get_dashboard_data()
+        return render_template('home.html', **data)
+    
+    @app.route('/dashboard')
+    def dashboard_redirect():
+        """Redirect old /dashboard links to home."""
+        return redirect('/')
+    
+    @app.route('/api/dashboard')
+    def dashboard_api():
+        """Serve dashboard data as JSON (for front-end components)."""
+        return jsonify(get_dashboard_data())
     
     @app.route('/search')
     def search():
