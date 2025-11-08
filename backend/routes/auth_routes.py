@@ -106,7 +106,11 @@ def login():
             session['user_id'] = user.id
             session['username'] = user.username
             session['role'] = user.role
+            session['email'] = user.email
             session.permanent = remember
+            
+            import logging
+            logging.info(f"User {user.username} logged in successfully. Session: {dict(session)}")
             
             flash(f'Welcome back, {user.username}!', 'success')
             
