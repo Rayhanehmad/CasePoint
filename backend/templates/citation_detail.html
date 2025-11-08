@@ -17,7 +17,93 @@
     <div class="watermark">CasePoint</div>
 </div>
 
-<div class="container-fluid py-4">
+<!-- Dark theme wrapper -->
+<div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-800 text-white" style="margin: -1.5rem; padding: 1.5rem;">
+
+<style>
+/* Citation Detail Dark Theme Overrides */
+.citation-detail-dark .card {
+    background: rgba(15, 23, 42, 0.75) !important;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(148, 163, 184, 0.15) !important;
+}
+
+.citation-detail-dark .card-body {
+    color: #e2e8f0 !important;
+}
+
+.citation-detail-dark .bg-light {
+    background: rgba(30, 41, 59, 0.6) !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+.citation-detail-dark .border {
+    border-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+.citation-detail-dark .btn {
+    border-color: rgba(148, 163, 184, 0.3) !important;
+}
+
+.citation-detail-dark .btn-outline-secondary {
+    color: #94a3b8 !important;
+    border-color: #64748b !important;
+}
+
+.citation-detail-dark .btn-outline-secondary:hover {
+    background: rgba(100, 116, 139, 0.2) !important;
+    color: #cbd5e1 !important;
+}
+
+.citation-detail-dark .btn-primary {
+    background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+    border: none !important;
+}
+
+.citation-detail-dark .btn-outline-primary {
+    color: #60a5fa !important;
+    border-color: #3b82f6 !important;
+}
+
+.citation-detail-dark .btn-outline-primary:hover {
+    background: rgba(59, 130, 246, 0.2) !important;
+    color: #93c5fd !important;
+}
+
+.citation-detail-dark .badge {
+    background: rgba(59, 130, 246, 0.2) !important;
+    color: #93c5fd !important;
+}
+
+.citation-detail-dark .alert {
+    border-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+.citation-detail-dark .alert-info {
+    background: rgba(14, 165, 233, 0.1) !important;
+    color: #7dd3fc !important;
+    border-color: rgba(14, 165, 233, 0.3) !important;
+}
+
+.citation-detail-dark h4, 
+.citation-detail-dark h5, 
+.citation-detail-dark h6,
+.citation-detail-dark strong {
+    color: #f1f5f9 !important;
+}
+
+.citation-detail-dark .text-dark {
+    color: #f1f5f9 !important;
+}
+
+.citation-detail-dark pre {
+    background: rgba(15, 23, 42, 0.5) !important;
+    color: #cbd5e1 !important;
+}
+</style>
+
+<div class="container-fluid py-4 citation-detail-dark">
     <div class="row no-print">
         <div class="col-12 mb-3 d-flex justify-content-between align-items-center">
             <button onclick="window.history.back()" class="btn btn-sm btn-outline-secondary">
@@ -145,9 +231,11 @@
                     {% endif %}
                     
                     <!-- AI Headnotes Section -->
-                    <div class="mb-4 border-top pt-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="mb-0"><i class="fas fa-robot me-2 text-primary"></i>AI Headnotes</h6>
+                    <div class="mb-4 border-top border-cyan-500/30 pt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0 text-cyan-300 animate-textGlow" style="font-size: 1.1rem; font-weight: 600;">
+                                <i class="fas fa-robot me-2"></i>AI Headnotes
+                            </h6>
                         </div>
                         <div id="ai-headnotes-content">
                             {% if citation.ai_headnotes %}
@@ -174,9 +262,11 @@
                     </div>
                     
                     <!-- AI Summary Section -->
-                    <div class="mb-4 border-top pt-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="mb-0"><i class="fas fa-robot me-2 text-primary"></i>AI Summary</h6>
+                    <div class="mb-4 border-top border-cyan-500/30 pt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0 text-cyan-300 animate-textGlow" style="font-size: 1.1rem; font-weight: 600;">
+                                <i class="fas fa-robot me-2"></i>AI Summary
+                            </h6>
                         </div>
                         <div id="ai-summary-content">
                             {% if citation.ai_summary %}
@@ -915,4 +1005,6 @@ async function regenerateHeadnotes(citationId) {
     await generateHeadnotes(citationId);
 }
 </script>
+</div>
+<!-- End dark theme wrapper -->
 {% endblock %}
