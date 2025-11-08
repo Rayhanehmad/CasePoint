@@ -1,899 +1,200 @@
 {% extends "base.html" %}
 
-{% block title %}CasePoint - Modern Legal Research Platform{% endblock %}
+{% block title %}CasePoint — Dashboard{% endblock %}
 
 {% block content %}
-<style>
-.modern-landing {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 50%, #EFF6FF 100%);
-    padding: 2.5rem 0;
-}
-
-.landing-header {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-
-.logo-container {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.logo-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    background: linear-gradient(135deg, #2563EB, #3B82F6);
-    border-radius: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 1.25rem;
-}
-
-.logo-text {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #1D4ED8;
-}
-
-.menu-button {
-    padding: 0.5rem;
-    background: white;
-    border: none;
-    border-radius: 50%;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.menu-button:hover {
-    background: #EFF6FF;
-}
-
-.search-section {
-    max-width: 900px;
-    margin: 0 auto 2.5rem;
-    padding: 0 1.5rem;
-}
-
-.case-analyzer-hero {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-    border-radius: 1.5rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(147, 197, 253, 0.3);
-    padding: 2.5rem;
-    text-align: center;
-}
-
-.case-analyzer-icons {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.hero-icon {
-    width: 4rem;
-    height: 4rem;
-    border-radius: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.hero-icon-brain {
-    background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
-    color: #2563EB;
-}
-
-.hero-icon-balance {
-    background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
-    color: #7C3AED;
-}
-
-.case-analyzer-title {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #1D4ED8;
-    margin-bottom: 1rem;
-    line-height: 1.2;
-}
-
-.case-analyzer-subtitle {
-    font-size: 1rem;
-    color: #6B7280;
-    line-height: 1.6;
-    max-width: 700px;
-    margin: 0 auto 2rem;
-}
-
-.case-analyzer-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-}
-
-.cta-button {
-    padding: 1rem 2rem;
-    border-radius: 0.75rem;
-    font-weight: 600;
-    font-size: 1rem;
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-decoration: none;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.cta-button-primary {
-    background: linear-gradient(135deg, #2563EB, #3B82F6);
-    color: white;
-}
-
-.cta-button-primary:hover {
-    background: linear-gradient(135deg, #1D4ED8, #2563EB);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
-    color: white;
-}
-
-.cta-button-secondary {
-    background: linear-gradient(135deg, #7C3AED, #8B5CF6);
-    color: white;
-}
-
-.cta-button-secondary:hover {
-    background: linear-gradient(135deg, #6D28D9, #7C3AED);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
-    color: white;
-}
-
-.case-analyzer-features {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.feature-badge {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid #E5E7EB;
-    padding: 0.5rem 1rem;
-    border-radius: 2rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: #374151;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.feature-badge i {
-    color: #3B82F6;
-}
-
-@media (max-width: 768px) {
-    .case-analyzer-hero {
-        padding: 2rem 1.5rem;
-    }
-    
-    .case-analyzer-title {
-        font-size: 1.5rem;
-    }
-    
-    .case-analyzer-subtitle {
-        font-size: 0.9rem;
-    }
-    
-    .case-analyzer-actions {
-        flex-direction: column;
-    }
-    
-    .cta-button {
-        width: 100%;
-        justify-content: center;
-    }
-    
-    .hero-icon {
-        width: 3rem;
-        height: 3rem;
-        font-size: 1.5rem;
-    }
-}
-
-.modern-search-form {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(12px);
-    border-radius: 1rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(147, 197, 253, 0.3);
-    padding: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.modern-search-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 1rem;
-    color: #374151;
-    padding: 0.5rem;
-}
-
-.modern-search-input::placeholder {
-    color: #9CA3AF;
-}
-
-.modern-search-button {
-    background: linear-gradient(135deg, #2563EB, #3B82F6);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.75rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.modern-search-button:hover {
-    background: linear-gradient(135deg, #1D4ED8, #2563EB);
-    transform: translateY(-1px);
-}
-
-.ai-search-box {
-    max-width: 800px;
-    margin: 0 auto 2.5rem;
-    padding: 0 1.5rem;
-}
-
-.ai-search-card {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(147, 197, 253, 0.3);
-    border-radius: 1.5rem;
-    padding: 1.5rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
-.ai-search-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.ai-search-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #1D4ED8;
-}
-
-.ai-textarea {
-    width: 100%;
-    height: 7rem;
-    border: 1px solid #D1D5DB;
-    border-radius: 0.75rem;
-    padding: 0.75rem;
-    font-size: 0.875rem;
-    resize: none;
-    transition: all 0.3s;
-}
-
-.ai-textarea:focus {
-    outline: none;
-    border-color: #3B82F6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.ai-actions {
-    margin-top: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.file-upload-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #2563EB;
-    cursor: pointer;
-    font-size: 0.875rem;
-}
-
-.file-upload-label:hover {
-    text-decoration: underline;
-}
-
-.citation-explorer {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-}
-
-.explorer-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #1F2937;
-    margin-bottom: 1rem;
-}
-
-.journal-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2.5rem;
-}
-
-.journal-card {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(8px);
-    padding: 1rem;
-    border-radius: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(229, 231, 235, 0.5);
-    cursor: pointer;
-    transition: all 0.3s;
-    text-decoration: none;
-    display: block;
-}
-
-.journal-card:hover {
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-    text-decoration: none;
-}
-
-.journal-code {
-    color: #1D4ED8;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.journal-name {
-    color: #6B7280;
-    font-size: 0.875rem;
-}
-
-.stats-banner {
-    max-width: 1200px;
-    margin: 0 auto 2.5rem;
-    padding: 0 1.5rem;
-}
-
-.stats-card {
-    background: linear-gradient(135deg, #2563EB, #3B82F6);
-    border-radius: 1.5rem;
-    padding: 2rem;
-    color: white;
-    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
-}
-
-.stats-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 1.5rem;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1.5rem;
-}
-
-.stat-item {
-    text-align: center;
-}
-
-.stat-number {
-    font-size: 1.875rem;
-    font-weight: bold;
-    margin-bottom: 0.25rem;
-}
-
-.stat-label {
-    color: #BFDBFE;
-    font-size: 0.875rem;
-}
-
-.footer-text {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-    text-align: center;
-    color: #6B7280;
-    font-size: 0.875rem;
-}
-
-.filter-buttons {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 1rem;
-    flex-wrap: nowrap;
-    justify-content: center;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.filter-dropdown {
-    position: relative;
-}
-
-.filter-button {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid #D1D5DB;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    color: #374151;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    flex: 1;
-    justify-content: center;
-    min-width: 150px;
-}
-
-.filter-button:hover {
-    background: white;
-    border-color: #3B82F6;
-    color: #2563EB;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.filter-button.active {
-    background: linear-gradient(135deg, #2563EB, #3B82F6);
-    color: white;
-    border-color: #2563EB;
-}
-
-.filter-dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 0.5rem;
-    background: white;
-    border: 1px solid #E5E7EB;
-    border-radius: 0.75rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    min-width: 250px;
-    max-width: 350px;
-    max-height: 400px;
-    overflow: hidden;
-    z-index: 1000;
-}
-
-.filter-dropdown-menu.show {
-    display: block;
-}
-
-.filter-search-box {
-    padding: 0.75rem;
-    border-bottom: 1px solid #E5E7EB;
-}
-
-.filter-search-input {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #D1D5DB;
-    border-radius: 0.375rem;
-    font-size: 0.875rem;
-    outline: none;
-}
-
-.filter-search-input:focus {
-    border-color: #3B82F6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.filter-options {
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.filter-option {
-    padding: 0.75rem 1rem;
-    cursor: pointer;
-    transition: background 0.2s;
-    border-bottom: 1px solid #F3F4F6;
-    font-size: 0.875rem;
-}
-
-.filter-option:last-child {
-    border-bottom: none;
-}
-
-.filter-option:hover {
-    background: #EFF6FF;
-}
-
-.filter-option.selected {
-    background: #DBEAFE;
-    color: #1D4ED8;
-    font-weight: 600;
-}
-
-.filter-clear-btn {
-    padding: 0.5rem 1rem;
-    background: #FEE2E2;
-    color: #DC2626;
-    border: none;
-    width: 100%;
-    text-align: center;
-    cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: background 0.2s;
-}
-
-.filter-clear-btn:hover {
-    background: #FECACA;
-}
-
-/* Results section on homepage */
-.filter-results-section {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 1.5rem;
-    display: none;
-}
-
-.filter-results-section.show {
-    display: block;
-}
-
-.results-header-home {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 1rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.result-card-home {
-    background: white;
-    border: 1px solid #E5E7EB;
-    border-radius: 0.75rem;
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-    transition: all 0.3s;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.result-card-home:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: #3B82F6;
-}
-
-@media (max-width: 768px) {
-    .journal-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .filter-buttons {
-        flex-wrap: wrap;
-    }
-    
-    .filter-button {
-        min-width: calc(33.333% - 0.5rem);
-    }
-    
-    .filter-dropdown-menu {
-        left: 0;
-        right: 0;
-        max-width: 100%;
-    }
-}
-</style>
-
-<div class="modern-landing">
-    <!-- Header -->
-    <div class="landing-header">
-        <div class="logo-container">
-            <div>
-                <div class="logo-text">CasePoint</div>
-                <div style="font-size: 0.875rem; color: #6B7280; margin-top: 0.25rem;">Professional Legal Research Platform</div>
-            </div>
+<div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-800 text-white font-inter">
+  <!-- Layout -->
+  <div class="flex">
+
+    <!-- Sidebar -->
+    <aside class="w-72 hidden md:flex flex-col items-center py-8 shadow-xl bg-gradient-to-b from-slate-900 via-blue-900 to-slate-800">
+      <!-- Logo block -->
+      <div class="mb-10 relative flex flex-col items-center">
+        <div class="relative">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Scales_of_Justice.svg"
+               alt="CasePoint Logo" class="w-20 h-20 animate-glow rounded-full p-2 bg-white/5">
+          <div class="absolute inset-0 rounded-full blur-2xl bg-cyan-500/40 animate-pulseGlow"></div>
         </div>
-        <a href="{{ url_for('cases.search_cases') }}" class="menu-button">
-            <i class="fas fa-bars" style="color: #2563EB; font-size: 1.25rem;"></i>
+
+        <h1 class="mt-3 text-2xl font-extrabold bg-gradient-to-r from-cyan-300 via-sky-400 to-indigo-300 bg-clip-text text-transparent animate-textGlow font-orbitron">
+          CasePoint
+        </h1>
+        <p class="text-[0.75rem] text-cyan-200/90 tracking-wide">Legal Intelligence, Simplified by AI ⚡</p>
+      </div>
+
+      <nav class="w-full px-6 space-y-2 text-gray-200">
+        <a href="{{ url_for('home') }}" class="flex items-center gap-3 px-3 py-2 rounded-md bg-white/10 text-cyan-300 transition">
+          <span class="w-5 h-5">⚖️</span>
+          <span>Dashboard</span>
         </a>
-    </div>
+        <a href="{{ url_for('cases.search_cases') }}" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 hover:text-cyan-300 transition">
+          <span class="w-5 h-5">🔎</span>
+          <span>Search Cases</span>
+        </a>
+        <a href="{{ url_for('acts.search_statutes') }}" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 hover:text-cyan-300 transition">
+          <span class="w-5 h-5">📘</span>
+          <span>Acts & Rules</span>
+        </a>
+        <a href="{{ url_for('search') }}" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 hover:text-cyan-300 transition">
+          <span class="w-5 h-5">💽</span>
+          <span>Citation Search</span>
+        </a>
+        <a href="{{ url_for('ai.ai_analysis') }}" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 hover:text-cyan-300 transition">
+          <span class="w-5 h-5">🧠</span>
+          <span>AI Analysis</span>
+        </a>
+        <a href="{{ url_for('ai.case_analyzer') }}" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 hover:text-cyan-300 transition">
+          <span class="w-5 h-5">⚡</span>
+          <span>Case Analyzer</span>
+        </a>
+        {% if session.get('role') == 'admin' %}
+        <a href="{{ url_for('upload_multi_pdf_page') }}" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 hover:text-cyan-300 transition">
+          <span class="w-5 h-5">📄</span>
+          <span>Multi-PDF Splitter</span>
+        </a>
+        {% endif %}
+      </nav>
+    </aside>
 
-    <!-- Case Analyzer Hero Card -->
-    <div class="search-section">
-        <div class="case-analyzer-hero">
-            <div class="case-analyzer-icons">
-                <div class="hero-icon hero-icon-brain">
-                    <i class="fas fa-brain"></i>
-                </div>
-                <div class="hero-icon hero-icon-balance">
-                    <i class="fas fa-balance-scale"></i>
-                </div>
-            </div>
-            
-            <h2 class="case-analyzer-title">Case Analyzer / Which Laws Apply</h2>
-            <p class="case-analyzer-subtitle">
-                Enter your legal narrative and instantly discover AI-powered defense arguments, 
-                related case laws, applicable statutes, and comprehensive legal analysis
-            </p>
-            
-            <div class="case-analyzer-actions">
-                <a href="{{ url_for('ai.case_analyzer') }}" class="cta-button cta-button-primary">
-                    <i class="fas fa-search me-2"></i>
-                    <span>Analyze Case</span>
-                </a>
-                <a href="{{ url_for('ai.case_analyzer') }}" class="cta-button cta-button-secondary">
-                    <i class="fas fa-balance-scale me-2"></i>
-                    <span>Which Laws Apply?</span>
-                </a>
-            </div>
-            
-            <div class="case-analyzer-features">
-                <div class="feature-badge">
-                    <i class="fas fa-robot"></i>
-                    <span>AI Counter Arguments</span>
-                </div>
-                <div class="feature-badge">
-                    <i class="fas fa-gavel"></i>
-                    <span>Citation Detection</span>
-                </div>
-                <div class="feature-badge">
-                    <i class="fas fa-book"></i>
-                    <span>Statute Identification</span>
-                </div>
-            </div>
+    <!-- Main -->
+    <main class="flex-1 p-6 md:p-10 space-y-8">
+
+      <!-- Hero -->
+      <section class="glass rounded-3xl p-8 shadow-lg animate-slideIn">
+        <h2 class="text-3xl md:text-4xl font-extrabold">Welcome back, {{ user.full_name }} 👋</h2>
+        <p class="mt-2 text-cyan-100/90">Access Pakistan's most advanced AI-powered legal research platform.</p>
+      </section>
+
+      <!-- Quick Actions -->
+      <section class="animate-slideIn" style="animation-delay: 0.1s;">
+        <h3 class="text-xl font-semibold mb-4 text-gray-200">AI Quick Actions</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <a href="{{ url_for('cases.search_cases') }}" class="glass p-6 rounded-2xl hover:border-cyan-400 transition shadow-md">
+            <div class="inline-block px-3 py-2 mb-3 rounded-xl text-white bg-gradient-to-r from-indigo-500 to-blue-600">🔍</div>
+            <div class="text-lg font-semibold">New Search</div>
+            <div class="text-sm text-gray-300">Start a new legal query</div>
+          </a>
+          <a href="{{ url_for('ai.case_analyzer') }}" class="glass p-6 rounded-2xl hover:border-cyan-400 transition shadow-md">
+            <div class="inline-block px-3 py-2 mb-3 rounded-xl text-white bg-gradient-to-r from-cyan-500 to-teal-500">⚖️</div>
+            <div class="text-lg font-semibold">Which Laws Apply</div>
+            <div class="text-sm text-gray-300">AI suggests applicable acts & rules</div>
+          </a>
+          {% if session.get('role') == 'admin' %}
+          <a href="{{ url_for('upload_multi_pdf_page') }}" class="glass p-6 rounded-2xl hover:border-cyan-400 transition shadow-md">
+            <div class="inline-block px-3 py-2 mb-3 rounded-xl text-white bg-gradient-to-r from-purple-500 to-pink-500">⬆️</div>
+            <div class="text-lg font-semibold">Upload Documents</div>
+            <div class="text-sm text-gray-300">Add legal documents</div>
+          </a>
+          {% else %}
+          <a href="{{ url_for('ai.ai_analysis') }}" class="glass p-6 rounded-2xl hover:border-cyan-400 transition shadow-md">
+            <div class="inline-block px-3 py-2 mb-3 rounded-xl text-white bg-gradient-to-r from-purple-500 to-pink-500">🧠</div>
+            <div class="text-lg font-semibold">AI Analysis</div>
+            <div class="text-sm text-gray-300">Ask legal questions</div>
+          </a>
+          {% endif %}
         </div>
-    </div>
+      </section>
 
-    <!-- AI Search Box -->
-    <div class="ai-search-box">
-        <form action="{{ url_for('ai.ai_analysis') }}" method="POST" enctype="multipart/form-data">
-            <div class="ai-search-card">
-                <div class="ai-search-header">
-                    <i class="fas fa-sparkles" style="color: #3B82F6;"></i>
-                    <h2 class="ai-search-title mb-0">AI Search</h2>
-                </div>
-                <textarea
-                    name="query"
-                    class="ai-textarea"
-                    placeholder="Explain a concept, case, or section..."
-                ></textarea>
-
-                <div class="ai-actions">
-                    <label class="file-upload-label">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <span>Attach document (PDF, DOCX, TXT)</span>
-                        <input type="file" name="document" hidden accept=".pdf,.docx,.txt" />
-                    </label>
-
-                    <button type="submit" class="modern-search-button">
-                        Search
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <!-- Keyword Search Section -->
-    <div class="keyword-search-container" style="max-width: 800px; margin: 0 auto 2.5rem; padding: 0 1.5rem;">
-        <div style="background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(147, 197, 253, 0.3); border-radius: 1.5rem; padding: 1.5rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);">
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                <i class="fas fa-search" style="color: #3B82F6; font-size: 1.5rem;"></i>
-                <h2 style="font-size: 1.5rem; font-weight: 700; color: #1E3A5F; margin: 0;">Keyword Search</h2>
-            </div>
-            <p style="color: #5A6C7D; margin-bottom: 1.5rem;">Search across case citations, summaries, and full text with highlighted results</p>
-            
-            <div class="modern-search-form" style="margin-bottom: 1rem;">
-                <i class="fas fa-keyboard" style="color: #9CA3AF;"></i>
-                <input 
-                    type="text" 
-                    id="keyword-search-input" 
-                    class="modern-search-input" 
-                    placeholder="Enter keywords to search (e.g., contract breach, criminal liability)"
-                />
-                <button type="button" id="keyword-search-btn" class="modern-search-button">
-                    <i class="fas fa-search"></i>
-                    Search
-                </button>
-            </div>
-
-            <!-- Loading Indicator -->
-            <div id="keyword-loading" style="display: none; text-align: center; padding: 1rem; color: #3B82F6;">
-                <i class="fas fa-circle-notch fa-spin"></i>
-                <span style="margin-left: 0.5rem;">Searching...</span>
-            </div>
-
-            <!-- Results Count -->
-            <div id="keyword-results-count" style="display: none; margin-bottom: 1rem; padding: 0.75rem; background: rgba(59, 130, 246, 0.1); border-radius: 0.5rem; color: #1E3A5F; font-weight: 600;"></div>
-
-            <!-- Results Container -->
-            <div id="keyword-results-container" style="margin-top: 1.5rem;"></div>
+      <!-- Stats -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slideIn" style="animation-delay: 0.2s;">
+        <div class="glass rounded-2xl p-5">
+          <div class="text-sm text-gray-300">Total Searches</div>
+          <div class="text-3xl font-semibold mt-1">{{ "{:,}".format(stats.search_count) }}</div>
         </div>
-    </div>
-
-    <!-- Citation Explorer -->
-    <div class="citation-explorer">
-        <h3 class="explorer-title">Citation Explorer</h3>
-        <div class="journal-grid">
-            <a href="{{ url_for('cases.journal_index', journal_code='PLD') }}" class="journal-card">
-                <h4 class="journal-code">PLD</h4>
-                <p class="journal-name mb-0">Explore Pakistan Legal Decisions</p>
-            </a>
-            <a href="{{ url_for('cases.journal_index', journal_code='MLD') }}" class="journal-card">
-                <h4 class="journal-code">MLD</h4>
-                <p class="journal-name mb-0">Explore Monthly Law Digest</p>
-            </a>
-            <a href="{{ url_for('cases.journal_index', journal_code='SCMR') }}" class="journal-card">
-                <h4 class="journal-code">SCMR</h4>
-                <p class="journal-name mb-0">Explore Supreme Court Monthly Review</p>
-            </a>
-            <a href="{{ url_for('cases.journal_index', journal_code='YLR') }}" class="journal-card">
-                <h4 class="journal-code">YLR</h4>
-                <p class="journal-name mb-0">Explore Yearly Law Reports</p>
-            </a>
-            <a href="{{ url_for('cases.journal_index', journal_code='CLC') }}" class="journal-card">
-                <h4 class="journal-code">CLC</h4>
-                <p class="journal-name mb-0">Explore Civil Law Cases</p>
-            </a>
-            <a href="{{ url_for('cases.journal_index', journal_code='CLD') }}" class="journal-card">
-                <h4 class="journal-code">CLD</h4>
-                <p class="journal-name mb-0">Explore Civil Law Digest</p>
-            </a>
+        <div class="glass rounded-2xl p-5">
+          <div class="text-sm text-gray-300">Documents Available</div>
+          <div class="text-3xl font-semibold mt-1">{{ "{:,}".format(stats.document_count) }}</div>
         </div>
-    </div>
+        <div class="glass rounded-2xl p-5">
+          <div class="text-sm text-gray-300">Plan Status</div>
+          <div class="text-3xl font-semibold mt-1 capitalize">{{ user.subscription_tier }}</div>
+        </div>
+      </section>
 
-    <!-- Stats Banner -->
-    <div class="stats-banner">
-        <div class="stats-card">
-            <h3 class="stats-title">Powered by AI & Advanced Search</h3>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-number">{{ stats.total_citations or '10,000+' }}</div>
-                    <div class="stat-label">Legal Citations</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">AI-Powered</div>
-                    <div class="stat-label">Smart Search</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">Real-time</div>
-                    <div class="stat-label">Document Analysis</div>
-                </div>
+      <!-- Recent Searches & Subscription -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-slideIn" style="animation-delay: 0.3s;">
+        <div class="glass rounded-2xl p-6">
+          <h3 class="text-lg font-semibold mb-3">Recent Activity</h3>
+          <div class="space-y-3">
+            {% for s in stats.recent_searches %}
+            <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10 hover:border-cyan-400 transition">
+              <div>
+                <div class="text-sm font-medium">{{ s.query }}</div>
+                <div class="text-xs text-gray-300">{{ s.results }} results found</div>
+              </div>
+              <div class="text-xs text-gray-400">{{ s.date }}</div>
             </div>
+            {% endfor %}
+          </div>
         </div>
-    </div>
 
-    <!-- Footer -->
-    <div class="footer-text">
-        <p>© 2025 CasePoint - Professional Legal Research Platform for Pakistan Law</p>
-    </div>
+        <div class="glass rounded-2xl p-6">
+          <h3 class="text-lg font-semibold mb-3">Subscription</h3>
+          <div class="flex items-center justify-between py-2">
+            <span class="text-sm text-gray-300">Current Plan</span>
+            <span class="text-sm font-medium capitalize">{{ user.subscription_tier }}</span>
+          </div>
+          {% if user.subscription_tier == 'free' %}
+          <div class="mt-4 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-100">
+            Upgrade to access advanced search and unlimited queries.
+            <a href="#" data-bs-toggle="modal" data-bs-target="#subscribeModal" class="ml-2 underline">Upgrade →</a>
+          </div>
+          {% else %}
+          <div class="mt-4 p-4 rounded-lg bg-green-500/10 border border-green-500/30 text-green-100">
+            You have full access to all premium features.
+          </div>
+          {% endif %}
+          <div class="pt-4 mt-4 border-t border-white/10">
+            <a href="#" data-bs-toggle="modal" data-bs-target="#subscribeModal" class="text-sm text-cyan-300 hover:text-cyan-200">Manage subscription →</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Featured Tools -->
+      <section class="animate-slideIn" style="animation-delay: 0.4s;">
+        <h3 class="text-xl font-semibold mb-4 text-gray-200">Featured Legal Journals</h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {% set journals = [
+            ('PLD', 'Pakistan Legal Decisions'),
+            ('MLD', 'Monthly Law Digest'),
+            ('SCMR', 'Supreme Court Monthly Review'),
+            ('YLR', 'Yearly Law Reports'),
+            ('CLC', 'Civil Law Cases'),
+            ('CLD', 'Civil Law Digest')
+          ] %}
+          {% for code, name in journals %}
+          <a href="{{ url_for('cases.journal_index', journal_code=code) }}" class="glass p-4 rounded-xl hover:border-cyan-400 transition text-center">
+            <div class="text-lg font-bold text-cyan-300 mb-1">{{ code }}</div>
+            <div class="text-xs text-gray-400">{{ name }}</div>
+          </a>
+          {% endfor %}
+        </div>
+      </section>
+
+    </main>
+  </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // CasePoint Homepage - Case Analyzer Hero Card
-    console.log('CasePoint homepage loaded - featuring AI Case Analyzer');
-    
-    // Keyword Search Functionality
-    const keywordSearchBtn = document.getElementById('keyword-search-btn');
-    const keywordSearchInput = document.getElementById('keyword-search-input');
-    const keywordLoading = document.getElementById('keyword-loading');
-    const keywordResultsCount = document.getElementById('keyword-results-count');
-    const keywordResultsContainer = document.getElementById('keyword-results-container');
-
-    function performKeywordSearch() {
-        const query = keywordSearchInput.value.trim();
-        
-        if (!query) {
-            alert('Please enter keywords to search');
-            return;
-        }
-
-        // Show loading, hide results
-        keywordLoading.style.display = 'block';
-        keywordResultsCount.style.display = 'none';
-        keywordResultsContainer.innerHTML = '';
-
-        // Make API request
-        fetch(`/api/search/keyword?q=${encodeURIComponent(query)}`)
-            .then(response => response.json())
-            .then(data => {
-                // Hide loading
-                keywordLoading.style.display = 'none';
-
-                // Show results count
-                keywordResultsCount.style.display = 'block';
-                keywordResultsCount.innerHTML = `<i class="fas fa-check-circle me-2"></i>Found ${data.total} result${data.total !== 1 ? 's' : ''}`;
-
-                // Display results
-                if (data.results && data.results.length > 0) {
-                    const resultsHTML = data.results.map(result => `
-                        <div class="keyword-result-item">
-                            <div class="keyword-result-citation">
-                                <i class="fas fa-gavel me-2"></i>${result.citation}
-                            </div>
-                            ${result.party_line ? `<div style="font-size: 0.9rem; color: #1F2937; font-weight: 500; margin-top: 0.5rem;">${result.party_line}</div>` : ''}
-                            <div class="keyword-result-meta">
-                                ${result.court ? `<i class="fas fa-landmark me-1"></i>${result.court}` : ''}
-                                ${result.journal ? `<span class="ms-2"><i class="fas fa-book me-1"></i>${result.journal}</span>` : ''}
-                                ${result.year ? `<span class="ms-2"><i class="fas fa-calendar me-1"></i>${result.year}</span>` : ''}
-                            </div>
-                            <div class="search-result-preview">
-                                ${result.summary_preview}
-                            </div>
-                            <a href="/cases/${result.id}" class="btn btn-sm btn-outline-primary mt-2">
-                                <i class="fas fa-file-alt me-1"></i>View Full Citation
-                            </a>
-                        </div>
-                    `).join('');
-                    
-                    keywordResultsContainer.innerHTML = resultsHTML;
-                } else {
-                    keywordResultsContainer.innerHTML = `
-                        <div style="text-align: center; padding: 2rem; color: #5A6C7D;">
-                            <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                            <p>No results found for "${query}"</p>
-                        </div>
-                    `;
-                }
-            })
-            .catch(error => {
-                console.error('Keyword search error:', error);
-                keywordLoading.style.display = 'none';
-                keywordResultsContainer.innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: #EF4444;">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                        <p>Error performing search. Please try again.</p>
-                    </div>
-                `;
-            });
-    }
-
-    // Add click handler for search button
-    if (keywordSearchBtn) {
-        keywordSearchBtn.addEventListener('click', performKeywordSearch);
-    }
-
-    // Add Enter key handler for search input
-    if (keywordSearchInput) {
-        keywordSearchInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                performKeywordSearch();
-            }
-        });
-    }
-});
-</script>
+<style>
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .flex {
+    flex-direction: column;
+  }
+  aside {
+    width: 100% !important;
+    padding: 1rem !important;
+  }
+  aside nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  aside nav a {
+    flex: 1;
+    min-width: calc(50% - 0.25rem);
+  }
+}
+</style>
 {% endblock %}

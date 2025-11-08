@@ -91,7 +91,13 @@ def create_app(config_name='default'):
     # Main routes
     @app.route('/')
     def home():
-        """Homepage with search interface"""
+        """Modern dashboard homepage"""
+        # Get user info
+        user_info = {
+            'full_name': session.get('username', 'Guest User'),
+            'subscription_tier': 'pro'  # Default to pro for now
+        }
+        
         # Get statistics
         try:
             total_citations = LegalCitation.query.count()
@@ -99,19 +105,32 @@ def create_app(config_name='default'):
             total_acts = LegalCitation.query.filter(
                 LegalCitation.document_type.in_(['act', 'statute'])
             ).count()
+            
+            # Mock search count for now - can be tracked later
+            search_count = 1247
+            
+            # Get recent activity - mock data for now
+            recent_searches = [
+                {'query': 'Contract Law Breach', 'results': 42, 'date': '2 hours ago'},
+                {'query': 'Criminal Liability PPC', 'results': 28, 'date': 'Yesterday'},
+                {'query': 'Property Disputes', 'results': 156, 'date': '3 days ago'}
+            ]
+            
         except Exception as e:
             logging.error(f"Error fetching statistics: {e}")
             total_citations = 0
             total_cases = 0
             total_acts = 0
+            search_count = 0
+            recent_searches = []
         
         stats = {
-            'total_citations': total_citations,
-            'total_cases': total_cases,
-            'total_acts': total_acts
+            'search_count': search_count,
+            'document_count': total_citations,
+            'recent_searches': recent_searches
         }
         
-        return render_template('home.html', stats=stats)
+        return render_template('home.html', user=user_info, stats=stats)
     
     @app.route('/search')
     def search():
