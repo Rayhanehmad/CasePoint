@@ -3,10 +3,13 @@
 {% block title %}AI Case Analyzer - CasePoint{% endblock %}
 
 {% block content %}
+<!-- Dark theme wrapper -->
+<div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-800 text-white" style="margin: -1.5rem; padding: 1.5rem;">
+
 <style>
 .analyzer-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 50%, #EFF6FF 100%);
+    background: transparent;
     padding: 2.5rem 0;
 }
 
@@ -20,13 +23,14 @@
 .analyzer-title {
     font-size: 2.5rem;
     font-weight: bold;
-    color: #1D4ED8;
+    color: #60a5fa;
     margin-bottom: 0.5rem;
+    text-shadow: 0 0 20px rgba(96, 165, 250, 0.5);
 }
 
 .analyzer-subtitle {
     font-size: 1.125rem;
-    color: #6B7280;
+    color: #cbd5e1;
 }
 
 .input-section {
@@ -36,28 +40,31 @@
 }
 
 .input-card {
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(15, 23, 42, 0.75);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(147, 197, 253, 0.3);
+    border: 1px solid rgba(148, 163, 184, 0.15);
     border-radius: 1.5rem;
     padding: 2rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
 .narrative-textarea {
     width: 100%;
     min-height: 200px;
     padding: 1rem;
-    border: 2px solid #E5E7EB;
+    border: 2px solid rgba(148, 163, 184, 0.3);
     border-radius: 0.75rem;
     font-size: 1rem;
     resize: vertical;
     transition: border-color 0.3s;
+    background: rgba(30, 41, 59, 0.6);
+    color: #e2e8f0;
 }
 
 .narrative-textarea:focus {
     outline: none;
     border-color: #3B82F6;
+    background: rgba(30, 41, 59, 0.8);
 }
 
 .action-buttons {
@@ -651,4 +658,6 @@ document.addEventListener('keydown', function(e) {
     }
 });
 </script>
+</div>
+<!-- End dark theme wrapper -->
 {% endblock %}
