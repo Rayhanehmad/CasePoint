@@ -1,34 +1,45 @@
 {% extends "base.html" %}
 
 {% block title %}
-    {% if query %}Search Results for "{{ query }}"{% else %}Search{% endif %} - CasePoint
+    {% if query %}Search Results for "{{ query }}"{% else %}Search{% endif %} - CasePointAI
 {% endblock %}
 
 {% block content %}
-<!-- Dark theme wrapper -->
-<div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-800 text-white" style="margin: -1.5rem; padding: 1.5rem;">
-<div class="container-fluid py-4">
-    <div class="row">
-        <!-- Results Content -->
-        <div class="col-12">
-            <div class="results-container">
-                <!-- Results Header -->
-                <div class="results-header">
-                    <div class="d-flex justify-content-between align-items-center">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/casepoint-brand.css') }}">
+
+<div class="cp-bg-light" style="min-height: 100vh;">
+    <!-- Header Section -->
+    <div class="cp-gradient-primary text-white py-4">
+        <div class="container">
+            {% if query %}
+                <h3 class="cp-font-display mb-2" style="font-weight: 700;">
+                    <i class="fas fa-search me-2"></i>Search Results for "{{ query }}"
+                </h3>
+                <p style="opacity: 0.9;">
+                    {{ results|length }} result{{ 's' if results|length != 1 else '' }} found 
+                    {% if category != 'all' %}in {{ category|title }}{% endif %}
+                </p>
+            {% else %}
+                <h3 class="cp-font-display mb-2" style="font-weight: 700;">
+                    <i class="fas fa-book me-2"></i>Browse {{ category|title if category != 'all' else 'Legal Content' }}
+                </h3>
+                <p style="opacity: 0.9;">Use the search box above to find specific content</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-12">
+                <!-- Sort and Filter Controls -->
+                <div class="cp-glass-card p-3 mb-4">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <div>
-                            {% if query %}
-                                <h4 class="mb-1">Search Results for "{{ query }}"</h4>
-                                <p class="text-muted mb-0">{{ results|length }} results found 
-                                    {% if category != 'all' %}in {{ category|title }}{% endif %}
-                                </p>
-                            {% else %}
-                                <h4 class="mb-1">Browse {{ category|title if category != 'all' else 'Legal Content' }}</h4>
-                                <p class="text-muted mb-0">Use the search box above to find specific content</p>
-                            {% endif %}
+                            <strong style="color: var(--cp-text-dark);">Sorting & Filters</strong>
                         </div>
-                        <div class="d-flex align-items-center">
-                            <label for="sortBy" class="form-label me-2 mb-0">Sort by:</label>
-                            <select class="form-select form-select-sm" id="sortBy" style="width: auto;">
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="sortBy" class="form-label mb-0" style="color: var(--cp-text-dark);">Sort by:</label>
+                            <select class="form-select form-select-sm" id="sortBy" style="width: auto; border-color: rgba(30, 58, 138, 0.2);">
                                 <option value="relevance">Relevance</option>
                                 <option value="date">Date (Newest)</option>
                                 <option value="date_asc">Date (Oldest)</option>
@@ -37,245 +48,128 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Results List -->
-                <div class="p-4">
-                    {% if results %}
+                {% if results %}
+                    <div class="row g-3">
                         {% for result in results %}
-                        <div class="result-card-compact border-bottom py-3">
-                            <div class="d-flex justify-content-between align-items-center gap-3">
-                                <!-- Citation Badge -->
-                                <span class="badge bg-primary result-citation-badge">{{ result.citation }}</span>
-                                
-                                <!-- Court Name (flexible width) -->
-                                <div class="flex-grow-1">
-                                    {% if result.party_line %}
-                                        <div class="party-line-text">{{ result.party_line }}</div>
-                                    {% endif %}
-                                    {% if result.court %}
-                                        <span class="text-muted court-name">{{ result.court }}</span>
-                                    {% else %}
-                                        <span class="text-muted fst-italic">Court information not available</span>
-                                    {% endif %}
+                        <div class="col-12">
+                            <div class="cp-glass-card p-3 cp-card-hover">
+                                <div class="row align-items-center">
+                                    <!-- Citation Badge -->
+                                    <div class="col-md-3 mb-2 mb-md-0">
+                                        <span class="cp-badge-primary w-100 d-inline-block text-center" style="padding: 0.5rem;">
+                                            {{ result.citation }}
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Case Details -->
+                                    <div class="col-md-7 mb-2 mb-md-0">
+                                        {% if result.party_line %}
+                                            <h6 class="mb-1" style="color: var(--cp-text-dark); font-weight: 600;">
+                                                {{ result.party_line }}
+                                            </h6>
+                                        {% endif %}
+                                        {% if result.court %}
+                                            <p class="mb-1" style="color: var(--cp-text-dark); opacity: 0.7; font-size: 0.9rem;">
+                                                <i class="fas fa-university me-1" style="color: var(--cp-accent);"></i>{{ result.court }}
+                                            </p>
+                                        {% endif %}
+                                        {% if result.judgment_date %}
+                                            <p class="mb-0" style="color: var(--cp-text-dark); opacity: 0.6; font-size: 0.85rem;">
+                                                <i class="fas fa-calendar me-1"></i>{{ result.judgment_date }}
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Action Button -->
+                                    <div class="col-md-2 text-md-end">
+                                        <a href="{{ url_for('cases.case_detail', case_id=result.id) }}" class="btn cp-btn-primary btn-sm w-100">
+                                            <i class="fas fa-eye me-1"></i>View Details
+                                        </a>
+                                    </div>
                                 </div>
-                                
-                                <!-- View Full Text Button -->
-                                <a href="{{ url_for('cases.case_detail', case_id=result.id) }}" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-eye me-1"></i>View Full Text
-                                </a>
                             </div>
                         </div>
                         {% endfor %}
-                        
-                        <!-- Pagination -->
-                        <nav aria-label="Search results pagination" class="mt-4">
-                            <ul class="pagination justify-content-center">
-                                <li class="page-item disabled">
-                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                                </li>
-                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">Next</a>
-                                </li>
-                            </ul>
-                        </nav>
-                    {% else %}
-                        <div class="text-center py-5">
-                            <i class="fas fa-search fa-4x text-muted mb-3"></i>
-                            {% if query %}
-                                <h5>No results found for "{{ query }}"</h5>
-                                <p class="text-muted">Try adjusting your search terms</p>
-                                <div class="mt-3">
-                                    <a href="{{ url_for('home') }}" class="btn btn-outline-primary">
-                                        New Search
-                                    </a>
-                                </div>
-                            {% else %}
-                                <h5>Start Your Legal Research</h5>
-                                <p class="text-muted">Use the search box above to find cases, statutes, and legal documents</p>
-                                <a href="{{ url_for('home') }}" class="btn btn-primary">
-                                    <i class="fas fa-home me-2"></i>Go to Homepage
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <nav aria-label="Search results pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true" style="background: white; border-color: rgba(30, 58, 138, 0.2); color: var(--cp-text-dark);">
+                                    Previous
                                 </a>
-                            {% endif %}
+                            </li>
+                            <li class="page-item active">
+                                <a class="page-link" href="#" style="background: var(--cp-primary); border-color: var(--cp-primary);">1</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#" style="background: white; border-color: rgba(30, 58, 138, 0.2); color: var(--cp-text-dark);">2</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#" style="background: white; border-color: rgba(30, 58, 138, 0.2); color: var(--cp-text-dark);">3</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#" style="background: white; border-color: rgba(30, 58, 138, 0.2); color: var(--cp-text-dark);">
+                                    Next
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                {% else %}
+                    <!-- No Results State -->
+                    <div class="cp-glass-card p-5 text-center">
+                        <div style="color: var(--cp-primary); font-size: 4rem; opacity: 0.3;">
+                            <i class="fas fa-search"></i>
                         </div>
-                    {% endif %}
-                </div>
+                        {% if query %}
+                            <h5 class="mt-3" style="color: var(--cp-text-dark);">No results found for "{{ query }}"</h5>
+                            <p style="color: var(--cp-text-dark); opacity: 0.6;">Try adjusting your search terms or filters</p>
+                            <div class="mt-3">
+                                <a href="{{ url_for('home') }}" class="btn cp-btn-accent">
+                                    <i class="fas fa-search me-2"></i>New Search
+                                </a>
+                            </div>
+                        {% else %}
+                            <h5 class="mt-3" style="color: var(--cp-text-dark);">Start Your Legal Research</h5>
+                            <p style="color: var(--cp-text-dark); opacity: 0.6;">Use the search box above to find cases, statutes, and legal documents</p>
+                            <a href="{{ url_for('home') }}" class="btn cp-btn-primary">
+                                <i class="fas fa-home me-2"></i>Go to Dashboard
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
-</div>
-<!-- End dark theme wrapper -->
+
+<style>
+.pagination .page-link:hover {
+    background: rgba(30, 58, 138, 0.1) !important;
+    border-color: var(--cp-primary) !important;
+    color: var(--cp-primary) !important;
+}
+
+.pagination .page-item.active .page-link:hover {
+    background: var(--cp-primary) !important;
+}
+</style>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Scroll to results section when page loads (if there are results)
     {% if results %}
     setTimeout(function() {
-        const resultsSection = document.querySelector('.result-card-compact');
+        const resultsSection = document.querySelector('.cp-glass-card');
         if (resultsSection) {
             resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }, 100);
     {% endif %}
-    
 });
 </script>
-
-<style>
-/* Dark theme glassmorphic search results */
-.results-container {
-    backdrop-filter: blur(12px);
-    background: rgba(15, 23, 42, 0.75);
-    border: 1px solid rgba(148, 163, 184, 0.15);
-    border-radius: 1rem;
-    overflow: hidden;
-}
-
-.results-header {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(59, 130, 246, 0.1));
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.15);
-}
-
-.results-header h4 {
-    color: #f1f5f9;
-}
-
-.results-header .text-muted {
-    color: #94a3b8 !important;
-}
-
-.results-header .form-select {
-    background: rgba(15, 23, 42, 0.6);
-    color: #e2e8f0;
-    border-color: rgba(148, 163, 184, 0.3);
-}
-
-/* Compact result card styling */
-.result-card-compact {
-    transition: all 0.3s ease;
-    border-color: rgba(148, 163, 184, 0.15) !important;
-}
-
-.result-card-compact:hover {
-    background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), rgba(14, 165, 233, 0.1)) !important;
-    border-color: rgba(59, 130, 246, 0.4) !important;
-    transform: translateX(4px);
-}
-
-.result-citation-badge {
-    font-size: 0.7rem;
-    padding: 0.3rem 0.5rem;
-    white-space: normal;
-    min-width: 120px;
-    max-width: 250px;
-    text-align: center;
-    line-height: 1.3;
-    word-break: keep-all;
-    background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
-    border: none;
-}
-
-.result-card-compact .court-name {
-    font-size: 0.75rem;
-    color: #94a3b8 !important;
-}
-
-.result-card-compact .btn-sm {
-    font-size: 0.7rem;
-    padding: 0.25rem 0.5rem;
-    background: rgba(59, 130, 246, 0.2);
-    border-color: #3b82f6 !important;
-    color: #60a5fa !important;
-}
-
-.result-card-compact .btn-sm:hover {
-    background: rgba(59, 130, 246, 0.3);
-    color: #93c5fd !important;
-}
-
-.party-line-text {
-    font-size: 0.75rem;
-    color: #e2e8f0 !important;
-    font-weight: 500;
-    margin-bottom: 0.25rem;
-    line-height: 1.3;
-}
-
-.pagination .page-link {
-    background: rgba(15, 23, 42, 0.6);
-    border-color: rgba(148, 163, 184, 0.3);
-    color: #94a3b8;
-}
-
-.pagination .page-item.active .page-link {
-    background: linear-gradient(135deg, #2563eb, #3b82f6);
-    border-color: #3b82f6;
-    color: white;
-}
-
-.pagination .page-link:hover {
-    background: rgba(59, 130, 246, 0.2);
-    color: #93c5fd;
-}
-
-/* Mobile responsive styles */
-@media (max-width: 768px) {
-    .result-card-compact {
-        font-size: 0.85rem;
-    }
-    
-    .result-citation-badge {
-        font-size: 0.65rem;
-        padding: 0.25rem 0.4rem;
-        min-width: 100px;
-        max-width: 200px;
-    }
-    
-    .result-card-compact .court-name {
-        font-size: 0.7rem;
-    }
-    
-    .result-card-compact .btn-sm {
-        font-size: 0.65rem;
-        padding: 0.2rem 0.4rem;
-    }
-    
-    .party-line-text {
-        font-size: 0.7rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .result-citation-badge {
-        font-size: 0.6rem;
-        padding: 0.2rem 0.3rem;
-        min-width: 80px;
-        max-width: 150px;
-    }
-    
-    .result-card-compact .btn-sm {
-        font-size: 0.6rem;
-        padding: 0.15rem 0.3rem;
-    }
-    
-    .result-card-compact .btn-sm i {
-        display: none;
-    }
-    
-    .party-line-text {
-        font-size: 0.65rem;
-    }
-    
-    .result-card-compact .court-name {
-        font-size: 0.65rem;
-    }
-}
-
-</style>
 {% endblock %}
