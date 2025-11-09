@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}CasePoint - Legal Intelligence, Simplified by AI{% endblock %}</title>
+    <title>{% block title %}CasePointAI - Legal Intelligence, Simplified by AI{% endblock %}</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,8 +11,16 @@
         tailwind.config = {
             theme: {
                 extend: {
+                    colors: {
+                        primary: '#1E3A8A',
+                        accent: '#10B981',
+                        secondary: '#059669',
+                        background: '#F9FAFB',
+                        textDark: '#1E293B',
+                    },
                     fontFamily: {
-                        orbitron: ['Orbitron', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                        merriweather: ['Merriweather', 'serif'],
                     },
                 }
             }
@@ -20,7 +28,7 @@
     </script>
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:wght@400;600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -29,37 +37,160 @@
     <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     
-    <!-- Glassmorphism & Glow Animations -->
+    <!-- CasePointAI Brand Styles -->
     <style>
-        /* Glass + glow animations */
-        @keyframes glowPulse {
-            0% { box-shadow: 0 0 10px rgba(0, 153, 255, 0.3), 0 0 20px rgba(0, 153, 255, 0.2); }
-            50% { box-shadow: 0 0 25px rgba(0, 153, 255, 0.8), 0 0 55px rgba(0, 153, 255, 0.6); }
-            100% { box-shadow: 0 0 10px rgba(0, 153, 255, 0.3), 0 0 20px rgba(0, 153, 255, 0.2); }
+        :root {
+            --primary: #1E3A8A;
+            --accent: #10B981;
+            --secondary: #059669;
+            --background: #F9FAFB;
+            --text-dark: #1E293B;
+            --white: #FFFFFF;
         }
         
-        .animate-glow {
-            animation: glowPulse 2.5s infinite ease-in-out;
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text-dark);
         }
         
-        @keyframes pulseGlow {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.05); }
+        .font-merriweather {
+            font-family: 'Merriweather', serif;
         }
         
-        .animate-pulse-glow {
-            animation: pulseGlow 3s infinite;
+        /* Glass Card Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(30, 58, 138, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
         }
         
-        /* Text Glow Animation */
-        @keyframes textGlow {
-            0% { text-shadow: 0 0 5px #00c8ff, 0 0 10px #0077ff; }
-            50% { text-shadow: 0 0 15px #00c8ff, 0 0 30px #0077ff; }
-            100% { text-shadow: 0 0 5px #00c8ff, 0 0 10px #0077ff; }
+        /* Button Styles */
+        .btn-primary-custom {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
         
-        .animate-text-glow {
-            animation: textGlow 3s ease-in-out infinite;
+        .btn-primary-custom:hover {
+            background: linear-gradient(90deg, #1E3A8A, #10B981);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(30, 58, 138, 0.3);
+        }
+        
+        .btn-accent-custom {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-accent-custom:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+        }
+        
+        /* Navbar Styles */
+        .navbar-custom {
+            background: white;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 1rem 0;
+        }
+        
+        .navbar-custom .nav-link {
+            color: var(--text-dark);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-custom .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .navbar-custom .nav-link.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        /* Dropdown Styles */
+        .dropdown-menu-custom {
+            background: white;
+            border: 1px solid rgba(30, 58, 138, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem;
+        }
+        
+        .dropdown-menu-custom .dropdown-item {
+            color: var(--text-dark);
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-menu-custom .dropdown-item:hover {
+            background: rgba(30, 58, 138, 0.05);
+            color: var(--primary);
+        }
+        
+        /* Footer Styles */
+        .footer-custom {
+            background: linear-gradient(135deg, #1E3A8A, #1E3A8A);
+            color: white;
+            padding: 3rem 0 1.5rem;
+            margin-top: 4rem;
+        }
+        
+        .footer-custom a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-custom a:hover {
+            color: var(--accent);
+        }
+        
+        /* Tagline */
+        .tagline {
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        /* Badge Styles */
+        .badge-primary-custom {
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-accent-custom {
+            background: var(--accent);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        /* Smooth animations */
+        * {
+            transition: background-color 0.2s ease, border-color 0.2s ease;
         }
         
         @keyframes slideIn {
@@ -68,97 +199,66 @@
         }
         
         .animate-slideIn { animation: slideIn 0.6s ease-out; }
-        
-        .glass {
-            backdrop-filter: blur(10px);
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.10);
-        }
-        
-        .glass-dark {
-            backdrop-filter: blur(12px);
-            background: rgba(15, 23, 42, 0.75);
-            border: 1px solid rgba(148, 163, 184, 0.15);
-        }
-        
-        .gradient-border {
-            border-image: linear-gradient(135deg, rgba(6, 182, 212, 0.5), rgba(59, 130, 246, 0.5)) 1;
-        }
-        
-        /* Static Text Glow */
-        .text-glow {
-            color: #00e0ff;
-            text-shadow:
-                0 0 5px #00e0ff,
-                0 0 15px #00e0ff,
-                0 0 25px #00e0ff;
-        }
-        
-        /* Smooth transitions */
-        * {
-            transition: background-color 0.2s ease, border-color 0.2s ease;
-        }
     </style>
     
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <!-- Dark Glassmorphism Header -->
-    <header class="navbar navbar-expand-lg sticky-top" style="backdrop-filter: blur(12px); background: rgba(15, 23, 42, 0.85); border-bottom: 1px solid rgba(148, 163, 184, 0.15); padding-top: 0.5rem; padding-bottom: 0.5rem; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);">
+    <!-- CasePointAI Header -->
+    <header class="navbar navbar-expand-lg navbar-custom sticky-top">
         <div class="container">
-            <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url_for('home') }}" style="margin: 0;" title="CasePoint - Legal Intelligence, Simplified by AI">
-                <img src="{{ url_for('static', filename='images/casepoint-logo.jpg') }}" alt="CasePoint - Legal Intelligence, Simplified by AI" class="logo-glow" style="height: 80px; width: auto; cursor: pointer; filter: drop-shadow(0 0 10px rgba(0, 224, 255, 0.6)) drop-shadow(0 0 20px rgba(0, 224, 255, 0.4));">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='images/casepoint-logo.jpg') }}" alt="CasePointAI" style="height: 50px; width: auto; margin-right: 1rem;">
+                <div>
+                    <h5 class="mb-0 font-merriweather" style="color: var(--primary); font-weight: 700;">CasePointAI</h5>
+                    <small class="tagline">Legal Intelligence, Simplified by AI</small>
+                </div>
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border-color: rgba(148, 163, 184, 0.3);">
-                <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border-color: var(--primary);">
+                <span class="navbar-toggler-icon"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
+                <ul class="navbar-nav me-auto ms-lg-4">
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ url_for('home') }}" style="transition: color 0.2s;">
+                        <a class="nav-link" href="{{ url_for('home') }}">
                             <i class="fas fa-home me-1"></i>Home
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ url_for('cases.search_cases') }}" style="transition: color 0.2s;">
+                        <a class="nav-link" href="{{ url_for('cases.search_cases') }}">
                             <i class="fas fa-gavel me-1"></i>Cases
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ url_for('acts.search_statutes') }}" style="transition: color 0.2s;">
+                        <a class="nav-link" href="{{ url_for('acts.search_statutes') }}">
                             <i class="fas fa-book me-1"></i>Statutes
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ url_for('acts.search_rules') }}" style="transition: color 0.2s;">
+                        <a class="nav-link" href="{{ url_for('acts.search_rules') }}">
                             <i class="fas fa-list-ul me-1"></i>Rules
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-cyan-400" href="{{ url_for('ai.ai_analysis') }}" style="transition: color 0.2s;">
+                        <a class="nav-link" href="{{ url_for('ai.ai_analysis') }}" style="color: var(--accent) !important;">
                             <i class="fas fa-robot me-1"></i>AI Analysis
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-cyan-400" href="{{ url_for('ai.case_analyzer') }}" style="transition: color 0.2s;">
-                            <i class="fas fa-brain me-1"></i>Case Analyzer
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ url_for('search') }}" style="transition: color 0.2s;">
-                            <i class="fas fa-search me-1"></i>Search
+                        <a class="nav-link" href="{{ url_for('ai.case_analyzer') }}" style="color: var(--accent) !important;">
+                            <i class="fas fa-brain me-1"></i>AI Analyzer
                         </a>
                     </li>
                     {% if session.get('role') == 'admin' %}
                     <li class="nav-item">
-                        <a class="nav-link text-success" href="{{ url_for('admin_api.upload_citation') }}" style="transition: color 0.2s;">
+                        <a class="nav-link" href="{{ url_for('admin_api.upload_citation') }}">
                             <i class="fas fa-upload me-1"></i>Upload
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-info" href="{{ url_for('upload_multi_pdf_page') }}" style="transition: color 0.2s;">
+                        <a class="nav-link" href="{{ url_for('upload_multi_pdf_page') }}">
                             <i class="fas fa-file-pdf me-1"></i>PDF Splitter
                         </a>
                     </li>
@@ -168,53 +268,53 @@
                 <ul class="navbar-nav">
                     {% if session.get('role') == 'admin' %}
                         <li class="nav-item">
-                            <a class="nav-link text-danger" href="{{ url_for('admin_api.admin_panel') }}" style="transition: color 0.2s;">
+                            <a class="nav-link" href="{{ url_for('admin_api.admin_panel') }}" style="color: #dc3545 !important;">
                                 <i class="fas fa-shield-alt me-1"></i>Admin
                             </a>
                         </li>
                     {% endif %}
                     {% if session.get('user_id') %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="transition: color 0.2s; cursor: pointer;">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user-circle me-1"></i>{{ session.get('username') }}
                                 {% if session.get('subscription_tier') == 'pro' %}
-                                    <span class="badge bg-gradient-to-r from-yellow-500 to-amber-600 ms-1" style="background: linear-gradient(135deg, #f59e0b, #d97706); font-size: 0.7rem;">
+                                    <span class="badge-accent-custom ms-1">
                                         <i class="fas fa-crown"></i> PRO
                                     </span>
                                 {% endif %}
                                 {% if session.get('role') == 'admin' %}
-                                    <span class="badge bg-danger ms-1" style="font-size: 0.7rem;">Admin</span>
+                                    <span class="badge-primary-custom ms-1">Admin</span>
                                 {% endif %}
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" style="background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(148, 163, 184, 0.2); z-index: 1050;">
-                                <li><a class="dropdown-item text-white" href="{{ url_for('auth.profile') }}" style="transition: background 0.2s;">
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
                                     <i class="fas fa-user me-2"></i>My Profile
                                 </a></li>
                                 {% if session.get('role') == 'admin' %}
-                                <li><a class="dropdown-item text-white" href="{{ url_for('admin_api.admin_panel') }}" style="transition: background 0.2s;">
+                                <li><a class="dropdown-item" href="{{ url_for('admin_api.admin_panel') }}">
                                     <i class="fas fa-shield-alt me-2"></i>Admin Dashboard
                                 </a></li>
                                 {% endif %}
-                                <li><hr class="dropdown-divider" style="border-color: rgba(148, 163, 184, 0.2);"></li>
-                                <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}" style="transition: background 0.2s;">
+                                <li><hr class="dropdown-divider" style="border-color: rgba(30, 58, 138, 0.1);"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}" style="color: #dc3545;">
                                     <i class="fas fa-sign-out-alt me-2"></i>Logout
                                 </a></li>
                             </ul>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="{{ url_for('auth.login') }}" style="transition: color 0.2s;">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">
                                 <i class="fas fa-sign-in-alt me-1"></i>Login
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.register') }}" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: all 0.2s;">
+                        <li class="nav-item ms-2">
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-primary-custom btn-sm">
                                 <i class="fas fa-user-plus me-1"></i>Register
                             </a>
                         </li>
                     {% endif %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#subscribeModal" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: all 0.2s;">
+                    <li class="nav-item ms-2">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#subscribeModal" class="btn btn-accent-custom btn-sm">
                             <i class="fas fa-crown me-1"></i>Subscribe
                         </a>
                     </li>
@@ -222,32 +322,6 @@
             </div>
         </div>
     </header>
-    
-    <style>
-        /* Logo Glow Animation */
-        @keyframes logoGlow {
-            0%, 100% {
-                filter: drop-shadow(0 0 10px rgba(0, 224, 255, 0.6)) 
-                        drop-shadow(0 0 20px rgba(0, 224, 255, 0.4));
-            }
-            50% {
-                filter: drop-shadow(0 0 15px rgba(0, 224, 255, 0.8)) 
-                        drop-shadow(0 0 30px rgba(0, 224, 255, 0.6));
-            }
-        }
-        
-        .logo-glow {
-            animation: logoGlow 3s ease-in-out infinite;
-        }
-        
-        /* Dark header hover effects */
-        header .nav-link:hover {
-            color: #60a5fa !important;
-        }
-        header .dropdown-item:hover {
-            background: rgba(59, 130, 246, 0.2) !important;
-        }
-    </style>
 
     <!-- Main Content -->
     <main>
@@ -268,40 +342,40 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-5">
+    <footer class="footer-custom">
         <div class="container">
             <div class="row">
-                <div class="col-md-6">
-                    <h5>CasePoint</h5>
-                    <p class="mb-2">Pakistan's comprehensive online legal research platform</p>
-                    <p class="text-muted small">Powered by AI • Since 2024</p>
+                <div class="col-md-6 mb-4">
+                    <h5 class="font-merriweather mb-3">CasePointAI</h5>
+                    <p class="mb-2">Legal Intelligence, Simplified by AI</p>
+                    <p style="opacity: 0.8;">Pakistan's comprehensive online legal research platform</p>
                 </div>
-                <div class="col-md-3">
-                    <h6>Legal Resources</h6>
+                <div class="col-md-3 mb-4">
+                    <h6 class="mb-3">Legal Resources</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{{ url_for('cases.search_cases') }}" class="text-light-emphasis">Supreme Court Cases</a></li>
-                        <li><a href="{{ url_for('cases.search_cases') }}" class="text-light-emphasis">High Court Cases</a></li>
-                        <li><a href="{{ url_for('acts.search_statutes') }}" class="text-light-emphasis">Federal Statutes</a></li>
-                        <li><a href="{{ url_for('acts.search_statutes') }}" class="text-light-emphasis">Provincial Acts</a></li>
+                        <li class="mb-2"><a href="{{ url_for('cases.search_cases') }}">Supreme Court Cases</a></li>
+                        <li class="mb-2"><a href="{{ url_for('cases.search_cases') }}">High Court Cases</a></li>
+                        <li class="mb-2"><a href="{{ url_for('acts.search_statutes') }}">Federal Statutes</a></li>
+                        <li class="mb-2"><a href="{{ url_for('acts.search_statutes') }}">Provincial Acts</a></li>
                     </ul>
                 </div>
-                <div class="col-md-3">
-                    <h6>Support</h6>
+                <div class="col-md-3 mb-4">
+                    <h6 class="mb-3">Support</h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-light-emphasis">Help Center</a></li>
-                        <li><a href="#" class="text-light-emphasis">Terms of Service</a></li>
-                        <li><a href="#" class="text-light-emphasis">Privacy Policy</a></li>
-                        <li><a href="#" class="text-light-emphasis">Contact Us</a></li>
+                        <li class="mb-2"><a href="#">Help Center</a></li>
+                        <li class="mb-2"><a href="#">Terms of Service</a></li>
+                        <li class="mb-2"><a href="#">Privacy Policy</a></li>
+                        <li class="mb-2"><a href="#">Contact Us</a></li>
                     </ul>
                 </div>
             </div>
-            <hr class="my-4">
+            <hr style="border-color: rgba(255, 255, 255, 0.2); margin: 2rem 0 1.5rem;">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <p class="mb-0">&copy; 2024 CasePoint. All rights reserved.</p>
+                    <p class="mb-0">&copy; 2025 CasePointAI – Legal Intelligence, Simplified by AI</p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <p class="mb-0 text-muted">Legal research made intelligent</p>
+                    <p class="mb-0" style="opacity: 0.8;">Powered by CasePointAI</p>
                 </div>
             </div>
         </div>
@@ -310,59 +384,62 @@
     <!-- Subscribe Modal -->
     <div class="modal fade" id="subscribeModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Choose Your Subscription Plan</h5>
+            <div class="modal-content" style="border: none; border-radius: 12px;">
+                <div class="modal-header" style="border-bottom: 1px solid rgba(30, 58, 138, 0.1);">
+                    <h5 class="modal-title font-merriweather">Choose Your Subscription Plan</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
+                    <div class="row g-4">
                         <div class="col-md-6">
-                            <div class="card h-100">
-                                <div class="card-header text-center">
-                                    <h5>Annual Plan</h5>
-                                    <h3 class="text-primary">Rs. 36,000</h3>
-                                    <small class="text-muted">+ Rs. 2,000 registration</small>
+                            <div class="glass-card h-100 p-4">
+                                <div class="text-center mb-3">
+                                    <h5 class="font-merriweather">Annual Plan</h5>
+                                    <h2 style="color: var(--primary); font-weight: 700;">Rs. 36,000</h2>
+                                    <small style="color: var(--text-dark); opacity: 0.7;">+ Rs. 2,000 registration</small>
                                 </div>
-                                <div class="card-body">
-                                    <ul class="list-unstyled">
-                                        <li><i class="fas fa-check text-success me-2"></i>Full access to all cases</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Federal & Provincial statutes</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>AI-powered analysis</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Advanced search filters</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Citation tools</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Best value for professionals</li>
-                                    </ul>
-                                </div>
+                                <ul class="list-unstyled mb-4">
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Full access to all cases</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Federal & Provincial statutes</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> AI-powered analysis</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Advanced search filters</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Citation tools</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Best value for professionals</li>
+                                </ul>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="card h-100">
-                                <div class="card-header text-center">
-                                    <h5>Quarterly Plan</h5>
-                                    <h3 class="text-primary">Rs. 9,000</h3>
-                                    <small class="text-muted">+ Rs. 2,000 registration</small>
+                            <div class="glass-card h-100 p-4">
+                                <div class="text-center mb-3">
+                                    <h5 class="font-merriweather">Quarterly Plan</h5>
+                                    <h2 style="color: var(--primary); font-weight: 700;">Rs. 9,000</h2>
+                                    <small style="color: var(--text-dark); opacity: 0.7;">+ Rs. 2,000 registration</small>
                                 </div>
-                                <div class="card-body">
-                                    <ul class="list-unstyled">
-                                        <li><i class="fas fa-check text-success me-2"></i>Full access to all cases</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Federal & Provincial statutes</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>AI-powered analysis</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Advanced search filters</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Citation tools</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Perfect for short-term needs</li>
-                                    </ul>
-                                </div>
+                                <ul class="list-unstyled mb-4">
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Full access to all cases</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Federal & Provincial statutes</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> AI-powered analysis</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Advanced search filters</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Citation tools</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Perfect for short-term needs</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer" style="border-top: 1px solid rgba(30, 58, 138, 0.1);">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Contact for Subscription</button>
+                    <button type="button" class="btn btn-primary-custom">Contact for Subscription</button>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Floating AI Assistant Chat Icon -->
+    <div id="ai-chat-float" style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
+        <button class="btn btn-accent-custom rounded-circle shadow-lg" style="width: 60px; height: 60px; font-size: 1.5rem;" title="AI Assistant Help">
+            <i class="fas fa-robot"></i>
+        </button>
     </div>
 
     <!-- Bootstrap JS -->
