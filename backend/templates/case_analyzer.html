@@ -1,667 +1,458 @@
 {% extends "base.html" %}
 
-{% block title %}AI Case Analyzer - CasePoint{% endblock %}
+{% block title %}AI Case Analyzer - CasePointAI{% endblock %}
 
 {% block content %}
-<!-- Dark theme wrapper -->
-<div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-800 text-white" style="margin: -1.5rem; padding: 1.5rem;">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/casepoint-brand.css') }}">
+
+<div class="cp-bg-light" style="min-height: 100vh;">
+    <!-- Hero Section -->
+    <div class="cp-gradient-primary text-white py-4">
+        <div class="container">
+            <h2 class="cp-font-display mb-2" style="font-weight: 700; font-size: 2.5rem; text-align: center;">
+                <i class="fas fa-brain me-2"></i>AI Case Analyzer
+            </h2>
+            <p style="text-align: center; opacity: 0.9; font-size: 1.1rem;">
+                Get instant AI-powered analysis with counter arguments, citations, and applicable laws
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <div class="row g-4">
+            <!-- Left Panel: Input Section -->
+            <div class="col-lg-5">
+                <div class="cp-glass-card p-4 sticky-top" style="top: 20px;">
+                    <h4 class="cp-font-display mb-4" style="color: var(--cp-primary); font-weight: 600;">
+                        <i class="fas fa-file-alt me-2"></i>Case Narrative
+                    </h4>
+                    
+                    <div class="mb-4">
+                        <label for="narrative" class="form-label fw-semibold" style="color: var(--cp-text-dark);">
+                            Enter prosecution narrative or case details:
+                        </label>
+                        <textarea 
+                            id="narrative" 
+                            class="form-control cp-input" 
+                            rows="12" 
+                            placeholder="Enter the case narrative, facts, or legal document text here for AI analysis..."
+                            style="font-family: 'Merriweather', serif; line-height: 1.8;"></textarea>
+                        <small class="form-text" style="color: var(--cp-text-dark); opacity: 0.6;">
+                            Tip: Provide detailed case facts for better AI analysis
+                        </small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold" style="color: var(--cp-text-dark);">
+                            <i class="fas fa-upload me-1"></i>Or upload a document:
+                        </label>
+                        <input 
+                            type="file" 
+                            id="fileInput" 
+                            class="form-control cp-input"
+                            accept=".txt,.pdf,.docx">
+                        <small class="form-text" style="color: var(--cp-text-dark); opacity: 0.6;">
+                            Supported formats: TXT, PDF, DOCX
+                        </small>
+                    </div>
+
+                    <div class="d-grid gap-3">
+                        <button id="btnAnalyze" class="btn cp-btn-primary btn-lg" onclick="analyzeAll()">
+                            <i class="fas fa-brain me-2"></i>Analyze with AI
+                        </button>
+                        <button id="btnLaws" class="btn cp-btn-accent btn-lg" onclick="findLaws()">
+                            <i class="fas fa-balance-scale me-2"></i>Which Laws Apply?
+                        </button>
+                    </div>
+
+                    <div id="loadingIndicator" class="mt-3 text-center d-none">
+                        <div class="spinner-border" style="color: var(--cp-primary);" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2" style="color: var(--cp-text-dark);">AI is analyzing your case...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Results (4 Tabs) -->
+            <div class="col-lg-7">
+                <div class="cp-glass-card p-4">
+                    <ul class="nav nav-tabs mb-4" id="resultsTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab">
+                                <i class="fas fa-file-alt me-2"></i>AI Summary
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="counter-tab" data-bs-toggle="tab" data-bs-target="#counter" type="button" role="tab">
+                                <i class="fas fa-shield-alt me-2"></i>Counter Arguments
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="citations-tab" data-bs-toggle="tab" data-bs-target="#citations" type="button" role="tab">
+                                <i class="fas fa-bookmark me-2"></i>Relevant Citations
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="laws-tab" data-bs-toggle="tab" data-bs-target="#laws" type="button" role="tab">
+                                <i class="fas fa-gavel me-2"></i>Applicable Laws
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="resultsTabContent">
+                        <!-- AI Summary Tab -->
+                        <div class="tab-pane fade show active" id="summary" role="tabpanel">
+                            <div id="summaryContent">
+                                <div class="text-center py-5" style="color: var(--cp-text-dark); opacity: 0.5;">
+                                    <i class="fas fa-file-alt" style="font-size: 3rem; opacity: 0.3;"></i>
+                                    <p class="mt-3">Click "Analyze with AI" to generate a comprehensive summary</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Counter Arguments Tab -->
+                        <div class="tab-pane fade" id="counter" role="tabpanel">
+                            <div id="counterContent">
+                                <div class="text-center py-5" style="color: var(--cp-text-dark); opacity: 0.5;">
+                                    <i class="fas fa-shield-alt" style="font-size: 3rem; opacity: 0.3;"></i>
+                                    <p class="mt-3">AI-generated counter arguments will appear here</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Citations Tab -->
+                        <div class="tab-pane fade" id="citations" role="tabpanel">
+                            <div id="citationsContent">
+                                <div class="text-center py-5" style="color: var(--cp-text-dark); opacity: 0.5;">
+                                    <i class="fas fa-bookmark" style="font-size: 3rem; opacity: 0.3;"></i>
+                                    <p class="mt-3">Detected citations from your text will appear here</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Applicable Laws Tab -->
+                        <div class="tab-pane fade" id="laws" role="tabpanel">
+                            <div id="lawsContent">
+                                <div class="text-center py-5" style="color: var(--cp-text-dark); opacity: 0.5;">
+                                    <i class="fas fa-gavel" style="font-size: 3rem; opacity: 0.3;"></i>
+                                    <p class="mt-3">Applicable laws and sections will be identified here</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Law Detail Modal -->
+<div class="modal fade" id="lawModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--cp-primary), var(--cp-accent)); color: white;">
+                <h5 class="modal-title cp-font-display" id="lawModalTitle">Law Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="lawModalBody" style="max-height: 500px; overflow-y: auto;">
+                <!-- Law content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
-.analyzer-container {
-    min-height: 100vh;
-    background: transparent;
-    padding: 2.5rem 0;
+.nav-tabs {
+    border-bottom: 2px solid rgba(30, 58, 138, 0.1);
 }
 
-.analyzer-header {
-    max-width: 1200px;
-    margin: 0 auto 2rem;
-    padding: 0 1.5rem;
-    text-align: center;
-}
-
-.analyzer-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #60a5fa;
-    margin-bottom: 0.5rem;
-    text-shadow: 0 0 20px rgba(96, 165, 250, 0.5);
-}
-
-.analyzer-subtitle {
-    font-size: 1.125rem;
-    color: #cbd5e1;
-}
-
-.input-section {
-    max-width: 1200px;
-    margin: 0 auto 2rem;
-    padding: 0 1.5rem;
-}
-
-.input-card {
-    background: rgba(15, 23, 42, 0.75);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(148, 163, 184, 0.15);
-    border-radius: 1.5rem;
-    padding: 2rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-}
-
-.narrative-textarea {
-    width: 100%;
-    min-height: 200px;
-    padding: 1rem;
-    border: 2px solid rgba(148, 163, 184, 0.3);
-    border-radius: 0.75rem;
-    font-size: 1rem;
-    resize: vertical;
-    transition: border-color 0.3s;
-    background: rgba(30, 41, 59, 0.6);
-    color: #e2e8f0;
-}
-
-.narrative-textarea:focus {
-    outline: none;
-    border-color: #3B82F6;
-    background: rgba(30, 41, 59, 0.8);
-}
-
-.action-buttons {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
-}
-
-.btn-analyze {
-    flex: 1;
-    background: linear-gradient(135deg, #2563EB, #3B82F6);
-    color: white;
+.nav-tabs .nav-link {
+    color: var(--cp-text-dark);
     border: none;
-    padding: 1rem 2rem;
-    border-radius: 0.75rem;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.btn-analyze:hover:not(:disabled) {
-    background: linear-gradient(135deg, #1D4ED8, #2563EB);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
-}
-
-.btn-analyze:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.btn-laws {
-    flex: 1;
-    background: linear-gradient(135deg, #7C3AED, #8B5CF6);
-    color: white;
-    border: none;
-    padding: 1rem 2rem;
-    border-radius: 0.75rem;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.btn-laws:hover:not(:disabled) {
-    background: linear-gradient(135deg, #6D28D9, #7C3AED);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3);
-}
-
-.btn-laws:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.results-section {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-    display: none;
-}
-
-.results-section.active {
-    display: block;
-}
-
-.results-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-}
-
-.result-column {
-    background: rgba(15, 23, 42, 0.75);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(148, 163, 184, 0.15);
-    border-radius: 1.5rem;
-    padding: 1.5rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-}
-
-.column-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid rgba(148, 163, 184, 0.2);
-}
-
-.column-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-}
-
-.icon-blue {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.3));
-    color: #60a5fa;
-}
-
-.icon-green {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.3));
-    color: #34d399;
-}
-
-.icon-purple {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(124, 58, 237, 0.3));
-    color: #a78bfa;
-}
-
-.column-title {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #e2e8f0;
-    margin: 0;
-}
-
-.counter-arguments {
-    white-space: pre-wrap;
-    line-height: 1.8;
-    color: #cbd5e1;
-}
-
-.law-item {
+    border-bottom: 3px solid transparent;
+    font-weight: 500;
     padding: 0.75rem 1rem;
-    background: rgba(30, 41, 59, 0.6);
-    border-left: 4px solid #60a5fa;
-    border-radius: 0.5rem;
-    margin-bottom: 0.75rem;
 }
 
-.law-text {
+.nav-tabs .nav-link:hover {
+    color: var(--cp-primary);
+    border-bottom-color: rgba(30, 58, 138, 0.3);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--cp-primary);
+    border-bottom-color: var(--cp-primary);
+    background: transparent;
     font-weight: 600;
-    color: #e2e8f0;
-    margin-bottom: 0.25rem;
 }
 
-.law-meta {
-    font-size: 0.875rem;
-    color: #94a3b8;
+.citation-card {
+    background: rgba(16, 185, 129, 0.05);
+    border-left: 4px solid var(--cp-accent);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.citation-card:hover {
+    background: rgba(16, 185, 129, 0.1);
+    transform: translateX(4px);
+}
+
+.law-card {
+    background: rgba(30, 58, 138, 0.05);
+    border-left: 4px solid var(--cp-primary);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.law-card h6 {
+    color: var(--cp-primary);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.law-card p {
+    color: var(--cp-text-dark);
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
 }
 
 .law-link {
-    color: #60a5fa;
+    color: var(--cp-accent);
     text-decoration: none;
-    font-size: 0.875rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    margin-top: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
 }
 
 .law-link:hover {
-    color: #93c5fd;
     text-decoration: underline;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 2rem;
-    color: #64748b;
-}
-
-.spinner {
-    display: inline-block;
-    width: 1.25rem;
-    height: 1.25rem;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-.modal-backdrop {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1050;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-backdrop.active {
-    display: flex;
-}
-
-.modal-content-custom {
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(148, 163, 184, 0.2);
-    border-radius: 1.5rem;
-    max-width: 800px;
-    width: 90%;
-    max-height: 80vh;
-    overflow: hidden;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-}
-
-.modal-header-custom {
-    background: linear-gradient(135deg, #7C3AED, #8B5CF6);
-    color: white;
-    padding: 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-title-custom {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin: 0;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0;
-    width: 2rem;
-    height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.25rem;
-    transition: background 0.2s;
-}
-
-.modal-close:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.modal-body-custom {
-    padding: 2rem;
-    overflow-y: auto;
-    max-height: calc(80vh - 100px);
-}
-
-.applicable-law-item {
-    padding: 1rem 1.25rem;
-    background: rgba(30, 41, 59, 0.6);
-    border: 1px solid rgba(148, 163, 184, 0.2);
-    border-radius: 0.75rem;
-    margin-bottom: 1rem;
-    transition: all 0.2s;
-}
-
-.applicable-law-item:hover {
-    background: rgba(30, 41, 59, 0.8);
-    border-color: #a78bfa;
-    box-shadow: 0 4px 12px rgba(167, 139, 250, 0.2);
-}
-
-.applicable-law-text {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #e2e8f0;
-    margin-bottom: 0.5rem;
-}
-
-.applicable-law-type {
-    font-size: 0.875rem;
-    color: #94a3b8;
-}
-
-@media (max-width: 1024px) {
-    .results-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .action-buttons {
-        flex-direction: column;
-    }
-}
-
-@media (max-width: 768px) {
-    .analyzer-title {
-        font-size: 2rem;
-    }
-    
-    .analyzer-subtitle {
-        font-size: 1rem;
-    }
-    
-    .input-card {
-        padding: 1.5rem;
-    }
-    
-    .narrative-textarea {
-        min-height: 150px;
-    }
 }
 </style>
 
-<div class="analyzer-container">
-    <!-- Header -->
-    <div class="analyzer-header">
-        <h1 class="analyzer-title">
-            <i class="fas fa-brain me-2"></i>AI Case Analyzer
-        </h1>
-        <p class="analyzer-subtitle">
-            Analyze legal narratives with AI-powered counter arguments, related case laws, and applicable statutes
-        </p>
-    </div>
-
-    <!-- Input Section -->
-    <div class="input-section">
-        <div class="input-card">
-            <label for="narrative" class="form-label fw-semibold mb-2">
-                <i class="fas fa-file-alt me-2"></i>Enter Your Legal Narrative
-            </label>
-            <textarea 
-                id="narrative" 
-                class="narrative-textarea" 
-                placeholder="Enter the case narrative, facts, allegations, or legal scenario...&#10;&#10;Example: The accused was found at the crime scene with the murder weapon. Eyewitnesses saw him fleeing the scene. His fingerprints were on the weapon and he had a prior dispute with the victim."
-            ></textarea>
-            
-            <div id="error-message" class="alert alert-danger mt-3" style="display: none;"></div>
-            
-            <div class="action-buttons">
-                <button id="analyzeBtn" class="btn-analyze" onclick="analyzeCase()">
-                    <i class="fas fa-search"></i>
-                    <span id="analyzeText">Analyze Case</span>
-                    <div class="spinner" style="display: none;" id="analyzeSpinner"></div>
-                </button>
-                <button id="lawsBtn" class="btn-laws" onclick="whichLawsApply()">
-                    <i class="fas fa-balance-scale"></i>
-                    <span id="lawsText">Which Laws Apply?</span>
-                    <div class="spinner" style="display: none;" id="lawsSpinner"></div>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Results Section -->
-    <div id="resultsSection" class="results-section">
-        <div class="results-grid">
-            <!-- Counter Arguments Column -->
-            <div class="result-column">
-                <div class="column-header">
-                    <div class="column-icon icon-blue">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <h2 class="column-title">AI Counter Arguments</h2>
-                </div>
-                <div id="counterArguments" class="counter-arguments">
-                    <div class="empty-state">No counter arguments generated yet</div>
-                </div>
-            </div>
-
-            <!-- Related Case Laws Column -->
-            <div class="result-column">
-                <div class="column-header">
-                    <div class="column-icon icon-green">
-                        <i class="fas fa-gavel"></i>
-                    </div>
-                    <h2 class="column-title">Related Case Laws</h2>
-                </div>
-                <div id="caseLaws">
-                    <div class="empty-state">No case laws detected</div>
-                </div>
-            </div>
-
-            <!-- Rules / Acts / Statutes Column -->
-            <div class="result-column">
-                <div class="column-header">
-                    <div class="column-icon icon-purple">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <h2 class="column-title">Rules / Acts / Statutes</h2>
-                </div>
-                <div id="statutes">
-                    <div class="empty-state">No statutes detected</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Applicable Laws Modal -->
-<div id="lawsModal" class="modal-backdrop">
-    <div class="modal-content-custom">
-        <div class="modal-header-custom">
-            <h3 class="modal-title-custom">
-                <i class="fas fa-balance-scale me-2"></i>Applicable Laws
-            </h3>
-            <button class="modal-close" onclick="closeLawsModal()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-body-custom" id="applicableLaws">
-            <div class="empty-state">No applicable laws detected</div>
-        </div>
-    </div>
-</div>
-
 <script>
-function showError(message) {
-    const errorDiv = document.getElementById('error-message');
-    errorDiv.textContent = message;
-    errorDiv.style.display = 'block';
-    setTimeout(() => {
-        errorDiv.style.display = 'none';
-    }, 5000);
-}
+let lawsModal;
 
-function setLoading(button, isLoading) {
-    const btn = document.getElementById(button === 'analyze' ? 'analyzeBtn' : 'lawsBtn');
-    const text = document.getElementById(button === 'analyze' ? 'analyzeText' : 'lawsText');
-    const spinner = document.getElementById(button === 'analyze' ? 'analyzeSpinner' : 'lawsSpinner');
+document.addEventListener('DOMContentLoaded', function() {
+    lawsModal = new bootstrap.Modal(document.getElementById('lawModal'));
     
-    if (isLoading) {
-        btn.disabled = true;
-        text.style.display = 'none';
-        spinner.style.display = 'inline-block';
-    } else {
-        btn.disabled = false;
-        text.style.display = 'inline';
-        spinner.style.display = 'none';
-    }
+    document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+});
+
+async function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        document.getElementById('narrative').value = content;
+    };
+    reader.readAsText(file);
 }
 
-async function analyzeCase() {
+async function analyzeAll() {
     const narrative = document.getElementById('narrative').value.trim();
     
     if (!narrative) {
-        showError('Please enter a narrative text');
+        alert('Please enter case narrative or upload a document');
         return;
     }
     
-    if (narrative.length < 10) {
-        showError('Narrative is too short. Please provide more details.');
-        return;
-    }
-    
-    setLoading('analyze', true);
+    showLoading(true);
+    disableButtons(true);
     
     try {
-        // Call both APIs in parallel
-        const [counterArgsRes, analyzeCaseRes] = await Promise.all([
-            fetch('/api/auto_counter_arguments', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: narrative })
-            }),
-            fetch('/api/analyze_case', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: narrative })
-            })
+        await Promise.all([
+            generateCounterArguments(narrative),
+            analyzeCitations(narrative)
         ]);
-        
-        const counterArgsData = await counterArgsRes.json();
-        const analyzeCaseData = await analyzeCaseRes.json();
-        
-        if (!counterArgsData.success || !analyzeCaseData.success) {
-            throw new Error(counterArgsData.error || analyzeCaseData.error || 'Analysis failed');
-        }
-        
-        // Display counter arguments
-        document.getElementById('counterArguments').innerHTML = counterArgsData.counter_arguments || 'No counter arguments generated';
-        
-        // Display case laws
-        const caseLawsDiv = document.getElementById('caseLaws');
-        if (analyzeCaseData.citations && analyzeCaseData.citations.length > 0) {
-            caseLawsDiv.innerHTML = analyzeCaseData.citations.map(law => `
-                <div class="law-item" style="border-left-color: #059669;">
-                    <div class="law-text">${law.text}</div>
-                    ${law.is_database_item ? 
-                        `<a href="/cases/${law.id}" class="law-link">
-                            <i class="fas fa-external-link-alt"></i> View Full Citation
-                        </a>` : 
-                        `<div class="law-meta">Citation detected (not in database)</div>`
-                    }
-                </div>
-            `).join('');
-        } else {
-            caseLawsDiv.innerHTML = '<div class="empty-state">No case laws detected</div>';
-        }
-        
-        // Display statutes
-        const statutesDiv = document.getElementById('statutes');
-        if (analyzeCaseData.statutes && analyzeCaseData.statutes.length > 0) {
-            statutesDiv.innerHTML = analyzeCaseData.statutes.map(statute => `
-                <div class="law-item" style="border-left-color: #7C3AED;">
-                    <div class="law-text">${statute.text}</div>
-                    <div class="law-meta">Statute detected (will auto-link when added to DB)</div>
-                </div>
-            `).join('');
-        } else {
-            statutesDiv.innerHTML = '<div class="empty-state">No statutes detected</div>';
-        }
-        
-        // Show results section
-        document.getElementById('resultsSection').classList.add('active');
-        
-        // Scroll to results
-        setTimeout(() => {
-            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-        
     } catch (error) {
         console.error('Analysis error:', error);
-        showError(error.message || 'Failed to analyze case. Please try again.');
+        alert('An error occurred during analysis. Please try again.');
     } finally {
-        setLoading('analyze', false);
+        showLoading(false);
+        disableButtons(false);
     }
 }
 
-async function whichLawsApply() {
-    const narrative = document.getElementById('narrative').value.trim();
-    
-    if (!narrative) {
-        showError('Please enter a narrative text');
-        return;
-    }
-    
-    setLoading('laws', true);
-    
+async function generateCounterArguments(narrative) {
     try {
-        const response = await fetch('/api/which_laws_apply', {
+        const response = await fetch('/api/auto_counter_arguments', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: narrative })
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({prosecution_narrative: narrative})
         });
         
         const data = await response.json();
         
-        if (!data.success) {
-            throw new Error(data.error || 'Failed to detect laws');
+        if (data.counter_arguments) {
+            const html = `
+                <div class="p-4" style="background: rgba(16, 185, 129, 0.05); border-radius: 12px; line-height: 1.8;">
+                    <h5 class="cp-font-display mb-3" style="color: var(--cp-accent); font-weight: 600;">
+                        <i class="fas fa-shield-alt me-2"></i>AI-Generated Counter Arguments
+                    </h5>
+                    <div class="font-merriweather" style="white-space: pre-wrap; color: var(--cp-text-dark);">
+                        ${escapeHtml(data.counter_arguments)}
+                    </div>
+                </div>
+            `;
+            document.getElementById('counterContent').innerHTML = html;
+            document.getElementById('summaryContent').innerHTML = html;
         }
+    } catch (error) {
+        console.error('Counter arguments error:', error);
+    }
+}
+
+async function analyzeCitations(narrative) {
+    try {
+        const response = await fetch('/api/analyze_case', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({text: narrative})
+        });
         
-        const applicableLawsDiv = document.getElementById('applicableLaws');
+        const data = await response.json();
         
-        if (data.laws && data.laws.length > 0) {
-            applicableLawsDiv.innerHTML = data.laws.map(law => `
-                <div class="applicable-law-item">
-                    <div class="applicable-law-text">${law.text}</div>
-                    <div class="applicable-law-type">Type: ${law.type}</div>
+        if (data.detected_citations && data.detected_citations.length > 0) {
+            const html = data.detected_citations.map(cit => `
+                <div class="citation-card">
+                    <h6 class="mb-2" style="color: var(--cp-accent); font-weight: 600;">
+                        ${escapeHtml(cit.citation_text)}
+                    </h6>
+                    <p class="mb-1" style="color: var(--cp-text-dark);">
+                        <strong>Status:</strong> 
+                        <span class="${cit.found_in_db ? 'cp-badge-accent' : 'badge bg-secondary'}">
+                            ${cit.found_in_db ? 'Found in Database' : 'Not Found'}
+                        </span>
+                    </p>
+                    ${cit.found_in_db ? `
+                        <a href="/citation/${cit.citation_id}" class="law-link" target="_blank">
+                            <i class="fas fa-external-link-alt me-1"></i>View Full Citation
+                        </a>
+                    ` : ''}
                 </div>
             `).join('');
+            
+            document.getElementById('citationsContent').innerHTML = html;
         } else {
-            applicableLawsDiv.innerHTML = '<div class="empty-state">No applicable laws detected in the narrative</div>';
+            document.getElementById('citationsContent').innerHTML = `
+                <div class="text-center py-4" style="color: var(--cp-text-dark); opacity: 0.6;">
+                    <i class="fas fa-info-circle me-2"></i>No citations detected in the text
+                </div>
+            `;
         }
+    } catch (error) {
+        console.error('Citations analysis error:', error);
+    }
+}
+
+async function findLaws() {
+    const narrative = document.getElementById('narrative').value.trim();
+    
+    if (!narrative) {
+        alert('Please enter case narrative or upload a document');
+        return;
+    }
+    
+    showLoading(true);
+    disableButtons(true);
+    
+    try {
+        const response = await fetch('/api/which_laws_apply', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({text: narrative})
+        });
         
-        // Show modal
-        document.getElementById('lawsModal').classList.add('active');
+        const data = await response.json();
         
+        if (data.detected_laws && data.detected_laws.length > 0) {
+            const html = data.detected_laws.map(law => `
+                <div class="law-card">
+                    <h6>${escapeHtml(law.law_name)}</h6>
+                    <p><strong>Section:</strong> ${escapeHtml(law.section_number || 'N/A')}</p>
+                    ${law.section_text ? `<p class="small">${escapeHtml(law.section_text.substring(0, 200))}...</p>` : ''}
+                    <button class="law-link btn btn-link p-0" onclick="viewLawDetail('${law.law_name}', '${law.section_number}')">
+                        <i class="fas fa-eye me-1"></i>View Full Text
+                    </button>
+                </div>
+            `).join('');
+            
+            document.getElementById('lawsContent').innerHTML = html;
+            
+            document.getElementById('laws-tab').click();
+        } else {
+            document.getElementById('lawsContent').innerHTML = `
+                <div class="text-center py-4" style="color: var(--cp-text-dark); opacity: 0.6;">
+                    <i class="fas fa-info-circle me-2"></i>No specific laws detected in the text
+                </div>
+            `;
+        }
     } catch (error) {
         console.error('Laws detection error:', error);
-        showError(error.message || 'Failed to detect applicable laws. Please try again.');
+        alert('An error occurred while detecting laws. Please try again.');
     } finally {
-        setLoading('laws', false);
+        showLoading(false);
+        disableButtons(false);
     }
 }
 
-function closeLawsModal() {
-    document.getElementById('lawsModal').classList.remove('active');
+function viewLawDetail(lawName, sectionNumber) {
+    document.getElementById('lawModalTitle').textContent = `${lawName} - Section ${sectionNumber}`;
+    document.getElementById('lawModalBody').innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border" style="color: var(--cp-primary);" role="status"></div>
+            <p class="mt-2">Loading law details...</p>
+        </div>
+    `;
+    lawsModal.show();
+    
+    fetch(`/api/law_detail?law=${encodeURIComponent(lawName)}&section=${encodeURIComponent(sectionNumber)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.text) {
+                document.getElementById('lawModalBody').innerHTML = `
+                    <div class="font-merriweather" style="line-height: 1.8;">
+                        <h5 class="mb-3" style="color: var(--cp-primary);">${escapeHtml(lawName)}</h5>
+                        <p><strong>Section ${escapeHtml(sectionNumber)}</strong></p>
+                        <div style="white-space: pre-wrap; color: var(--cp-text-dark);">
+                            ${escapeHtml(data.text)}
+                        </div>
+                    </div>
+                `;
+            } else {
+                document.getElementById('lawModalBody').innerHTML = `
+                    <div class="alert alert-warning">Full text not available for this law.</div>
+                `;
+            }
+        })
+        .catch(error => {
+            document.getElementById('lawModalBody').innerHTML = `
+                <div class="alert alert-danger">Error loading law details.</div>
+            `;
+        });
 }
 
-// Close modal on backdrop click
-document.getElementById('lawsModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeLawsModal();
-    }
-});
+function showLoading(show) {
+    document.getElementById('loadingIndicator').classList.toggle('d-none', !show);
+}
 
-// Close modal on Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeLawsModal();
-    }
-});
+function disableButtons(disable) {
+    document.getElementById('btnAnalyze').disabled = disable;
+    document.getElementById('btnLaws').disabled = disable;
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 </script>
-</div>
-<!-- End dark theme wrapper -->
 {% endblock %}
