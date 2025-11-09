@@ -1,46 +1,48 @@
 {% extends "base.html" %}
 
-{% block title %}Login - CasePoint{% endblock %}
+{% block title %}Sign In - CasePointAI{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-custom">
-                <div class="card-header bg-primary-custom text-white text-center">
-                    <h4 class="mb-0">
-                        <i class="fas fa-sign-in-alt me-2"></i>Login to CasePoint
-                    </h4>
-                </div>
-                <div class="card-body p-4">
-                    <p class="text-center text-muted mb-4">
-                        Access your account to continue legal research
-                    </p>
+<div style="min-height: 80vh; background: linear-gradient(135deg, #1E3A8A 0%, #10B981 100%); padding: 4rem 0;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5 col-lg-4">
+                <div class="glass-card p-4 shadow-lg">
+                    <div class="text-center mb-4">
+                        <h3 class="font-merriweather mb-2" style="color: var(--primary); font-weight: 700;">Welcome Back</h3>
+                        <p style="color: var(--text-dark); opacity: 0.7;">Sign in to continue to CasePointAI</p>
+                    </div>
                     
                     <form method="POST" action="{{ url_for('auth.login') }}">
                         <div class="mb-3">
-                            <label for="username" class="form-label">Username or Email *</label>
+                            <label for="username" class="form-label fw-semibold" style="color: var(--text-dark);">Username or Email</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <span class="input-group-text bg-white" style="border-color: rgba(30, 58, 138, 0.2);">
+                                    <i class="fas fa-user" style="color: var(--primary);"></i>
+                                </span>
                                 <input type="text" 
                                        class="form-control" 
                                        id="username" 
                                        name="username" 
                                        placeholder="Enter your username or email"
+                                       style="border-color: rgba(30, 58, 138, 0.2);"
                                        required
                                        autofocus>
                             </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password *</label>
+                            <label for="password" class="form-label fw-semibold" style="color: var(--text-dark);">Password</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <span class="input-group-text bg-white" style="border-color: rgba(30, 58, 138, 0.2);">
+                                    <i class="fas fa-lock" style="color: var(--primary);"></i>
+                                </span>
                                 <input type="password" 
                                        class="form-control" 
                                        id="password" 
                                        name="password" 
                                        placeholder="Enter your password"
+                                       style="border-color: rgba(30, 58, 138, 0.2);"
                                        required>
                             </div>
                         </div>
@@ -50,33 +52,38 @@
                                    class="form-check-input" 
                                    id="remember" 
                                    name="remember">
-                            <label class="form-check-label" for="remember">
+                            <label class="form-check-label" for="remember" style="color: var(--text-dark);">
                                 Remember me
                             </label>
                         </div>
                         
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-sign-in-alt me-2"></i>Login
+                            <button type="submit" class="btn btn-primary-custom btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
                             </button>
                         </div>
                     </form>
                     
-                    <hr class="my-4">
-                    
-                    <div class="text-center">
+                    <div class="text-center mt-4">
                         <p class="mb-2">
-                            <a href="#" class="text-decoration-none">
+                            <a href="#" style="color: var(--primary); text-decoration: none; font-weight: 500;">
                                 <i class="fas fa-key me-1"></i>Forgot password?
                             </a>
                         </p>
-                        <p class="mb-0">
+                        <hr style="border-color: rgba(30, 58, 138, 0.1); margin: 1.5rem 0;">
+                        <p class="mb-0" style="color: var(--text-dark);">
                             Don't have an account? 
-                            <a href="{{ url_for('auth.register') }}" class="text-decoration-none fw-bold">
-                                Register now
+                            <a href="{{ url_for('auth.register') }}" style="color: var(--accent); text-decoration: none; font-weight: 600;">
+                                Create Account
                             </a>
                         </p>
                     </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <p class="mb-0" style="color: white; font-size: 0.875rem;">
+                        © 2025 CasePointAI – Legal Intelligence, Simplified by AI
+                    </p>
                 </div>
             </div>
         </div>
