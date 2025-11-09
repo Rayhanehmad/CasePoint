@@ -230,6 +230,11 @@ def create_app(config_name='default'):
             'database': 'connected'
         })
     
+    @app.route('/how-to-use')
+    def how_to_use():
+        """How to use CasePointAI guide page"""
+        return render_template('how_to_use.html')
+    
     # Error handlers
     @app.errorhandler(404)
     def not_found(error):
