@@ -2,16 +2,21 @@
 
 {% block title %}Legal Citations - CasePoint{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/casepoint-brand.css') }}">
+{% endblock %}
+
 {% block content %}
+<div class="cp-bg-light" style="min-height: 100vh;">
 <div class="container py-4">
     <div class="row mb-4">
         <div class="col-md-8">
-            <h2><i class="fas fa-book-open me-2"></i>Citation Search</h2>
-            <p class="text-muted">Search Pakistan law cases, judgments, and legal documents</p>
+            <h2 class="cp-font-display" style="color: var(--cp-primary);"><i class="fas fa-book-open me-2"></i>Citation Search</h2>
+            <p style="color: var(--cp-text-dark);">Search Pakistan law cases, judgments, and legal documents</p>
         </div>
         <div class="col-md-4 text-md-end">
             {% if session.get('role') == 'admin' %}
-            <a href="{{ url_for('admin_api.upload_citation') }}" class="btn btn-primary">
+            <a href="{{ url_for('admin_api.upload_citation') }}" class="cp-btn-primary">
                 <i class="fas fa-plus me-2"></i>Upload Citation
             </a>
             {% endif %}
@@ -20,16 +25,16 @@
     
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-custom">
+            <div class="cp-glass-card">
                 <div class="card-body">
                     <form method="GET" action="{{ url_for('search') }}" class="row g-3">
                         <div class="col-md-10">
-                            <input type="text" class="form-control form-control-lg" name="q" 
+                            <input type="text" class="form-control form-control-lg cp-input" name="q" 
                                    value="{{ search_query or '' }}" 
                                    placeholder="Search by case name, citation, court, or keywords...">
                         </div>
                         <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <button type="submit" class="cp-btn-primary btn-lg w-100">
                                 <i class="fas fa-search me-1"></i>Search
                             </button>
                         </div>
@@ -53,7 +58,7 @@
     {% if citations.items %}
     <div class="row">
         <div class="col-12">
-            <div class="card shadow-custom">
+            <div class="cp-glass-card">
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
@@ -70,23 +75,23 @@
                             <tbody>
                                 {% for citation in citations.items %}
                                 <tr>
-                                    <td><strong class="text-primary">{{ citation.citation }}</strong></td>
+                                    <td><strong style="color: var(--cp-primary);">{{ citation.citation }}</strong></td>
                                     <td>{{ citation.title[:60] }}{% if citation.title|length > 60 %}...{% endif %}</td>
                                     <td>{{ citation.court or 'N/A' }}</td>
                                     <td>{{ citation.year or 'N/A' }}</td>
                                     <td>
                                         {% if citation.legal_area %}
-                                        <span class="badge bg-info">{{ citation.legal_area }}</span>
+                                        <span class="cp-badge-accent">{{ citation.legal_area }}</span>
                                         {% else %}
                                         N/A
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <a href="{{ url_for('cases.case_detail', case_id=citation.id) }}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                        <a href="{{ url_for('cases.case_detail', case_id=citation.id) }}" class="btn btn-sm cp-btn-primary" title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         {% if citation.file_path %}
-                                        <a href="#" class="btn btn-sm btn-outline-success ms-1" title="Download Document">
+                                        <a href="#" class="btn btn-sm cp-btn-accent ms-1" title="Download Document">
                                             <i class="fas fa-download"></i>
                                         </a>
                                         {% endif %}
@@ -143,5 +148,6 @@
         <p class="text-muted mb-0">Search by case name, citation, court, or keywords to get started</p>
     </div>
     {% endif %}
+</div>
 </div>
 {% endblock %}

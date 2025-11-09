@@ -3,100 +3,228 @@
 {% block title %}AI Legal Analysis - CasePoint{% endblock %}
 
 {% block content %}
-<!-- Dark theme wrapper -->
-<div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-800 text-white" style="margin: -1.5rem; padding: 1.5rem;">
+<!-- Light theme wrapper -->
+<div class="cp-bg-light" style="margin: -1.5rem; padding: 1.5rem; min-height: 100vh;">
 
 <style>
-/* AI Analysis dark theme */
-.ai-dark .card {
-    background: rgba(15, 23, 42, 0.75) !important;
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(148, 163, 184, 0.15) !important;
-}
-
-.ai-dark .card-header {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.3), rgba(59, 130, 246, 0.2)) !important;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.15) !important;
-    color: #f1f5f9 !important;
-}
-
-.ai-dark .card-body {
-    color: #e2e8f0 !important;
-}
-
-.ai-dark .ai-analysis-card {
-    background: rgba(15, 23, 42, 0.75);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(148, 163, 184, 0.15);
+/* AI Analysis light theme using CasePoint brand */
+.ai-light .cp-analysis-hero {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(30, 58, 138, 0.1);
+    border-radius: var(--cp-radius-lg);
+    box-shadow: var(--cp-shadow-lg);
     padding: 2rem;
-    border-radius: 1rem;
 }
 
-.ai-dark .ai-analysis-card h2 {
-    color: #f1f5f9;
+.ai-light .cp-analysis-hero h2 {
+    font-family: 'Merriweather', serif;
+    color: var(--cp-primary);
 }
 
-.ai-dark .ai-analysis-card .lead {
-    color: #cbd5e1;
+.ai-light .cp-analysis-hero .lead {
+    color: var(--cp-text-dark);
 }
 
-.ai-dark .form-control {
-    background: rgba(30, 41, 59, 0.6) !important;
-    color: #e2e8f0 !important;
-    border-color: rgba(148, 163, 184, 0.3) !important;
+.ai-light .cp-analysis-hero i {
+    color: var(--cp-accent);
 }
 
-.ai-dark .form-control:focus {
-    background: rgba(30, 41, 59, 0.8) !important;
-    border-color: rgba(59, 130, 246, 0.5) !important;
-    color: #f1f5f9 !important;
+.ai-light .cp-glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(30, 58, 138, 0.1);
+    border-radius: var(--cp-radius-lg);
+    box-shadow: var(--cp-shadow-lg);
 }
 
-.ai-dark .form-label {
-    color: #e2e8f0 !important;
+.ai-light .cp-card-header {
+    background: linear-gradient(135deg, var(--cp-primary), var(--cp-accent));
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: var(--cp-radius-lg) var(--cp-radius-lg) 0 0;
+    border-bottom: none;
 }
 
-.ai-dark .form-text {
-    color: #94a3b8 !important;
+.ai-light .cp-card-header h5 {
+    font-family: 'Merriweather', serif;
+    margin: 0;
 }
 
-.ai-dark .btn-primary {
-    background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
-    border: none !important;
+.ai-light .form-control {
+    border: 1px solid rgba(30, 58, 138, 0.2);
+    border-radius: var(--cp-radius-md);
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    color: var(--cp-text-dark);
 }
 
-.ai-dark .btn-outline-secondary {
-    color: #94a3b8 !important;
-    border-color: #64748b !important;
+.ai-light .form-control:focus {
+    border-color: var(--cp-primary);
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+    outline: none;
 }
 
-.ai-dark .btn-outline-secondary:hover {
-    background: rgba(100, 116, 139, 0.2) !important;
-    color: #cbd5e1 !important;
+.ai-light .form-label {
+    color: var(--cp-text-dark);
+    font-weight: 600;
 }
 
-.ai-dark .bg-light {
-    background: rgba(30, 41, 59, 0.6) !important;
+.ai-light .form-text {
+    color: #64748b;
 }
 
-.ai-dark .text-muted {
-    color: #94a3b8 !important;
+.ai-light .cp-btn-primary {
+    background: var(--cp-primary);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--cp-radius-md);
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
-.ai-dark h6 {
-    color: #f1f5f9 !important;
+.ai-light .cp-btn-primary:hover {
+    background: linear-gradient(90deg, #1E3A8A, #10B981);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(30, 58, 138, 0.3);
+    color: white;
 }
 
-.ai-dark .fst-italic {
-    color: #cbd5e1 !important;
+.ai-light .btn-outline-secondary {
+    color: var(--cp-text-dark);
+    border-color: rgba(30, 58, 138, 0.3);
+    border-radius: var(--cp-radius-md);
+}
+
+.ai-light .btn-outline-secondary:hover {
+    background: rgba(30, 58, 138, 0.1);
+    color: var(--cp-primary);
+    border-color: var(--cp-primary);
+}
+
+.ai-light .cp-feature-card {
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: var(--cp-radius-md);
+    border: 1px solid rgba(30, 58, 138, 0.1);
+    transition: all 0.3s ease;
+}
+
+.ai-light .cp-feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--cp-shadow-xl);
+}
+
+.ai-light .cp-feature-card h6 {
+    font-family: 'Merriweather', serif;
+    color: var(--cp-primary);
+    margin-top: 1rem;
+}
+
+.ai-light .cp-feature-card p {
+    color: #64748b;
+}
+
+.ai-light .cp-feature-card i {
+    color: var(--cp-accent);
+}
+
+.ai-light .cp-question-display {
+    background: rgba(30, 58, 138, 0.05);
+    border-radius: var(--cp-radius-md);
+    padding: 1.5rem;
+    border-left: 4px solid var(--cp-primary);
+}
+
+.ai-light .cp-question-display h6 {
+    color: var(--cp-primary);
+    font-weight: 600;
+    font-family: 'Merriweather', serif;
+}
+
+.ai-light .cp-question-display p {
+    color: var(--cp-text-dark);
+}
+
+.ai-light .analysis-content {
+    color: var(--cp-text-dark);
+    line-height: 1.8;
+}
+
+.ai-light .cp-card-header-success {
+    background: linear-gradient(135deg, var(--cp-accent), var(--cp-secondary));
+}
+
+.ai-light .cp-alert-warning {
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid #fbbf24;
+    border-radius: var(--cp-radius-md);
+    padding: 1rem;
+    color: #92400e;
+}
+
+.ai-light .cp-alert-warning h6 {
+    color: #92400e;
+    font-weight: 600;
+}
+
+.ai-light .cp-example-section {
+    background: white;
+    padding: 3rem 0;
+}
+
+.ai-light .cp-example-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(30, 58, 138, 0.1);
+    border-radius: var(--cp-radius-lg);
+    box-shadow: var(--cp-shadow-md);
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.ai-light .cp-example-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--cp-shadow-xl);
+}
+
+.ai-light .cp-example-card h6 {
+    color: var(--cp-primary);
+    font-family: 'Merriweather', serif;
+    font-weight: 600;
+}
+
+.ai-light .cp-example-card p {
+    color: var(--cp-text-dark);
+}
+
+.ai-light .btn-outline-primary {
+    border-color: var(--cp-primary);
+    color: var(--cp-primary);
+}
+
+.ai-light .btn-outline-primary:hover {
+    background: var(--cp-primary);
+    color: white;
+}
+
+.ai-light .btn-sm.cp-btn-primary {
+    padding: 0.5rem 1rem;
+}
+
+.ai-light h3 {
+    font-family: 'Merriweather', serif;
+    color: var(--cp-primary);
 }
 </style>
 
-<div class="container py-5 ai-dark">
+<div class="container py-5 ai-light">
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <!-- AI Analysis Hero -->
-            <div class="ai-analysis-card text-center mb-5">
+            <div class="cp-analysis-hero text-center mb-5">
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <h2 class="fw-bold mb-3">
@@ -115,13 +243,13 @@
             
             <!-- AI Analysis Form -->
             {% if not analysis %}
-            <div class="card shadow-custom">
-                <div class="card-header bg-primary-custom text-white">
+            <div class="cp-glass-card">
+                <div class="cp-card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-question-circle me-2"></i>Ask Your Legal Question
                     </h5>
                 </div>
-                <div class="card-body p-4">
+                <div class="p-4">
                     <form id="aiAnalysisForm" method="POST" action="{{ url_for('ai.ai_analysis') }}">
                         <div class="mb-4">
                             <label for="query" class="form-label fw-bold">Legal Question *</label>
@@ -154,7 +282,7 @@
                             <a href="{{ url_for('home') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Back to Search
                             </a>
-                            <button type="submit" class="btn btn-primary btn-lg" id="aiSubmitBtn">
+                            <button type="submit" class="btn cp-btn-primary btn-lg" id="aiSubmitBtn">
                                 <i class="fas fa-magic me-2"></i>Analyze with AI
                             </button>
                         </div>
@@ -165,29 +293,30 @@
             <!-- AI Features -->
             <div class="row g-4 mt-4">
                 <div class="col-md-4">
-                    <div class="text-center">
+                    <div class="cp-feature-card">
                         <div class="mb-3">
+                            <i class="fas fa-balance-scale fa-2x"></i>
                         </div>
                         <h6>Pakistan Law Specialized</h6>
-                        <p class="text-muted small">Trained specifically on Pakistan's legal framework, statutes, and case law</p>
+                        <p class="small mb-0">Trained specifically on Pakistan's legal framework, statutes, and case law</p>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="text-center">
+                    <div class="cp-feature-card">
                         <div class="mb-3">
-                            <i class="fas fa-quote-left fa-2x text-primary-custom"></i>
+                            <i class="fas fa-quote-left fa-2x"></i>
                         </div>
                         <h6>Well-Cited Responses</h6>
-                        <p class="text-muted small">Provides references to relevant statutes, cases, and legal authorities</p>
+                        <p class="small mb-0">Provides references to relevant statutes, cases, and legal authorities</p>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="text-center">
+                    <div class="cp-feature-card">
                         <div class="mb-3">
-                            <i class="fas fa-clock fa-2x text-primary-custom"></i>
+                            <i class="fas fa-clock fa-2x"></i>
                         </div>
                         <h6>Instant Analysis</h6>
-                        <p class="text-muted small">Get comprehensive legal analysis in seconds, not hours</p>
+                        <p class="small mb-0">Get comprehensive legal analysis in seconds, not hours</p>
                     </div>
                 </div>
             </div>
@@ -195,24 +324,24 @@
             
             <!-- AI Analysis Result -->
             {% if analysis %}
-            <div class="card shadow-custom">
-                <div class="card-header bg-success text-white">
+            <div class="cp-glass-card">
+                <div class="cp-card-header cp-card-header-success">
                     <h5 class="mb-0">
                         <i class="fas fa-robot me-2"></i>AI Legal Analysis Results
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="p-4">
                     <!-- Query Display -->
-                    <div class="mb-4 p-3 bg-light rounded">
-                        <h6 class="fw-bold text-primary-custom mb-2">
+                    <div class="mb-4 cp-question-display">
+                        <h6 class="mb-2">
                             <i class="fas fa-question-circle me-2"></i>Your Question:
                         </h6>
                         <p class="mb-0 fst-italic">"{{ query }}"</p>
                         {% if context %}
-                        <h6 class="fw-bold text-primary-custom mb-2 mt-3">
+                        <h6 class="mb-2 mt-3">
                             <i class="fas fa-info-circle me-2"></i>Context Provided:
                         </h6>
-                        <p class="mb-0 text-muted">{{ context }}</p>
+                        <p class="mb-0">{{ context }}</p>
                         {% endif %}
                     </div>
                     
@@ -235,7 +364,7 @@
                             <button class="btn btn-outline-secondary btn-sm" onclick="copyAnalysis()">
                                 <i class="fas fa-copy me-1"></i>Copy to Clipboard
                             </button>
-                            <a href="{{ url_for('ai.ai_analysis') }}" class="btn btn-primary btn-sm">
+                            <a href="{{ url_for('ai.ai_analysis') }}" class="btn btn-sm cp-btn-primary">
                                 <i class="fas fa-plus me-1"></i>New Analysis
                             </a>
                             <a href="{{ url_for('home') }}" class="btn btn-outline-secondary btn-sm">
@@ -247,7 +376,7 @@
             </div>
             
             <!-- Disclaimer -->
-            <div class="alert alert-warning mt-4">
+            <div class="cp-alert-warning mt-4">
                 <h6 class="alert-heading">
                     <i class="fas fa-exclamation-triangle me-2"></i>Important Disclaimer
                 </h6>
@@ -264,7 +393,7 @@
 
 {% if not analysis %}
 <!-- Example Questions Section -->
-<section class="py-5 bg-light">
+<section class="py-5 cp-example-section">
     <div class="container">
         <div class="row">
             <div class="col-12">
@@ -273,27 +402,27 @@
         </div>
         <div class="row g-4">
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100">
+                <div class="card cp-example-card">
                     <div class="card-body">
-                        <h6 class="card-title text-primary-custom">Constitutional Law</h6>
+                        <h6 class="card-title">Constitutional Law</h6>
                         <p class="card-text">"What are the fundamental rights guaranteed under Articles 8-28 of the Constitution of Pakistan?"</p>
                         <button class="btn btn-sm btn-outline-primary" onclick="fillExample(this)">Use This Example</button>
                     </div>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100">
+                <div class="card cp-example-card">
                     <div class="card-body">
-                        <h6 class="card-title text-primary-custom">Family Law</h6>
+                        <h6 class="card-title">Family Law</h6>
                         <p class="card-text">"Explain the procedure for Khula under the Muslim Family Laws Ordinance 1961."</p>
                         <button class="btn btn-sm btn-outline-primary" onclick="fillExample(this)">Use This Example</button>
                     </div>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100">
+                <div class="card cp-example-card">
                     <div class="card-body">
-                        <h6 class="card-title text-primary-custom">Criminal Law</h6>
+                        <h6 class="card-title">Criminal Law</h6>
                         <p class="card-text">"What are the essential elements of theft under Section 378 of Pakistan Penal Code?"</p>
                         <button class="btn btn-sm btn-outline-primary" onclick="fillExample(this)">Use This Example</button>
                     </div>
@@ -303,6 +432,9 @@
     </div>
 </section>
 {% endif %}
+
+</div>
+<!-- End light theme wrapper -->
 {% endblock %}
 
 {% block extra_scripts %}
@@ -353,6 +485,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-</div>
-<!-- End dark theme wrapper -->
 {% endblock %}

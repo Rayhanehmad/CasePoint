@@ -2,7 +2,12 @@
 
 {% block title %}{{ journal_code }} - {{ journal_name }} Index - CasePoint{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/casepoint-brand.css') }}">
+{% endblock %}
+
 {% block content %}
+<div class="cp-bg-light" style="min-height: 100vh;">
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12 mb-3">
@@ -12,23 +17,22 @@
         </div>
     </div>
 
-    <!-- Journal Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-body">
+            <div class="cp-glass-card">
+                <div class="card-body cp-gradient-primary text-white p-4" style="border-radius: var(--cp-radius-lg) var(--cp-radius-lg) 0 0;">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h2 class="mb-1">
-                                <span class="badge bg-primary me-2" style="font-size: 1.5rem;">{{ journal_code }}</span>
+                            <h2 class="mb-1 cp-font-display">
+                                <span class="badge bg-white text-primary me-2" style="font-size: 1.5rem;">{{ journal_code }}</span>
                                 {{ journal_name }}
                             </h2>
-                            <p class="text-muted mb-0">
+                            <p class="mb-0">
                                 <i class="fas fa-book me-1"></i>{{ total_citations }} citation{{ 's' if total_citations != 1 else '' }} available
                             </p>
                         </div>
                         <div>
-                            <a href="{{ url_for('home') }}" class="btn btn-outline-primary">
+                            <a href="{{ url_for('home') }}" class="btn btn-light">
                                 <i class="fas fa-home me-1"></i>Back to Home
                             </a>
                         </div>
@@ -38,16 +42,15 @@
         </div>
     </div>
 
-    <!-- Citations Index -->
     <div class="row">
         <div class="col-12">
             {% if citations_by_year %}
                 {% for year in sorted_years %}
-                <div class="card shadow-sm mb-4">
+                <div class="cp-glass-card mb-4">
                     <div class="card-header bg-light">
-                        <h4 class="mb-0">
-                            <i class="fas fa-calendar-alt me-2 text-primary"></i>Year {{ year if year != 0 else 'Unknown' }}
-                            <span class="badge bg-secondary ms-2">{{ citations_by_year[year]|length }} citation{{ 's' if citations_by_year[year]|length != 1 else '' }}</span>
+                        <h4 class="mb-0 cp-font-display" style="color: var(--cp-primary);">
+                            <i class="fas fa-calendar-alt me-2"></i>Year {{ year if year != 0 else 'Unknown' }}
+                            <span class="cp-badge-accent ms-2">{{ citations_by_year[year]|length }} citation{{ 's' if citations_by_year[year]|length != 1 else '' }}</span>
                         </h4>
                     </div>
                     <div class="card-body">
@@ -64,7 +67,7 @@
                                     {% for citation in citations_by_year[year] %}
                                     <tr>
                                         <td>
-                                            <span class="fw-bold text-primary">{{ citation.citation }}</span>
+                                            <span class="fw-bold" style="color: var(--cp-primary);">{{ citation.citation }}</span>
                                         </td>
                                         <td>
                                             {% if citation.court %}
@@ -74,7 +77,7 @@
                                             {% endif %}
                                         </td>
                                         <td>
-                                            <a href="{{ url_for('cases.case_detail', case_id=citation.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <a href="{{ url_for('cases.case_detail', case_id=citation.id) }}" class="cp-btn-primary btn-sm">
                                                 <i class="fas fa-eye me-1"></i>View Full Citation
                                             </a>
                                         </td>
@@ -87,12 +90,12 @@
                 </div>
                 {% endfor %}
             {% else %}
-                <div class="card shadow-sm">
+                <div class="cp-glass-card">
                     <div class="card-body text-center py-5">
-                        <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
-                        <h5>No Citations Found</h5>
+                        <i class="fas fa-folder-open fa-4x mb-3" style="color: var(--cp-accent);"></i>
+                        <h5 class="cp-font-display" style="color: var(--cp-primary);">No Citations Found</h5>
                         <p class="text-muted">There are currently no citations available for {{ journal_code }}.</p>
-                        <a href="{{ url_for('home') }}" class="btn btn-primary mt-3">
+                        <a href="{{ url_for('home') }}" class="cp-btn-primary mt-3">
                             <i class="fas fa-home me-2"></i>Return to Home
                         </a>
                     </div>
@@ -100,6 +103,7 @@
             {% endif %}
         </div>
     </div>
+</div>
 </div>
 
 <style>

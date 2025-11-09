@@ -2,114 +2,123 @@
 
 {% block title %}Manage Users - Admin Panel{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/casepoint-brand.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h2><i class="fas fa-users me-2"></i>Manage Users</h2>
-            <p class="text-muted">View and manage all registered users</p>
-        </div>
-        <div class="col-md-4 text-md-end">
-            <a href="{{ url_for('admin_api.admin_panel') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-            </a>
-        </div>
-    </div>
-    
-    {% if users.items %}
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-custom">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                    <th>Status</th>
-                                    <th>Joined</th>
-                                    <th>Last Seen</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for user in users.items %}
-                                <tr>
-                                    <td>{{ user.id }}</td>
-                                    <td><strong>{{ user.username }}</strong></td>
-                                    <td>{{ user.email }}</td>
-                                    <td>
-                                        {% if user.role == 'admin' %}
-                                        <span class="badge bg-danger">Admin</span>
-                                        {% else %}
-                                        <span class="badge bg-secondary">User</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if user.is_online() %}
-                                        <span class="badge bg-success"><i class="fas fa-circle fa-xs"></i> Online</span>
-                                        {% else %}
-                                        <span class="badge bg-secondary"><i class="far fa-circle fa-xs"></i> Offline</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') if user.created_at else 'N/A' }}</td>
-                                    <td>{{ user.last_seen.strftime('%Y-%m-%d %H:%M') if user.last_seen else 'Never' }}</td>
-                                    <td>
-                                        {% if user.id != session['user_id'] %}
-                                        <form method="POST" action="#" 
-                                              onsubmit="return confirm('Are you sure you want to delete user {{ user.username }}?');" style="display: inline;">
-                                            <button type="submit" class="btn btn-sm btn-danger">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                        {% else %}
-                                        <span class="text-muted">You</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                {% if users.has_prev or users.has_next %}
-                <div class="card-footer bg-light">
-                    <nav aria-label="User pagination">
-                        <ul class="pagination justify-content-center mb-0">
-                            {% if users.has_prev %}
-                            <li class="page-item">
-                                <a class="page-link" href="#">
-                                    <i class="fas fa-chevron-left me-1"></i>Previous
-                                </a>
-                            </li>
-                            {% endif %}
-                            
-                            <li class="page-item disabled">
-                                <span class="page-link">Page {{ users.page }} of {{ users.pages }}</span>
-                            </li>
-                            
-                            {% if users.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="#">
-                                    Next<i class="fas fa-chevron-right ms-1"></i>
-                                </a>
-                            </li>
-                            {% endif %}
-                        </ul>
-                    </nav>
-                </div>
-                {% endif %}
+<div class="cp-bg-light" style="min-height: 100vh;">
+    <div class="container py-4">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h2 class="cp-font-display" style="color: var(--cp-primary);">
+                    <i class="fas fa-users me-2"></i>Manage Users
+                </h2>
+                <p style="color: var(--cp-text-dark); opacity: 0.7;">View and manage all registered users</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="{{ url_for('admin_api.admin_panel') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
             </div>
         </div>
+        
+        {% if users.items %}
+        <div class="row">
+            <div class="col-12">
+                <div class="cp-glass-card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead style="background: var(--cp-background);">
+                                    <tr>
+                                        <th style="color: var(--cp-text-dark);">ID</th>
+                                        <th style="color: var(--cp-text-dark);">Username</th>
+                                        <th style="color: var(--cp-text-dark);">Email</th>
+                                        <th style="color: var(--cp-text-dark);">Role</th>
+                                        <th style="color: var(--cp-text-dark);">Status</th>
+                                        <th style="color: var(--cp-text-dark);">Joined</th>
+                                        <th style="color: var(--cp-text-dark);">Last Seen</th>
+                                        <th style="color: var(--cp-text-dark);">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users.items %}
+                                    <tr>
+                                        <td style="color: var(--cp-text-dark);">{{ user.id }}</td>
+                                        <td><strong style="color: var(--cp-primary);">{{ user.username }}</strong></td>
+                                        <td style="color: var(--cp-text-dark);">{{ user.email }}</td>
+                                        <td>
+                                            {% if user.role == 'admin' %}
+                                            <span class="cp-badge-primary">Admin</span>
+                                            {% else %}
+                                            <span class="badge bg-secondary">User</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if user.is_online() %}
+                                            <span class="cp-badge-accent"><i class="fas fa-circle fa-xs"></i> Online</span>
+                                            {% else %}
+                                            <span class="badge bg-secondary"><i class="far fa-circle fa-xs"></i> Offline</span>
+                                            {% endif %}
+                                        </td>
+                                        <td style="color: var(--cp-text-dark);">{{ user.created_at.strftime('%Y-%m-%d %H:%M') if user.created_at else 'N/A' }}</td>
+                                        <td style="color: var(--cp-text-dark);">{{ user.last_seen.strftime('%Y-%m-%d %H:%M') if user.last_seen else 'Never' }}</td>
+                                        <td>
+                                            {% if user.id != session['user_id'] %}
+                                            <form method="POST" action="#" 
+                                                  onsubmit="return confirm('Are you sure you want to delete user {{ user.username }}?');" style="display: inline;">
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                            {% else %}
+                                            <span style="color: var(--cp-text-dark); opacity: 0.5;">You</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    {% if users.has_prev or users.has_next %}
+                    <div class="card-footer" style="background: var(--cp-background); border-top: 1px solid rgba(30, 58, 138, 0.1);">
+                        <nav aria-label="User pagination">
+                            <ul class="pagination justify-content-center mb-0">
+                                {% if users.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="#">
+                                        <i class="fas fa-chevron-left me-1"></i>Previous
+                                    </a>
+                                </li>
+                                {% endif %}
+                                
+                                <li class="page-item disabled">
+                                    <span class="page-link">Page {{ users.page }} of {{ users.pages }}</span>
+                                </li>
+                                
+                                {% if users.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="#">
+                                        Next<i class="fas fa-chevron-right ms-1"></i>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="cp-alert" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--cp-accent); padding: 1rem;">
+            <i class="fas fa-info-circle me-2" style="color: var(--cp-accent);"></i>
+            <span style="color: var(--cp-text-dark);">No users found in database.</span>
+        </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="alert alert-info">
-        <i class="fas fa-info-circle me-2"></i>No users found in database.
-    </div>
-    {% endif %}
 </div>
 {% endblock %}
