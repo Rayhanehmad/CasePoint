@@ -1,200 +1,229 @@
 {% extends "base.html" %}
 
-{% block title %}CasePoint — Dashboard{% endblock %}
+{% block title %}Dashboard - CasePointAI{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-800 text-white font-inter">
-  <!-- Layout -->
-  <div class="flex">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/casepoint-brand.css') }}">
 
-    <!-- Sidebar -->
-    <aside class="w-72 hidden md:flex flex-col items-center py-8 shadow-xl bg-gradient-to-b from-slate-900 via-blue-900 to-slate-800">
-      <!-- Logo block -->
-      <div class="mb-10 relative flex flex-col items-center">
-        <div class="relative">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Scales_of_Justice.svg"
-               alt="CasePoint Logo" class="w-20 h-20 animate-glow rounded-full p-2 bg-white/5">
-          <div class="absolute inset-0 rounded-full blur-2xl bg-cyan-500/40 animate-pulseGlow"></div>
+<div class="cp-bg-light" style="min-height: 80vh;">
+    <!-- Hero Section -->
+    <div class="cp-gradient-primary text-white py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="cp-font-display mb-2" style="font-weight: 700; font-size: 2rem;">Welcome back, {{ user.full_name }} 👋</h2>
+                    <p style="opacity: 0.9;">Access Pakistan's most advanced AI-powered legal research platform</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <span class="cp-badge-accent" style="font-size: 1rem; padding: 0.5rem 1rem;">
+                        <i class="fas fa-crown me-1"></i>{{ user.subscription_tier|capitalize }} Plan
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="container py-5">
+        
+        <!-- Central Action Buttons - 6 Equal Width Buttons -->
+        <div class="row g-4 mb-5">
+            <div class="col-12">
+                <h3 class="cp-font-display mb-4" style="color: var(--cp-text-dark); font-weight: 700; text-align: center;">Quick Actions</h3>
+            </div>
+            
+            <div class="col-md-4 col-sm-6">
+                <a href="{{ url_for('search') }}" class="cp-glass-card p-4 d-block text-decoration-none cp-card-hover h-100">
+                    <div class="text-center">
+                        <div class="cp-icon-circle-lg mb-3 mx-auto">
+                            <i class="fas fa-search" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h4 class="cp-font-display mb-2" style="color: var(--cp-primary); font-weight: 600;">New Search</h4>
+                        <p style="color: var(--cp-text-dark); opacity: 0.7;">Search by journal, citation, or page number</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-4 col-sm-6">
+                <a href="{{ url_for('cases.search_cases') }}" class="cp-glass-card p-4 d-block text-decoration-none cp-card-hover h-100">
+                    <div class="text-center">
+                        <div class="cp-icon-circle-lg mb-3 mx-auto" style="background: linear-gradient(135deg, #10B981, #059669);">
+                            <i class="fas fa-keyboard" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h4 class="cp-font-display mb-2" style="color: var(--cp-accent); font-weight: 600;">Keyword Search</h4>
+                        <p style="color: var(--cp-text-dark); opacity: 0.7;">Find cases using keywords and advanced filters</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-4 col-sm-6">
+                <a href="{{ url_for('ai.case_analyzer') }}" class="cp-glass-card p-4 d-block text-decoration-none cp-card-hover h-100">
+                    <div class="text-center">
+                        <div class="cp-icon-circle-lg mb-3 mx-auto" style="background: linear-gradient(135deg, #059669, #1E3A8A);">
+                            <i class="fas fa-balance-scale" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h4 class="cp-font-display mb-2" style="color: var(--cp-secondary); font-weight: 600;">Which Laws Apply</h4>
+                        <p style="color: var(--cp-text-dark); opacity: 0.7;">AI detects applicable laws and statutes</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-4 col-sm-6">
+                <a href="{{ url_for('ai.ai_analysis') }}" class="cp-glass-card p-4 d-block text-decoration-none cp-card-hover h-100">
+                    <div class="text-center">
+                        <div class="cp-icon-circle-lg mb-3 mx-auto" style="background: linear-gradient(135deg, #1E3A8A, #10B981);">
+                            <i class="fas fa-brain" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h4 class="cp-font-display mb-2" style="color: var(--cp-primary); font-weight: 600;">AI Analyzer</h4>
+                        <p style="color: var(--cp-text-dark); opacity: 0.7;">Generate summaries and counter arguments</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-4 col-sm-6">
+                <a href="{{ url_for('acts.search_statutes') }}" class="cp-glass-card p-4 d-block text-decoration-none cp-card-hover h-100">
+                    <div class="text-center">
+                        <div class="cp-icon-circle-lg mb-3 mx-auto" style="background: linear-gradient(135deg, #10B981, #1E3A8A);">
+                            <i class="fas fa-book" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h4 class="cp-font-display mb-2" style="color: var(--cp-accent); font-weight: 600;">Rules / Acts / Statutes</h4>
+                        <p style="color: var(--cp-text-dark); opacity: 0.7;">Browse federal and provincial legislation</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-4 col-sm-6">
+                <a href="{{ url_for('cases.search_cases') }}?advanced=true" class="cp-glass-card p-4 d-block text-decoration-none cp-card-hover h-100">
+                    <div class="text-center">
+                        <div class="cp-icon-circle-lg mb-3 mx-auto" style="background: linear-gradient(135deg, #059669, #10B981);">
+                            <i class="fas fa-filter" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h4 class="cp-font-display mb-2" style="color: var(--cp-secondary); font-weight: 600;">Advanced Search</h4>
+                        <p style="color: var(--cp-text-dark); opacity: 0.7;">Search by court, judge, parties, and more</p>
+                    </div>
+                </a>
+            </div>
         </div>
 
-        <h1 class="mt-3 text-2xl font-extrabold bg-gradient-to-r from-cyan-300 via-sky-400 to-indigo-300 bg-clip-text text-transparent animate-textGlow font-orbitron">
-          CasePoint
-        </h1>
-        <p class="text-[0.75rem] text-cyan-200/90 tracking-wide">Legal Intelligence, Simplified by AI ⚡</p>
-      </div>
-
-      <nav class="w-full px-6 space-y-2 text-gray-200">
-        <a href="{{ url_for('home') }}" class="flex items-center gap-3 px-3 py-2 rounded-md bg-white/10 text-cyan-300 transition">
-          <span class="w-5 h-5">⚖️</span>
-          <span>Dashboard</span>
-        </a>
-        <a href="{{ url_for('cases.search_cases') }}" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 hover:text-cyan-300 transition">
-          <span class="w-5 h-5">🔎</span>
-          <span>Search Cases</span>
-        </a>
-        <a href="{{ url_for('acts.search_statutes') }}" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 hover:text-cyan-300 transition">
-          <span class="w-5 h-5">📘</span>
-          <span>Acts & Rules</span>
-        </a>
-        <a href="{{ url_for('search') }}" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 hover:text-cyan-300 transition">
-          <span class="w-5 h-5">💽</span>
-          <span>Citation Search</span>
-        </a>
-        <a href="{{ url_for('ai.ai_analysis') }}" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 hover:text-cyan-300 transition">
-          <span class="w-5 h-5">🧠</span>
-          <span>AI Analysis</span>
-        </a>
-        <a href="{{ url_for('ai.case_analyzer') }}" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 hover:text-cyan-300 transition">
-          <span class="w-5 h-5">⚡</span>
-          <span>Case Analyzer</span>
-        </a>
-        {% if session.get('role') == 'admin' %}
-        <a href="{{ url_for('upload_multi_pdf_page') }}" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 hover:text-cyan-300 transition">
-          <span class="w-5 h-5">📄</span>
-          <span>Multi-PDF Splitter</span>
-        </a>
-        {% endif %}
-      </nav>
-    </aside>
-
-    <!-- Main -->
-    <main class="flex-1 p-6 md:p-10 space-y-8">
-
-      <!-- Hero -->
-      <section class="glass rounded-3xl p-8 shadow-lg animate-slideIn">
-        <h2 class="text-3xl md:text-4xl font-extrabold">Welcome back, {{ user.full_name }} 👋</h2>
-        <p class="mt-2 text-cyan-100/90">Access Pakistan's most advanced AI-powered legal research platform.</p>
-      </section>
-
-      <!-- Quick Actions -->
-      <section class="animate-slideIn" style="animation-delay: 0.1s;">
-        <h3 class="text-xl font-semibold mb-4 text-gray-200">AI Quick Actions</h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <a href="{{ url_for('cases.search_cases') }}" class="glass p-6 rounded-2xl hover:border-cyan-400 transition shadow-md">
-            <div class="inline-block px-3 py-2 mb-3 rounded-xl text-white bg-gradient-to-r from-indigo-500 to-blue-600">🔍</div>
-            <div class="text-lg font-semibold">New Search</div>
-            <div class="text-sm text-gray-300">Start a new legal query</div>
-          </a>
-          <a href="{{ url_for('ai.case_analyzer') }}" class="glass p-6 rounded-2xl hover:border-cyan-400 transition shadow-md">
-            <div class="inline-block px-3 py-2 mb-3 rounded-xl text-white bg-gradient-to-r from-cyan-500 to-teal-500">⚖️</div>
-            <div class="text-lg font-semibold">Which Laws Apply</div>
-            <div class="text-sm text-gray-300">AI suggests applicable acts & rules</div>
-          </a>
-          {% if session.get('role') == 'admin' %}
-          <a href="{{ url_for('upload_multi_pdf_page') }}" class="glass p-6 rounded-2xl hover:border-cyan-400 transition shadow-md">
-            <div class="inline-block px-3 py-2 mb-3 rounded-xl text-white bg-gradient-to-r from-purple-500 to-pink-500">⬆️</div>
-            <div class="text-lg font-semibold">Upload Documents</div>
-            <div class="text-sm text-gray-300">Add legal documents</div>
-          </a>
-          {% else %}
-          <a href="{{ url_for('ai.ai_analysis') }}" class="glass p-6 rounded-2xl hover:border-cyan-400 transition shadow-md">
-            <div class="inline-block px-3 py-2 mb-3 rounded-xl text-white bg-gradient-to-r from-purple-500 to-pink-500">🧠</div>
-            <div class="text-lg font-semibold">AI Analysis</div>
-            <div class="text-sm text-gray-300">Ask legal questions</div>
-          </a>
-          {% endif %}
+        <!-- Statistics Cards -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="cp-glass-card p-4 text-center">
+                    <div style="color: var(--cp-accent); font-size: 2.5rem;">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="mt-3 mb-1" style="color: var(--cp-primary); font-weight: 700;">{{ "{:,}".format(stats.search_count) }}</h3>
+                    <p style="color: var(--cp-text-dark); opacity: 0.7;">Total Searches</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="cp-glass-card p-4 text-center">
+                    <div style="color: var(--cp-accent); font-size: 2.5rem;">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3 class="mt-3 mb-1" style="color: var(--cp-primary); font-weight: 700;">{{ "{:,}".format(stats.document_count) }}</h3>
+                    <p style="color: var(--cp-text-dark); opacity: 0.7;">Documents Available</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="cp-glass-card p-4 text-center">
+                    <div style="color: var(--cp-accent); font-size: 2.5rem;">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3 class="mt-3 mb-1 text-capitalize" style="color: var(--cp-primary); font-weight: 700;">{{ user.subscription_tier }}</h3>
+                    <p style="color: var(--cp-text-dark); opacity: 0.7;">Plan Status</p>
+                </div>
+            </div>
         </div>
-      </section>
 
-      <!-- Stats -->
-      <section class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slideIn" style="animation-delay: 0.2s;">
-        <div class="glass rounded-2xl p-5">
-          <div class="text-sm text-gray-300">Total Searches</div>
-          <div class="text-3xl font-semibold mt-1">{{ "{:,}".format(stats.search_count) }}</div>
+        <!-- Recent Activity & Subscription Info -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-7">
+                <div class="cp-glass-card p-4">
+                    <h4 class="cp-font-display mb-4" style="color: var(--cp-primary); font-weight: 600;">
+                        <i class="fas fa-history me-2"></i>Recent Activity
+                    </h4>
+                    {% if stats.recent_searches %}
+                    <div class="list-group">
+                        {% for s in stats.recent_searches %}
+                        <div class="list-group-item border-0 mb-2" style="background: rgba(30, 58, 138, 0.05); border-radius: 8px;">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1" style="color: var(--cp-text-dark); font-weight: 600;">{{ s.query }}</h6>
+                                    <small style="color: var(--cp-text-dark); opacity: 0.6;">{{ s.results }} results found</small>
+                                </div>
+                                <small style="color: var(--cp-text-dark); opacity: 0.5;">{{ s.date }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p style="color: var(--cp-text-dark); opacity: 0.6;">No recent searches yet. Start searching to see your history here.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-lg-5">
+                <div class="cp-glass-card p-4">
+                    <h4 class="cp-font-display mb-4" style="color: var(--cp-primary); font-weight: 600;">
+                        <i class="fas fa-crown me-2"></i>Subscription
+                    </h4>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span style="color: var(--cp-text-dark); opacity: 0.7;">Current Plan</span>
+                            <span class="fw-semibold text-capitalize" style="color: var(--cp-text-dark);">{{ user.subscription_tier }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span style="color: var(--cp-text-dark); opacity: 0.7;">Status</span>
+                            <span class="cp-badge-accent">{{ user.subscription_status|capitalize }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if user.subscription_tier == 'free' %}
+                    <div class="alert alert-warning border-0 mt-3" style="background: rgba(251, 191, 36, 0.1);">
+                        <strong>Upgrade to Pro!</strong><br>
+                        Get unlimited searches and AI features.
+                    </div>
+                    {% else %}
+                    <div class="alert alert-success border-0 mt-3" style="background: rgba(16, 185, 129, 0.1);">
+                        <strong>Premium Access</strong><br>
+                        You have full access to all features.
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-3">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#subscribeModal" class="btn cp-btn-accent w-100">
+                            <i class="fas fa-crown me-2"></i>Manage Subscription
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="glass rounded-2xl p-5">
-          <div class="text-sm text-gray-300">Documents Available</div>
-          <div class="text-3xl font-semibold mt-1">{{ "{:,}".format(stats.document_count) }}</div>
-        </div>
-        <div class="glass rounded-2xl p-5">
-          <div class="text-sm text-gray-300">Plan Status</div>
-          <div class="text-3xl font-semibold mt-1 capitalize">{{ user.subscription_tier }}</div>
-        </div>
-      </section>
 
-      <!-- Recent Searches & Subscription -->
-      <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-slideIn" style="animation-delay: 0.3s;">
-        <div class="glass rounded-2xl p-6">
-          <h3 class="text-lg font-semibold mb-3">Recent Activity</h3>
-          <div class="space-y-3">
-            {% for s in stats.recent_searches %}
-            <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10 hover:border-cyan-400 transition">
-              <div>
-                <div class="text-sm font-medium">{{ s.query }}</div>
-                <div class="text-xs text-gray-300">{{ s.results }} results found</div>
-              </div>
-              <div class="text-xs text-gray-400">{{ s.date }}</div>
+        <!-- Featured Journals -->
+        <div class="row">
+            <div class="col-12">
+                <h4 class="cp-font-display mb-4" style="color: var(--cp-primary); font-weight: 600; text-align: center;">Featured Legal Journals</h4>
+            </div>
+            
+            {% set journals = [
+                ('PLD', 'Pakistan Legal Decisions'),
+                ('MLD', 'Monthly Law Digest'),
+                ('SCMR', 'Supreme Court Monthly Review'),
+                ('YLR', 'Yearly Law Reports'),
+                ('CLC', 'Civil Law Cases'),
+                ('CLD', 'Civil Law Digest')
+            ] %}
+            
+            {% for code, name in journals %}
+            <div class="col-md-2 col-sm-4 col-6 mb-3">
+                <a href="{{ url_for('cases.journal_index', journal_code=code) }}" class="cp-glass-card p-3 d-block text-decoration-none text-center cp-card-hover">
+                    <h5 class="mb-1" style="color: var(--cp-accent); font-weight: 700;">{{ code }}</h5>
+                    <small style="color: var(--cp-text-dark); opacity: 0.6; font-size: 0.75rem;">{{ name }}</small>
+                </a>
             </div>
             {% endfor %}
-          </div>
         </div>
-
-        <div class="glass rounded-2xl p-6">
-          <h3 class="text-lg font-semibold mb-3">Subscription</h3>
-          <div class="flex items-center justify-between py-2">
-            <span class="text-sm text-gray-300">Current Plan</span>
-            <span class="text-sm font-medium capitalize">{{ user.subscription_tier }}</span>
-          </div>
-          {% if user.subscription_tier == 'free' %}
-          <div class="mt-4 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-100">
-            Upgrade to access advanced search and unlimited queries.
-            <a href="#" data-bs-toggle="modal" data-bs-target="#subscribeModal" class="ml-2 underline">Upgrade →</a>
-          </div>
-          {% else %}
-          <div class="mt-4 p-4 rounded-lg bg-green-500/10 border border-green-500/30 text-green-100">
-            You have full access to all premium features.
-          </div>
-          {% endif %}
-          <div class="pt-4 mt-4 border-t border-white/10">
-            <a href="#" data-bs-toggle="modal" data-bs-target="#subscribeModal" class="text-sm text-cyan-300 hover:text-cyan-200">Manage subscription →</a>
-          </div>
-        </div>
-      </section>
-
-      <!-- Featured Tools -->
-      <section class="animate-slideIn" style="animation-delay: 0.4s;">
-        <h3 class="text-xl font-semibold mb-4 text-gray-200">Featured Legal Journals</h3>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {% set journals = [
-            ('PLD', 'Pakistan Legal Decisions'),
-            ('MLD', 'Monthly Law Digest'),
-            ('SCMR', 'Supreme Court Monthly Review'),
-            ('YLR', 'Yearly Law Reports'),
-            ('CLC', 'Civil Law Cases'),
-            ('CLD', 'Civil Law Digest')
-          ] %}
-          {% for code, name in journals %}
-          <a href="{{ url_for('cases.journal_index', journal_code=code) }}" class="glass p-4 rounded-xl hover:border-cyan-400 transition text-center">
-            <div class="text-lg font-bold text-cyan-300 mb-1">{{ code }}</div>
-            <div class="text-xs text-gray-400">{{ name }}</div>
-          </a>
-          {% endfor %}
-        </div>
-      </section>
-
-    </main>
-  </div>
+    </div>
 </div>
-
-<style>
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-  .flex {
-    flex-direction: column;
-  }
-  aside {
-    width: 100% !important;
-    padding: 1rem !important;
-  }
-  aside nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  aside nav a {
-    flex: 1;
-    min-width: calc(50% - 0.25rem);
-  }
-}
-</style>
 {% endblock %}
