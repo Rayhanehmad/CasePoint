@@ -2,167 +2,175 @@
 
 {% block title %}Batch Citation Extractor - CasePoint{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/casepoint-brand.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid mt-4">
-    <div class="row">
-        <div class="col-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('admin_api.admin_panel') }}">Admin</a></li>
-                    <li class="breadcrumb-item active">Batch Citation Extractor</li>
-                </ol>
-            </nav>
+<div class="cp-bg-light" style="min-height: 100vh;">
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin_api.admin_panel') }}" class="cp-link">Admin</a></li>
+                        <li class="breadcrumb-item active" style="color: var(--cp-text-dark);">Batch Citation Extractor</li>
+                    </ol>
+                </nav>
+            </div>
         </div>
-    </div>
 
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-gradient text-white" style="background: var(--gradient-primary);">
-                    <h4 class="mb-0"><i class="fas fa-file-import me-2"></i>Smart Batch Citation Extractor</h4>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="fas fa-lightbulb me-2"></i>
-                        <strong>How it works:</strong> Upload a DOCX or TXT file containing multiple Pakistani legal citations. The system will:
-                        <ul class="mb-0 mt-2">
-                            <li>Automatically detect all citations (PLD, CLC, CLD, MLD, PCrLJ, PLC, PTD, SCMR, YLR)</li>
-                            <li>Split the document into individual case blocks</li>
-                            <li>Extract full text for each citation</li>
-                            <li>Save each citation separately to the database instantly</li>
-                        </ul>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="cp-glass-card">
+                    <div class="card-header cp-gradient-primary text-white">
+                        <h4 class="mb-0"><i class="fas fa-file-import me-2"></i>Smart Batch Citation Extractor</h4>
                     </div>
-
-                    <div class="alert alert-success">
-                        <i class="fas fa-bolt me-2"></i>
-                        <strong>Fast & Free:</strong> Instant extraction with no AI costs. Upload hundreds of citations in seconds!
-                    </div>
-
-                    <!-- Upload Zone -->
-                    <div id="uploadZone" class="upload-zone mb-4">
-                        <i class="fas fa-file-upload fa-3x mb-3 text-primary"></i>
-                        <h5>Drop Multi-Citation Document Here</h5>
-                        <p class="text-muted">or click to browse</p>
-                        <p class="text-muted small">Supports: DOCX, TXT files with Pakistani legal citations</p>
-                        <input type="file" id="fileInput" accept=".docx,.txt" style="display: none;">
-                    </div>
-
-                    <!-- File Info -->
-                    <div id="fileInfo" class="mb-4" style="display: none;">
-                        <div class="card border-primary">
-                            <div class="card-body">
-                                <h6><i class="fas fa-file me-2"></i><span id="fileName"></span></h6>
-                                <p class="text-muted mb-3">Ready to extract citations</p>
-                                
-                                <!-- Extraction Method Selection -->
-                                <div class="mb-3">
-                                    <label for="extractionMethod" class="form-label">
-                                        <i class="fas fa-cog me-1"></i><strong>Extraction Method:</strong>
-                                    </label>
-                                    <select id="extractionMethod" class="form-select">
-                                        <option value="auto" selected>Auto-detect (Recommended)</option>
-                                        <option value="heading">Heading-based (for formatted DOCX with Heading 1 styles)</option>
-                                    </select>
-                                    <small class="text-muted">
-                                        <i class="fas fa-info-circle me-1"></i>Auto-detect tries heading-based first, then falls back to pattern matching
-                                    </small>
-                                </div>
-                                
-                                <button id="processBtn" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-bolt me-2"></i>Extract Citations Instantly
-                                </button>
-                                <button id="cancelBtn" class="btn btn-outline-secondary btn-lg ms-2">
-                                    <i class="fas fa-times me-2"></i>Cancel
-                                </button>
-                            </div>
+                    <div class="card-body">
+                        <div class="cp-alert" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--cp-accent); padding: 1rem;">
+                            <i class="fas fa-lightbulb me-2" style="color: var(--cp-accent);"></i>
+                            <strong style="color: var(--cp-text-dark);">How it works:</strong> 
+                            <span style="color: var(--cp-text-dark);">Upload a DOCX or TXT file containing multiple Pakistani legal citations. The system will:</span>
+                            <ul class="mb-0 mt-2" style="color: var(--cp-text-dark);">
+                                <li>Automatically detect all citations (PLD, CLC, CLD, MLD, PCrLJ, PLC, PTD, SCMR, YLR)</li>
+                                <li>Split the document into individual case blocks</li>
+                                <li>Extract full text for each citation</li>
+                                <li>Save each citation separately to the database instantly</li>
+                            </ul>
                         </div>
-                    </div>
 
-                    <!-- Processing -->
-                    <div id="processingSection" style="display: none;">
-                        <div class="text-center py-4">
-                            <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
-                                <span class="visually-hidden">Processing...</span>
-                            </div>
-                            <h5 id="processingStatus">Extracting citations...</h5>
-                            <p class="text-muted">This should complete in a few seconds</p>
+                        <div class="cp-alert" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--cp-accent); padding: 1rem; margin-top: 1rem;">
+                            <i class="fas fa-bolt me-2" style="color: var(--cp-accent);"></i>
+                            <strong style="color: var(--cp-text-dark);">Fast & Free:</strong> 
+                            <span style="color: var(--cp-text-dark);">Instant extraction with no AI costs. Upload hundreds of citations in seconds!</span>
                         </div>
-                    </div>
 
-                    <!-- Results -->
-                    <div id="resultsSection" style="display: none;">
-                        <div class="alert alert-success">
-                            <h5><i class="fas fa-check-circle me-2"></i>Processing Complete!</h5>
-                            <div class="row mt-3">
-                                <div class="col-md-3">
-                                    <div class="text-center">
-                                        <h3 id="totalFound" class="text-primary">0</h3>
-                                        <small>Citations Found</small>
+                        <!-- Upload Zone -->
+                        <div id="uploadZone" class="upload-zone mb-4">
+                            <i class="fas fa-file-upload fa-3x mb-3" style="color: var(--cp-primary);"></i>
+                            <h5 class="cp-font-display" style="color: var(--cp-primary);">Drop Multi-Citation Document Here</h5>
+                            <p style="color: var(--cp-text-dark); opacity: 0.7;">or click to browse</p>
+                            <p style="color: var(--cp-text-dark); opacity: 0.6;" class="small">Supports: DOCX, TXT files with Pakistani legal citations</p>
+                            <input type="file" id="fileInput" accept=".docx,.txt" style="display: none;">
+                        </div>
+
+                        <!-- File Info -->
+                        <div id="fileInfo" class="mb-4" style="display: none;">
+                            <div class="cp-glass-card border" style="border-color: var(--cp-primary) !important;">
+                                <div class="card-body">
+                                    <h6 style="color: var(--cp-primary);"><i class="fas fa-file me-2"></i><span id="fileName"></span></h6>
+                                    <p style="color: var(--cp-text-dark); opacity: 0.7;" class="mb-3">Ready to extract citations</p>
+                                    
+                                    <!-- Extraction Method Selection -->
+                                    <div class="mb-3">
+                                        <label for="extractionMethod" class="form-label" style="color: var(--cp-text-dark);">
+                                            <i class="fas fa-cog me-1"></i><strong>Extraction Method:</strong>
+                                        </label>
+                                        <select id="extractionMethod" class="form-select cp-input">
+                                            <option value="auto" selected>Auto-detect (Recommended)</option>
+                                            <option value="heading">Heading-based (for formatted DOCX with Heading 1 styles)</option>
+                                        </select>
+                                        <small style="color: var(--cp-text-dark); opacity: 0.6;">
+                                            <i class="fas fa-info-circle me-1"></i>Auto-detect tries heading-based first, then falls back to pattern matching
+                                        </small>
                                     </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="text-center">
-                                        <h3 id="savedCount" class="text-success">0</h3>
-                                        <small>Saved to DB</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="text-center">
-                                        <h3 id="skippedCount" class="text-warning">0</h3>
-                                        <small>Duplicates</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="text-center">
-                                        <h3 id="errorCount" class="text-danger">0</h3>
-                                        <small>Errors</small>
-                                    </div>
+                                    
+                                    <button id="processBtn" class="cp-btn-primary btn-lg">
+                                        <i class="fas fa-bolt me-2"></i>Extract Citations Instantly
+                                    </button>
+                                    <button id="cancelBtn" class="btn btn-outline-secondary btn-lg ms-2">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
-                        <div id="errorDetails" class="alert alert-danger" style="display: none;">
-                            <h6>Errors:</h6>
-                            <ul id="errorList"></ul>
+                        <!-- Processing -->
+                        <div id="processingSection" style="display: none;">
+                            <div class="text-center py-4">
+                                <div class="spinner-border mb-3" style="width: 3rem; height: 3rem; color: var(--cp-primary);" role="status">
+                                    <span class="visually-hidden">Processing...</span>
+                                </div>
+                                <h5 id="processingStatus" class="cp-font-display" style="color: var(--cp-primary);">Extracting citations...</h5>
+                                <p style="color: var(--cp-text-dark); opacity: 0.7;">This should complete in a few seconds</p>
+                            </div>
                         </div>
 
-                        <button id="uploadMoreBtn" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>Upload Another Document
-                        </button>
-                        <a href="{{ url_for('cases.search_cases') }}" class="btn btn-success ms-2">
-                            <i class="fas fa-search me-2"></i>Search Citations
-                        </a>
+                        <!-- Results -->
+                        <div id="resultsSection" style="display: none;">
+                            <div class="cp-alert" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--cp-accent); padding: 1rem;">
+                                <h5 style="color: var(--cp-accent);"><i class="fas fa-check-circle me-2"></i>Processing Complete!</h5>
+                                <div class="row mt-3">
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h3 id="totalFound" style="color: var(--cp-primary);">0</h3>
+                                            <small style="color: var(--cp-text-dark);">Citations Found</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h3 id="savedCount" style="color: var(--cp-accent);">0</h3>
+                                            <small style="color: var(--cp-text-dark);">Saved to DB</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h3 id="skippedCount" style="color: #FFA500;">0</h3>
+                                            <small style="color: var(--cp-text-dark);">Duplicates</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h3 id="errorCount" class="text-danger">0</h3>
+                                            <small style="color: var(--cp-text-dark);">Errors</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="errorDetails" class="alert alert-danger" style="display: none;">
+                                <h6>Errors:</h6>
+                                <ul id="errorList"></ul>
+                            </div>
+
+                            <button id="uploadMoreBtn" class="cp-btn-primary">
+                                <i class="fas fa-plus me-2"></i>Upload Another Document
+                            </button>
+                            <a href="{{ url_for('cases.search_cases') }}" class="cp-btn-accent ms-2">
+                                <i class="fas fa-search me-2"></i>Search Citations
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Supported Citation Formats -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-list me-2"></i>Supported Citation Formats</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <ul>
-                                <li><strong>PLD</strong> - Pakistan Legal Decisions (e.g., PLD 2024 SC 1)</li>
-                                <li><strong>CLC</strong> - Civil Law Cases (e.g., 2025 CLC 1)</li>
-                                <li><strong>CLD</strong> - Civil Law Digest (e.g., 2025 CLD 1)</li>
-                                <li><strong>MLD</strong> - Monthly Law Digest (e.g., 2025 MLD 1)</li>
-                                <li><strong>PCrLJ</strong> - Pakistan Criminal Law Journal (e.g., 2025 PCrLJ 1)</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <ul>
-                                <li><strong>PLC</strong> - Pakistan Labour Cases (e.g., 2025 PLC 1)</li>
-                                <li><strong>PTD</strong> - Pakistan Tax Decisions (e.g., 2025 PTD 1)</li>
-                                <li><strong>SCMR</strong> - Supreme Court Monthly Review (e.g., 2025 SCMR 1)</li>
-                                <li><strong>YLR</strong> - Yearly Law Reports (e.g., 2025 YLR 1)</li>
-                            </ul>
+        <!-- Supported Citation Formats -->
+        <div class="row">
+            <div class="col-12">
+                <div class="cp-glass-card">
+                    <div class="card-header" style="background: var(--cp-background); border-bottom: 1px solid rgba(30, 58, 138, 0.1);">
+                        <h6 class="mb-0" style="color: var(--cp-primary);"><i class="fas fa-list me-2"></i>Supported Citation Formats</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul style="color: var(--cp-text-dark);">
+                                    <li><strong>PLD</strong> - Pakistan Legal Decisions (e.g., PLD 2024 SC 1)</li>
+                                    <li><strong>CLC</strong> - Civil Law Cases (e.g., 2025 CLC 1)</li>
+                                    <li><strong>CLD</strong> - Civil Law Digest (e.g., 2025 CLD 1)</li>
+                                    <li><strong>MLD</strong> - Monthly Law Digest (e.g., 2025 MLD 1)</li>
+                                    <li><strong>PCrLJ</strong> - Pakistan Criminal Law Journal (e.g., 2025 PCrLJ 1)</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul style="color: var(--cp-text-dark);">
+                                    <li><strong>PLC</strong> - Pakistan Labour Cases (e.g., 2025 PLC 1)</li>
+                                    <li><strong>PTD</strong> - Pakistan Tax Decisions (e.g., 2025 PTD 1)</li>
+                                    <li><strong>SCMR</strong> - Supreme Court Monthly Review (e.g., 2025 SCMR 1)</li>
+                                    <li><strong>YLR</strong> - Yearly Law Reports (e.g., 2025 YLR 1)</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -173,23 +181,23 @@
 
 <style>
 .upload-zone {
-    border: 3px dashed var(--border-color);
+    border: 3px dashed rgba(30, 58, 138, 0.3);
     border-radius: 12px;
     padding: 60px 20px;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    background: var(--light-bg);
+    background: rgba(255, 255, 255, 0.5);
 }
 
 .upload-zone:hover {
-    border-color: var(--secondary-color);
-    background: #E6F2FF;
+    border-color: var(--cp-accent);
+    background: rgba(16, 185, 129, 0.05);
 }
 
 .upload-zone.dragover {
-    border-color: var(--secondary-color);
-    background: #E6F2FF;
+    border-color: var(--cp-accent);
+    background: rgba(16, 185, 129, 0.1);
     transform: scale(1.02);
 }
 </style>
@@ -207,7 +215,6 @@ const uploadMoreBtn = document.getElementById('uploadMoreBtn');
 
 let selectedFile = null;
 
-// Upload zone interactions
 uploadZone.addEventListener('click', () => fileInput.click());
 
 uploadZone.addEventListener('dragover', (e) => {
@@ -262,7 +269,6 @@ processBtn.addEventListener('click', async () => {
     const formData = new FormData();
     formData.append('file', selectedFile);
     
-    // Add selected extraction method
     const method = document.getElementById('extractionMethod').value;
     formData.append('method', method);
     
@@ -294,7 +300,7 @@ processBtn.addEventListener('click', async () => {
                     <h5><i class="fas fa-exclamation-circle me-2"></i>Error</h5>
                     <p>${result.message}</p>
                 </div>
-                <button id="retryBtn" class="btn btn-primary">
+                <button id="retryBtn" class="cp-btn-primary">
                     <i class="fas fa-redo me-2"></i>Try Again
                 </button>
             `;
@@ -310,7 +316,7 @@ processBtn.addEventListener('click', async () => {
                 <h5><i class="fas fa-exclamation-circle me-2"></i>Error</h5>
                 <p>Failed to process document: ${error.message}</p>
             </div>
-            <button onclick="location.reload()" class="btn btn-primary">
+            <button onclick="location.reload()" class="cp-btn-primary">
                 <i class="fas fa-redo me-2"></i>Try Again
             </button>
         `;

@@ -2,74 +2,13 @@
 
 {% block title %}Multi-PDF Citation Uploader - CasePoint{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/casepoint-brand.css') }}">
+{% endblock %}
+
 {% block content %}
-<!-- Dark theme wrapper -->
-<div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-800 text-white" style="margin: -1.5rem; padding: 1.5rem;">
-
-<style>
-/* Upload page dark theme */
-.upload-dark .card {
-    background: rgba(15, 23, 42, 0.75) !important;
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(148, 163, 184, 0.15) !important;
-}
-
-.upload-dark .card-header {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.3), rgba(59, 130, 246, 0.2)) !important;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.15) !important;
-    color: #f1f5f9 !important;
-}
-
-.upload-dark .card-body {
-    color: #e2e8f0 !important;
-}
-
-.upload-dark #drop-zone {
-    background: rgba(30, 41, 59, 0.4) !important;
-    border-color: rgba(148, 163, 184, 0.3) !important;
-    color: #cbd5e1 !important;
-}
-
-.upload-dark #drop-zone:hover {
-    background: rgba(30, 41, 59, 0.6) !important;
-    border-color: rgba(59, 130, 246, 0.5) !important;
-}
-
-.upload-dark .alert {
-    border-color: rgba(148, 163, 184, 0.2) !important;
-}
-
-.upload-dark .alert-info {
-    background: rgba(14, 165, 233, 0.1) !important;
-    color: #7dd3fc !important;
-    border-color: rgba(14, 165, 233, 0.3) !important;
-}
-
-.upload-dark .progress {
-    background: rgba(30, 41, 59, 0.6) !important;
-}
-
-.upload-dark .btn-primary {
-    background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
-    border: none !important;
-}
-
-.upload-dark .form-check-label {
-    color: #e2e8f0 !important;
-}
-
-.upload-dark .btn-outline-secondary {
-    color: #94a3b8 !important;
-    border-color: #64748b !important;
-}
-
-.upload-dark .btn-outline-secondary:hover {
-    background: rgba(100, 116, 139, 0.2) !important;
-    color: #cbd5e1 !important;
-}
-</style>
-
-<div class="container py-5 upload-dark">
+<div class="cp-bg-light" style="min-height: 100vh;">
+<div class="container py-5">
     <div class="row">
         <div class="col-12 mb-4">
             <button onclick="window.history.back()" class="btn btn-sm btn-outline-secondary">
@@ -80,18 +19,17 @@
     
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <div class="card shadow-custom">
-                <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);">
-                    <h4 class="mb-0">
+            <div class="cp-glass-card">
+                <div class="card-header cp-gradient-primary text-white">
+                    <h4 class="mb-0 cp-font-display">
                         <i class="fas fa-file-pdf me-2"></i>Multi-Citation PDF Splitter
                     </h4>
                     <p class="mb-0 small">Upload PLD/MLD monthly reports or journals (100-500 pages)</p>
                 </div>
                 
                 <div class="card-body">
-                    <!-- Instructions -->
                     <div class="alert alert-info mb-4">
-                        <h6><i class="fas fa-info-circle me-2"></i>How it works:</h6>
+                        <h6 class="cp-font-display" style="color: var(--cp-primary);"><i class="fas fa-info-circle me-2"></i>How it works:</h6>
                         <ol class="mb-0">
                             <li>Upload a multi-citation PDF (e.g., PLD 1984 Supreme Court monthly report)</li>
                             <li>System automatically detects all individual citations (PLD, MLD, YLR, CLD, CLC, SCMR, PCrLJ, PTD, PLC)</li>
@@ -100,18 +38,17 @@
                         </ol>
                     </div>
                     
-                    <!-- Upload Form -->
                     <div id="upload-form-container">
                         <div class="mb-4">
-                            <label class="form-label fw-bold">Select PDF File</label>
-                            <div id="drop-zone" class="border-2 border-dashed rounded p-5 text-center" style="border-color: #D1D5DB; background: #F9FAFB; cursor: pointer;">
-                                <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
-                                <p class="mb-2">Drag and drop PDF here or click to browse</p>
+                            <label class="form-label fw-bold" style="color: var(--cp-primary);">Select PDF File</label>
+                            <div id="drop-zone" class="border-2 border-dashed rounded p-5 text-center" style="border-color: var(--cp-primary); background: var(--cp-background); cursor: pointer;">
+                                <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="color: var(--cp-accent);"></i>
+                                <p class="mb-2" style="color: var(--cp-text-dark);">Drag and drop PDF here or click to browse</p>
                                 <p class="small text-muted">Maximum size: 300 MB | Maximum pages: 500</p>
                                 <input type="file" id="pdf-file" accept=".pdf" class="d-none">
                             </div>
                             <div id="file-info" class="mt-2 d-none">
-                                <span class="badge bg-success me-2">
+                                <span class="cp-badge-accent me-2">
                                     <i class="fas fa-check me-1"></i><span id="file-name"></span>
                                 </span>
                                 <span class="text-muted small" id="file-size"></span>
@@ -121,28 +58,27 @@
                         <div class="mb-4">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="dry-run-mode">
-                                <label class="form-check-label" for="dry-run-mode">
+                                <label class="form-check-label" for="dry-run-mode" style="color: var(--cp-text-dark);">
                                     <strong>Test Mode (Dry Run)</strong> - Detect citations without creating records
                                 </label>
                             </div>
                         </div>
                         
                         <div class="d-grid gap-2">
-                            <button id="upload-btn" class="btn btn-primary btn-lg" disabled>
+                            <button id="upload-btn" class="cp-btn-primary btn-lg" disabled>
                                 <i class="fas fa-upload me-2"></i>Process PDF
                             </button>
                         </div>
                     </div>
                     
-                    <!-- Progress Section -->
                     <div id="progress-section" class="d-none">
                         <div class="mb-3">
                             <div class="d-flex justify-content-between mb-2">
-                                <span id="progress-label">Processing...</span>
-                                <span id="progress-percent">0%</span>
+                                <span id="progress-label" style="color: var(--cp-primary);">Processing...</span>
+                                <span id="progress-percent" style="color: var(--cp-primary);">0%</span>
                             </div>
                             <div class="progress" style="height: 25px;">
-                                <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%"></div>
+                                <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" style="background: var(--cp-accent);" role="progressbar"></div>
                             </div>
                         </div>
                         <div id="processing-info" class="alert alert-info small">
@@ -151,10 +87,9 @@
                         </div>
                     </div>
                     
-                    <!-- Results Section -->
                     <div id="results-section" class="d-none mt-4">
                         <div class="alert alert-success">
-                            <h5 class="mb-2">
+                            <h5 class="mb-2 cp-font-display" style="color: var(--cp-accent);">
                                 <i class="fas fa-check-circle me-2"></i>Processing Complete!
                             </h5>
                             <p class="mb-0" id="result-summary"></p>
@@ -173,9 +108,9 @@
                             </div>
                         </div>
                         
-                        <div class="card">
+                        <div class="cp-glass-card">
                             <div class="card-header">
-                                <h6 class="mb-0">
+                                <h6 class="mb-0 cp-font-display" style="color: var(--cp-primary);">
                                     <i class="fas fa-list me-2"></i>Created Citations
                                 </h6>
                             </div>
@@ -185,7 +120,7 @@
                         </div>
                         
                         <div class="mt-3">
-                            <button onclick="window.location.reload()" class="btn btn-primary">
+                            <button onclick="window.location.reload()" class="cp-btn-primary">
                                 <i class="fas fa-plus me-2"></i>Upload Another PDF
                             </button>
                         </div>
@@ -195,11 +130,12 @@
         </div>
     </div>
 </div>
+</div>
 
 <style>
 #drop-zone.dragover {
-    border-color: #2563EB !important;
-    background: #EFF6FF !important;
+    border-color: var(--cp-accent) !important;
+    background: rgba(16, 185, 129, 0.05) !important;
 }
 </style>
 
@@ -210,7 +146,6 @@ const uploadBtn = document.getElementById('upload-btn');
 const fileInfo = document.getElementById('file-info');
 let selectedFile = null;
 
-// Drag and drop handlers
 dropZone.addEventListener('click', () => fileInput.click());
 
 dropZone.addEventListener('dragover', (e) => {
@@ -246,13 +181,11 @@ function handleFileSelect(file) {
     uploadBtn.disabled = false;
 }
 
-// Upload handler
 uploadBtn.addEventListener('click', async () => {
     if (!selectedFile) return;
     
     const dryRun = document.getElementById('dry-run-mode').checked;
     
-    // Hide form, show progress
     document.getElementById('upload-form-container').classList.add('d-none');
     document.getElementById('progress-section').classList.remove('d-none');
     
@@ -262,7 +195,6 @@ uploadBtn.addEventListener('click', async () => {
     const url = dryRun ? '/api/upload_multi_pdf?dry_run=1' : '/api/upload_multi_pdf';
     
     try {
-        // Simulate progress
         let progress = 0;
         const progressInterval = setInterval(() => {
             if (progress < 90) {
@@ -305,7 +237,6 @@ function showResults(result, dryRun) {
     document.getElementById('progress-section').classList.add('d-none');
     document.getElementById('results-section').classList.remove('d-none');
     
-    // Summary
     if (dryRun) {
         document.getElementById('result-summary').textContent = 
             `Detected ${result.total_detected} citations in ${result.num_pages} pages. No records were created (test mode).`;
@@ -314,12 +245,10 @@ function showResults(result, dryRun) {
             `Successfully created ${result.total_created} citations from ${result.total_detected} detected citations in ${result.num_pages} pages.`;
     }
     
-    // OCR badge
     if (result.used_ocr) {
         document.getElementById('ocr-badge').classList.remove('d-none');
     }
     
-    // Warnings
     if (result.warnings && result.warnings.length > 0) {
         const warningsList = document.getElementById('warnings-list');
         result.warnings.forEach(warning => {
@@ -330,7 +259,6 @@ function showResults(result, dryRun) {
         document.getElementById('warnings-section').classList.remove('d-none');
     }
     
-    // Citations list
     const citationsList = document.getElementById('citations-list');
     
     if (dryRun && result.citations) {
@@ -372,6 +300,4 @@ function showError(message) {
     uploadBtn.disabled = false;
 }
 </script>
-</div>
-<!-- End dark theme wrapper -->
 {% endblock %}
