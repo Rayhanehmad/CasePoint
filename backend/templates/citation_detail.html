@@ -17,93 +17,165 @@
     <div class="watermark">CasePoint</div>
 </div>
 
-<!-- Dark theme wrapper -->
-<div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-800 text-white" style="margin: -1.5rem; padding: 1.5rem;">
+<!-- Light theme wrapper -->
+<div class="cp-bg-light" style="margin: -1.5rem; padding: 1.5rem; min-height: 100vh;">
 
 <style>
-/* Citation Detail Dark Theme Overrides */
-.citation-detail-dark .card {
-    background: rgba(15, 23, 42, 0.75) !important;
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(148, 163, 184, 0.15) !important;
+/* Citation Detail Light Theme Styles */
+.citation-detail-light .card {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(30, 58, 138, 0.1) !important;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 }
 
-.citation-detail-dark .card-body {
-    color: #e2e8f0 !important;
+.citation-detail-light .card-body {
+    color: var(--cp-text-dark) !important;
 }
 
-.citation-detail-dark .bg-light {
-    background: rgba(30, 41, 59, 0.6) !important;
-    color: #e2e8f0 !important;
-    border-color: rgba(148, 163, 184, 0.2) !important;
+.citation-detail-light .bg-light {
+    background: #F9FAFB !important;
+    color: var(--cp-text-dark) !important;
+    border-color: rgba(30, 58, 138, 0.1) !important;
 }
 
-.citation-detail-dark .border {
-    border-color: rgba(148, 163, 184, 0.2) !important;
+.citation-detail-light .border {
+    border-color: rgba(30, 58, 138, 0.1) !important;
 }
 
-.citation-detail-dark .btn {
-    border-color: rgba(148, 163, 184, 0.3) !important;
+.citation-detail-light .btn {
+    border-radius: 8px !important;
 }
 
-.citation-detail-dark .btn-outline-secondary {
-    color: #94a3b8 !important;
-    border-color: #64748b !important;
+.citation-detail-light .btn-outline-secondary {
+    color: #6B7280 !important;
+    border-color: #D1D5DB !important;
+    background: white;
 }
 
-.citation-detail-dark .btn-outline-secondary:hover {
-    background: rgba(100, 116, 139, 0.2) !important;
-    color: #cbd5e1 !important;
+.citation-detail-light .btn-outline-secondary:hover {
+    background: #F3F4F6 !important;
+    color: #374151 !important;
 }
 
-.citation-detail-dark .btn-primary {
-    background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+.citation-detail-light .btn-primary {
+    background: var(--cp-primary) !important;
+    border: none !important;
+    color: white !important;
+}
+
+.citation-detail-light .btn-primary:hover {
+    background: linear-gradient(90deg, #1E3A8A, #10B981) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(30, 58, 138, 0.3);
+}
+
+.citation-detail-light .btn-outline-primary {
+    color: var(--cp-primary) !important;
+    border-color: var(--cp-primary) !important;
+    background: white;
+}
+
+.citation-detail-light .btn-outline-primary:hover {
+    background: rgba(30, 58, 138, 0.05) !important;
+    color: var(--cp-primary) !important;
+}
+
+.citation-detail-light .badge {
+    background: var(--cp-accent) !important;
+    color: white !important;
+}
+
+.citation-detail-light .badge.bg-secondary {
+    background: #6B7280 !important;
+    color: white !important;
+}
+
+.citation-detail-light .alert {
+    border-radius: 8px;
+    border-color: rgba(30, 58, 138, 0.1) !important;
+}
+
+.citation-detail-light .alert-info {
+    background: rgba(59, 130, 246, 0.1) !important;
+    color: #1E40AF !important;
+    border-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+.citation-detail-light h4, 
+.citation-detail-light h5, 
+.citation-detail-light h6,
+.citation-detail-light strong {
+    color: var(--cp-text-dark) !important;
+    font-family: 'Merriweather', serif;
+}
+
+.citation-detail-light .text-dark {
+    color: var(--cp-text-dark) !important;
+}
+
+.citation-detail-light pre {
+    background: #F9FAFB !important;
+    color: var(--cp-text-dark) !important;
+    border: 1px solid rgba(30, 58, 138, 0.1);
+    border-radius: 8px;
+}
+
+.citation-detail-light .btn-success {
+    background: var(--cp-accent) !important;
     border: none !important;
 }
 
-.citation-detail-dark .btn-outline-primary {
-    color: #60a5fa !important;
-    border-color: #3b82f6 !important;
+.citation-detail-light .btn-success:hover {
+    background: var(--cp-secondary) !important;
 }
 
-.citation-detail-dark .btn-outline-primary:hover {
-    background: rgba(59, 130, 246, 0.2) !important;
-    color: #93c5fd !important;
+.citation-detail-light .btn-outline-warning {
+    color: #F59E0B !important;
+    border-color: #F59E0B !important;
+    background: white;
 }
 
-.citation-detail-dark .badge {
-    background: rgba(59, 130, 246, 0.2) !important;
-    color: #93c5fd !important;
+.citation-detail-light .btn-outline-warning:hover {
+    background: rgba(245, 158, 11, 0.1) !important;
 }
 
-.citation-detail-dark .alert {
-    border-color: rgba(148, 163, 184, 0.2) !important;
+.citation-detail-light .nav-tabs {
+    border-bottom: 2px solid rgba(30, 58, 138, 0.1);
 }
 
-.citation-detail-dark .alert-info {
-    background: rgba(14, 165, 233, 0.1) !important;
-    color: #7dd3fc !important;
-    border-color: rgba(14, 165, 233, 0.3) !important;
+.citation-detail-light .nav-tabs .nav-link {
+    color: #6B7280;
+    border: none;
+    border-bottom: 2px solid transparent;
 }
 
-.citation-detail-dark h4, 
-.citation-detail-dark h5, 
-.citation-detail-dark h6,
-.citation-detail-dark strong {
-    color: #f1f5f9 !important;
+.citation-detail-light .nav-tabs .nav-link.active {
+    color: var(--cp-primary);
+    border-bottom-color: var(--cp-primary);
+    background: transparent;
 }
 
-.citation-detail-dark .text-dark {
-    color: #f1f5f9 !important;
+.citation-detail-light .nav-tabs .nav-link:hover {
+    color: var(--cp-primary);
+    border-bottom-color: rgba(30, 58, 138, 0.3);
 }
 
-.citation-detail-dark pre {
-    background: rgba(15, 23, 42, 0.5) !important;
-    color: #cbd5e1 !important;
+.citation-detail-light .card-header {
+    background: var(--cp-primary) !important;
+    color: white !important;
+    border-top-left-radius: 12px !important;
+    border-top-right-radius: 12px !important;
+}
+
+.ai-section-header {
+    color: var(--cp-accent) !important;
+    font-family: 'Merriweather', serif;
 }
 </style>
 
-<div class="container-fluid py-4 citation-detail-dark">
+<div class="container-fluid py-4 citation-detail-light cp-font-body">
     <div class="row no-print">
         <div class="col-12 mb-3 d-flex justify-content-between align-items-center">
             <button onclick="window.history.back()" class="btn btn-sm btn-outline-secondary">
@@ -127,12 +199,12 @@
     <!-- PDF Viewer Section -->
     <div class="row no-print mb-4" id="pdf-viewer-section">
         <div class="col-12">
-            <div class="card shadow-custom">
+            <div class="card cp-glass-card">
                 <div class="card-body p-0">
                     <iframe 
                         src="/{{ citation.pdf_path }}" 
-                        class="w-100 rounded-xl border" 
-                        style="height: 85vh; min-height: 600px;"
+                        class="w-100" 
+                        style="height: 85vh; min-height: 600px; border-radius: 12px;"
                         type="application/pdf"
                     ></iframe>
                 </div>
@@ -143,7 +215,7 @@
     
     <div class="row flex-column-reverse flex-lg-row" id="text-content-section">
         <div class="col-lg-6" id="citation-details">
-            <div class="card shadow-custom mb-4">
+            <div class="card cp-glass-card mb-4">
                 <!-- Citation Reference - For Print Only -->
                 <div class="print-citation-reference">
                     <p><strong>Citation:</strong> {{ citation.citation }}</p>
@@ -159,7 +231,7 @@
                 <div class="card-body no-print">
                     <div class="mb-4">
                         <div class="d-flex align-items-center gap-2 mb-2">
-                            <h4 class="fw-bold text-dark mb-0">{{ citation.citation }}</h4>
+                            <h4 class="fw-bold mb-0 cp-font-display">{{ citation.citation }}</h4>
                             {% if citation.journal %}
                             <span class="badge bg-secondary">{{ citation.journal }}</span>
                             {% endif %}
@@ -176,8 +248,8 @@
                     
                     {% if citation.court %}
                     <div class="mb-3">
-                        <p class="text-sm font-medium text-gray-600 mb-2">
-                            <strong>Court:</strong> <span style="color: #1D4ED8; font-weight: 600;">{{ citation.court }}</span>
+                        <p class="text-sm font-medium mb-2">
+                            <strong>Court:</strong> <span style="color: var(--cp-primary); font-weight: 600;">{{ citation.court }}</span>
                         </p>
                     </div>
                     {% endif %}
@@ -199,25 +271,25 @@
                     
                     {% if citation.summary %}
                     <div class="mb-3">
-                        <h6>Summary</h6>
+                        <h6 class="cp-font-display">Summary</h6>
                         <p>{{ citation.summary }}</p>
                     </div>
                     {% endif %}
                     
                     <!-- Share Buttons -->
-                    <div class="mb-4 border-top pt-3">
-                        <h6 class="mb-3">Share</h6>
-                        <div class="d-flex gap-2">
-                            <a href="#" id="whatsapp-btn" class="btn btn-success" target="_blank" rel="noopener noreferrer">
+                    <div class="mb-4 border-top pt-3" style="border-color: rgba(30, 58, 138, 0.1) !important;">
+                        <h6 class="mb-3 cp-font-display">Share</h6>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="#" id="whatsapp-btn" class="btn btn-sm btn-success" target="_blank" rel="noopener noreferrer">
                                 <i class="fab fa-whatsapp me-1"></i>WhatsApp
                             </a>
-                            <a href="#" id="facebook-btn" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                            <a href="#" id="facebook-btn" class="btn btn-sm btn-primary" target="_blank" rel="noopener noreferrer">
                                 <i class="fab fa-facebook-f me-1"></i>Facebook
                             </a>
-                            <button onclick="copyLink()" class="btn btn-secondary">
+                            <button onclick="copyLink()" class="btn btn-sm btn-outline-secondary">
                                 <i class="fas fa-link me-1"></i>Copy Link
                             </button>
-                            <button onclick="copyEmbed()" class="btn btn-dark">
+                            <button onclick="copyEmbed()" class="btn btn-sm btn-outline-secondary">
                                 <i class="fas fa-code me-1"></i>Embed
                             </button>
                         </div>
@@ -225,21 +297,21 @@
                     
                     {% if citation.headnotes %}
                     <div class="mb-3">
-                        <h6>Headnotes</h6>
+                        <h6 class="cp-font-display">Headnotes</h6>
                         <p>{{ citation.headnotes }}</p>
                     </div>
                     {% endif %}
                     
                     <!-- AI Headnotes Section -->
-                    <div class="mb-4 border-top border-cyan-500/30 pt-3">
+                    <div class="mb-4 border-top pt-3" style="border-color: rgba(16, 185, 129, 0.2) !important;">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0 text-cyan-300 animate-textGlow" style="font-size: 1.1rem; font-weight: 600;">
+                            <h6 class="mb-0 ai-section-header" style="font-size: 1.1rem; font-weight: 600;">
                                 <i class="fas fa-robot me-2"></i>AI Headnotes
                             </h6>
                         </div>
                         <div id="ai-headnotes-content">
                             {% if citation.ai_headnotes %}
-                            <div class="bg-light p-3 rounded-xl border" style="white-space: pre-wrap;">{{ citation.ai_headnotes }}</div>
+                            <div class="bg-light p-3 border" style="white-space: pre-wrap; border-radius: 8px;">{{ citation.ai_headnotes }}</div>
                             <div class="mt-2">
                                 <button class="btn btn-sm btn-outline-primary" onclick="regenerateHeadnotes({{ citation.id }})">
                                     <i class="fas fa-sync me-1"></i>Regenerate Headnotes
@@ -262,15 +334,15 @@
                     </div>
                     
                     <!-- AI Summary Section -->
-                    <div class="mb-4 border-top border-cyan-500/30 pt-3">
+                    <div class="mb-4 border-top pt-3" style="border-color: rgba(16, 185, 129, 0.2) !important;">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0 text-cyan-300 animate-textGlow" style="font-size: 1.1rem; font-weight: 600;">
+                            <h6 class="mb-0 ai-section-header" style="font-size: 1.1rem; font-weight: 600;">
                                 <i class="fas fa-robot me-2"></i>AI Summary
                             </h6>
                         </div>
                         <div id="ai-summary-content">
                             {% if citation.ai_summary %}
-                            <div class="bg-light p-3 rounded-xl border">{{ citation.ai_summary }}</div>
+                            <div class="bg-light p-3 border" style="border-radius: 8px;">{{ citation.ai_summary }}</div>
                             <div class="mt-2">
                                 <button class="btn btn-sm btn-outline-primary" onclick="regenerateSummary({{ citation.id }})">
                                     <i class="fas fa-sync me-1"></i>Regenerate Summary
@@ -296,17 +368,17 @@
                 <!-- Full Text Section - For Print -->
                 {% if citation.full_text %}
                 <div class="full-text-section">
-                    <div class="border p-3 bg-light full-text-content" style="max-height: 400px; overflow-y: auto;">
+                    <div class="border p-3 bg-light full-text-content" style="max-height: 400px; overflow-y: auto; border-radius: 8px;">
                         <pre id="fullTextContent" class="full-text-pre" style="white-space: pre-wrap; font-family: inherit;">{{ citation.full_text }}</pre>
                     </div>
                     
                     <!-- Actions Panel Below Full Text -->
                     <div class="no-print px-3 mt-3 mb-3">
-                        <div class="d-flex justify-content-center gap-2">
+                        <div class="d-flex justify-content-center gap-2 flex-wrap">
                             <a href="{{ url_for('ai.ai_analysis') }}?context={{ citation.full_text[:500] }}" class="btn btn-sm btn-success" title="Analyze with AI">
                                 <i class="fas fa-brain me-1"></i>AI Analysis
                             </a>
-                            <a href="{{ url_for('cases.compare_cases') }}?ids={{ citation.id }}" class="btn btn-sm btn-info" title="Compare with other cases">
+                            <a href="{{ url_for('cases.compare_cases') }}?ids={{ citation.id }}" class="btn btn-sm btn-primary" title="Compare with other cases">
                                 <i class="fas fa-balance-scale me-1"></i>Compare
                             </a>
                             <button class="btn btn-sm btn-outline-primary" onclick="window.print()">
@@ -329,14 +401,14 @@
                     
                     {% if citation.citations_referred %}
                     <div class="mb-3">
-                        <h6>Citations Referred</h6>
+                        <h6 class="cp-font-display">Citations Referred</h6>
                         <p>{{ citation.citations_referred }}</p>
                     </div>
                     {% endif %}
                     
                     {% if citation.statutes_referred %}
                     <div class="mb-3">
-                        <h6>Statutes Referred</h6>
+                        <h6 class="cp-font-display">Statutes Referred</h6>
                         <p>{{ citation.statutes_referred }}</p>
                     </div>
                     {% endif %}
@@ -348,7 +420,7 @@
             {% if citation.file_path %}
             <!-- Show/Hide Preview Button -->
             <div class="mb-3 text-center">
-                <button class="btn btn-primary" onclick="togglePreview()">
+                <button class="btn cp-btn-primary" onclick="togglePreview()">
                     <i class="fas fa-eye me-2"></i><span id="preview-btn-text">Show Document Preview</span>
                 </button>
             </div>
@@ -357,8 +429,8 @@
             
             {% if citation.file_path %}
             <!-- Document Preview Section -->
-            <div id="document-preview" class="card shadow-custom" style="display: none;">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <div id="document-preview" class="card cp-glass-card" style="display: none;">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Document Viewer</h6>
                     <button class="btn btn-sm btn-light" onclick="togglePreview()">
                         <i class="fas fa-times"></i>
@@ -386,7 +458,7 @@
                     <div class="tab-content" id="previewTabContent">
                         <!-- Document Tab -->
                         <div class="tab-pane fade show active" id="document-pane" role="tabpanel">
-                            <div id="pdf-container" style="width: 100%; height: 600px; background: #525659;">
+                            <div id="pdf-container" style="width: 100%; height: 600px; background: #F3F4F6;">
                                 <object id="preview-object" data="" type="application/pdf" style="width: 100%; height: 100%;">
                                     <iframe id="preview-frame" src="" style="width: 100%; height: 100%; border: none;">
                                         <div class="alert alert-warning m-3">
@@ -513,404 +585,108 @@ function toggleView(view) {
 }
 {% endif %}
 
-// Add invisible watermarks to full text and format first 6 lines
-{% if citation.full_text %}
-document.addEventListener('DOMContentLoaded', function() {
-    const fullTextElement = document.getElementById('fullTextContent');
-    if (fullTextElement) {
-        const originalText = fullTextElement.textContent;
-        
-        // Split into lines
-        const lines = originalText.split('\n');
-        
-        // Format the content with cumulative word count
-        let formattedHTML = '';
-        const watermarkInterval = 50;
-        let cumulativeWordCount = 0;
-        
-        for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-            const line = lines[lineIndex];
-            const words = line.split(/(\s+)/); // Split by whitespace but keep the spaces
-            
-            // First 6 lines: centered and bold
-            if (lineIndex < 6) {
-                formattedHTML += '<div class="first-six-lines">';
-                formattedHTML += line;
-                formattedHTML += '</div>';
-                
-                // Still count words in first 6 lines for cumulative count
-                for (let i = 0; i < words.length; i++) {
-                    if (words[i].trim().length > 0) {
-                        cumulativeWordCount++;
-                    }
-                }
-            } else {
-                // Remaining lines: add watermarks with cumulative count
-                let lineHTML = '';
-                
-                for (let i = 0; i < words.length; i++) {
-                    lineHTML += words[i];
-                    
-                    if (words[i].trim().length > 0) {
-                        cumulativeWordCount++;
-                        
-                        if (cumulativeWordCount % watermarkInterval === 0) {
-                            lineHTML += '<span class="invisible-watermark">CasePoint</span> ';
-                        }
-                    }
-                }
-                
-                // Add single line spacing between paragraphs (detect empty lines)
-                if (line.trim() === '' && lineIndex > 6) {
-                    formattedHTML += lineHTML + '\n\n';
-                } else {
-                    formattedHTML += lineHTML + '\n';
-                }
-            }
-        }
-        
-        fullTextElement.innerHTML = formattedHTML;
-    }
-});
-{% endif %}
-
-// Bookmark functionality
-function toggleBookmark(citationId, citationNumber) {
-    // Get existing bookmarks from localStorage
-    let bookmarks = JSON.parse(localStorage.getItem('casepoint_bookmarks') || '[]');
+// Toggle document preview visibility
+function togglePreview() {
+    const preview = document.getElementById('document-preview');
+    const btnText = document.getElementById('preview-btn-text');
     
-    const bookmarkBtn = document.getElementById('bookmark-btn-' + citationId);
-    const icon = bookmarkBtn.querySelector('i');
-    
-    // Check if already bookmarked
-    const existingIndex = bookmarks.findIndex(b => b.id === citationId);
-    
-    if (existingIndex >= 0) {
-        // Remove bookmark
-        bookmarks.splice(existingIndex, 1);
-        icon.classList.remove('fas');
-        icon.classList.add('far');
-        bookmarkBtn.classList.remove('btn-warning');
-        bookmarkBtn.classList.add('btn-outline-warning');
-        
-        // Show feedback
-        showToast('Bookmark removed', 'info');
+    if (preview.style.display === 'none') {
+        preview.style.display = 'block';
+        btnText.textContent = 'Hide Document Preview';
+        loadDocumentPreview();
     } else {
-        // Add bookmark
-        bookmarks.push({
-            id: citationId,
-            citation: citationNumber,
-            timestamp: new Date().toISOString()
-        });
-        icon.classList.remove('far');
-        icon.classList.add('fas');
-        bookmarkBtn.classList.remove('btn-outline-warning');
-        bookmarkBtn.classList.add('btn-warning');
-        
-        // Show feedback
-        showToast('Citation bookmarked', 'success');
+        preview.style.display = 'none';
+        btnText.textContent = 'Show Document Preview';
     }
-    
-    // Save to localStorage
-    localStorage.setItem('casepoint_bookmarks', JSON.stringify(bookmarks));
 }
 
-// Check bookmark status on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const citationId = {{ citation.id }};
-    const bookmarks = JSON.parse(localStorage.getItem('casepoint_bookmarks') || '[]');
-    const isBookmarked = bookmarks.some(b => b.id === citationId);
-    
-    if (isBookmarked) {
-        const bookmarkBtn = document.getElementById('bookmark-btn-' + citationId);
-        const icon = bookmarkBtn.querySelector('i');
-        icon.classList.remove('far');
-        icon.classList.add('fas');
-        bookmarkBtn.classList.remove('btn-outline-warning');
-        bookmarkBtn.classList.add('btn-warning');
-    }
-});
+// Load document preview in iframe/object
+function loadDocumentPreview() {
+    {% if citation.file_path %}
+    const fileUrl = "/{{ citation.file_path }}";
+    document.getElementById('preview-object').data = fileUrl;
+    document.getElementById('preview-frame').src = fileUrl;
+    document.getElementById('pdf-download-link').href = fileUrl;
+    {% endif %}
+}
 
-// Simple toast notification
-function showToast(message, type) {
-    const toastHTML = `
-        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
-            <div class="toast show align-items-center text-white bg-${type === 'success' ? 'success' : 'info'} border-0" role="alert">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>${message}
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                </div>
-            </div>
-        </div>
+// Toast notification helper
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toast-container') || createToastContainer();
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} alert-dismissible fade show`;
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
-    
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = toastHTML;
-    document.body.appendChild(tempDiv);
+    toastContainer.appendChild(toast);
     
     setTimeout(() => {
-        tempDiv.remove();
+        toast.remove();
     }, 3000);
 }
 
-{% if citation.file_path %}
-let previewVisible = false;
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    document.body.appendChild(container);
+    return container;
+}
 
-function togglePreview() {
-    const previewDiv = document.getElementById('document-preview');
-    const previewFrame = document.getElementById('preview-frame');
-    const previewObject = document.getElementById('preview-object');
-    const downloadLink = document.getElementById('pdf-download-link');
-    const btnText = document.getElementById('preview-btn-text');
-    const pdfUrl = "#";
-    
-    if (previewVisible) {
-        previewDiv.style.display = 'none';
-        btnText.textContent = 'Show Document Preview';
-        previewFrame.src = '';
-        previewObject.data = '';
-    } else {
-        previewDiv.style.display = 'block';
-        btnText.textContent = 'Hide Document Preview';
-        previewObject.data = pdfUrl;
-        previewFrame.src = pdfUrl;
-        if (downloadLink) {
-            downloadLink.href = pdfUrl;
-        }
+// Bookmark toggle
+async function toggleBookmark(citationId, citationName) {
+    try {
+        const response = await fetch(`/api/bookmark/${citationId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
         
-        // Smooth scroll to preview on mobile
-        if (window.innerWidth < 992) {
-            previewDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            const btn = document.getElementById(`bookmark-btn-${citationId}`);
+            const icon = btn.querySelector('i');
+            
+            if (data.bookmarked) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                showToast(`📌 ${citationName} bookmarked!`, 'success');
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                showToast(`Bookmark removed`, 'info');
+            }
+        } else {
+            throw new Error(data.error || 'Failed to toggle bookmark');
         }
-    }
-    
-    previewVisible = !previewVisible;
-}
-{% endif %}
-</script>
-
-<style>
-/* First 6 lines styling - centered and bold */
-.first-six-lines {
-    text-align: center;
-    font-weight: bold;
-    line-height: 1.5;
-}
-
-/* Invisible watermark in full text - hidden on screen but copied when selected */
-.invisible-watermark {
-    font-size: 10px;
-    color: transparent;
-    user-select: text;
-    -webkit-user-select: text;
-    -moz-user-select: text;
-    -ms-user-select: text;
-}
-
-/* When printed, make watermarks visible */
-@media print {
-    .invisible-watermark {
-        color: #000000;
-        font-size: 10pt;
+    } catch (error) {
+        showToast('Failed to toggle bookmark. Please try again.', 'danger');
+        console.error('Bookmark error:', error);
     }
 }
 
-/* Screen view - hide print elements */
-@media screen {
-    .print-citation-reference {
-        display: none;
-    }
-    
-    .qr-code-container {
-        display: none !important;
-    }
-    
-    .watermark-container {
-        display: none;
-    }
-}
-
-/* Print styles */
-@media print {
-    /* Hide everything except the full text */
-    .no-print,
-    nav,
-    .navbar,
-    .sidebar,
-    footer,
-    .card-header,
-    .card-body.no-print,
-    .btn,
-    button,
-    .actions {
-        display: none !important;
-    }
-    
-    /* Show citation reference in print - only citation line in bold */
-    .print-citation-reference {
-        display: block !important;
-        text-align: left;
-        padding: 20px 0;
-        margin-bottom: 20px;
-    }
-    
-    .print-citation-reference p {
-        font-size: 12pt;
-        margin: 0;
-    }
-    
-    .print-citation-reference strong {
-        font-weight: bold;
-    }
-    
-    /* Show QR code in top right corner for print - first page only */
-    .qr-code-container {
-        display: block !important;
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        z-index: 1000;
-    }
-    
-    .qr-code-image {
-        width: 80px;
-        height: 80px;
-        display: block;
-    }
-    
-    /* Full text content */
-    .full-text-content {
-        max-height: none !important;
-        overflow: visible !important;
-        border: none !important;
-        background: white !important;
-        padding: 0 !important;
-    }
-    
-    .full-text-content pre {
-        font-size: 11pt;
-        line-height: 1.6;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-    }
-    
-    /* Page setup */
-    @page {
-        margin: 1in;
-        size: A4;
-    }
-    
-    body {
-        background: white;
-        position: relative;
-    }
-    
-    /* CasePoint Watermark Container */
-    .watermark-container {
-        display: block !important;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 9999;
-        pointer-events: none;
-    }
-    
-    /* Individual Watermarks - 10 instances */
-    .watermark {
-        position: absolute;
-        font-size: 8pt;
-        color: #808080;
-        opacity: 0.4;
-        transform: rotate(-45deg);
-        font-weight: normal;
-        white-space: nowrap;
-    }
-    
-    /* Position each watermark */
-    .watermark:nth-child(1) { top: 15%; left: 15%; }
-    .watermark:nth-child(2) { top: 15%; left: 55%; }
-    .watermark:nth-child(3) { top: 35%; left: 35%; }
-    .watermark:nth-child(4) { top: 35%; left: 75%; }
-    .watermark:nth-child(5) { top: 50%; left: 15%; }
-    .watermark:nth-child(6) { top: 50%; left: 55%; }
-    .watermark:nth-child(7) { top: 65%; left: 35%; }
-    .watermark:nth-child(8) { top: 65%; left: 75%; }
-    .watermark:nth-child(9) { top: 85%; left: 15%; }
-    .watermark:nth-child(10) { top: 85%; left: 55%; }
-    
-    /* Remove card styling */
-    .card {
-        box-shadow: none !important;
-        border: none !important;
-    }
-    
-    /* Ensure proper width */
-    .container-fluid {
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 0 !important;
-    }
-    
-    .row {
-        margin: 0 !important;
-    }
-    
-    .col-lg-6 {
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-}
-
-/* Responsive layout */
-@media (max-width: 991.98px) {
-    #document-preview {
-        margin-top: 1rem;
-    }
-    
-    #document-preview iframe {
-        height: 500px !important;
-    }
-}
-
-/* Desktop layout - equal height columns */
-@media (min-width: 992px) {
-    .flex-lg-row > div {
-        height: calc(100vh - 200px);
-        overflow-y: auto;
-    }
-    
-    #document-preview iframe {
-        height: calc(100vh - 350px) !important;
-        min-height: 600px;
-    }
-}
-</style>
-
-<script>
-// AI Summary Functions
+// AI Summary Generation
 async function generateSummary(citationId) {
     const contentDiv = document.getElementById('ai-summary-content');
     const loadingDiv = document.getElementById('ai-summary-loading');
     const errorDiv = document.getElementById('ai-summary-error');
     const generateBtn = document.getElementById('generate-summary-btn');
     
-    // Hide content, show loading
+    // Hide content and error, show loading
     contentDiv.classList.add('d-none');
-    loadingDiv.classList.remove('d-none');
     errorDiv.classList.add('d-none');
+    loadingDiv.classList.remove('d-none');
     if (generateBtn) generateBtn.disabled = true;
     
     try {
-        const response = await fetch(`/ai/api/generate_summary/${citationId}`, {
+        const response = await fetch(`/api/generate_summary/${citationId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            },
-            credentials: 'include'
+            }
         });
         
         const data = await response.json();
@@ -918,7 +694,7 @@ async function generateSummary(citationId) {
         if (response.ok && data.success) {
             // Update UI with generated summary
             contentDiv.innerHTML = `
-                <div class="bg-light p-3 rounded-xl border">${data.summary}</div>
+                <div class="bg-light p-3 border" style="border-radius: 8px;">${data.summary}</div>
                 <div class="mt-2">
                     <button class="btn btn-sm btn-outline-primary" onclick="regenerateSummary(${citationId})">
                         <i class="fas fa-sync me-1"></i>Regenerate Summary
@@ -949,26 +725,25 @@ async function regenerateSummary(citationId) {
     await generateSummary(citationId);
 }
 
-// AI Headnotes Functions
+// AI Headnotes Generation
 async function generateHeadnotes(citationId) {
     const contentDiv = document.getElementById('ai-headnotes-content');
     const loadingDiv = document.getElementById('ai-headnotes-loading');
     const errorDiv = document.getElementById('ai-headnotes-error');
     const generateBtn = document.getElementById('generate-headnotes-btn');
     
-    // Hide content, show loading
+    // Hide content and error, show loading
     contentDiv.classList.add('d-none');
-    loadingDiv.classList.remove('d-none');
     errorDiv.classList.add('d-none');
+    loadingDiv.classList.remove('d-none');
     if (generateBtn) generateBtn.disabled = true;
     
     try {
-        const response = await fetch(`/ai/api/generate_headnotes/${citationId}`, {
+        const response = await fetch(`/api/generate_headnotes/${citationId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            },
-            credentials: 'include'
+            }
         });
         
         const data = await response.json();
@@ -976,7 +751,7 @@ async function generateHeadnotes(citationId) {
         if (response.ok && data.success) {
             // Update UI with generated headnotes
             contentDiv.innerHTML = `
-                <div class="bg-light p-3 rounded-xl border" style="white-space: pre-wrap;">${data.headnotes}</div>
+                <div class="bg-light p-3 border" style="white-space: pre-wrap; border-radius: 8px;">${data.headnotes}</div>
                 <div class="mt-2">
                     <button class="btn btn-sm btn-outline-primary" onclick="regenerateHeadnotes(${citationId})">
                         <i class="fas fa-sync me-1"></i>Regenerate Headnotes
@@ -1008,5 +783,5 @@ async function regenerateHeadnotes(citationId) {
 }
 </script>
 </div>
-<!-- End dark theme wrapper -->
+<!-- End light theme wrapper -->
 {% endblock %}
