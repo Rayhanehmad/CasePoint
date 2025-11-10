@@ -16,6 +16,7 @@ from config import config
 from models import db
 from models.user import User
 from models.case import LegalCitation
+from models.shared_excerpt import SharedExcerpt
 
 # Import routes
 from routes import auth_bp, case_bp, act_bp, admin_bp, ai_bp
@@ -232,6 +233,25 @@ def create_app(config_name='default'):
     def how_to_use():
         """How to use CasePointAI guide page"""
         return render_template('how_to_use.html')
+    
+    @app.route('/shared/<string:share_code>')
+    def view_shared_excerpt(share_code):
+        """Public page for viewing shared excerpts"""
+        from models.shared_excerpt import SharedExcerpt
+        from datetime import datetime
+        
+        excerpt = SharedExcerpt.query.filter_by(share_code=share_code).first_or_404()
+        
+        # Check if valid
+        if not excerpt.is_valid():
+            return render_template('excerpt_expired.html'), 410
+        
+        # Increment view count
+        excerpt.view_count += 1
+        excerpt.last_viewed = datetime.utcnow()
+        db.session.commit()
+        
+        return render_template('shared_excerpt.html', excerpt=excerpt)
     
     # Error handlers
     @app.errorhandler(404)

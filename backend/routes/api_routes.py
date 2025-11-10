@@ -653,6 +653,120 @@ def api_track_embed(citation):
         return ('', 500)
 
 
+# ==================== EXCERPT SHARING API ====================
+
+@api_bp.route('/share_excerpt', methods=['POST'])
+def share_excerpt():
+    """
+    Create a shareable excerpt from a citation
+    POST /api/share_excerpt
+    Body: {"citation_id": 123, "excerpt_text": "selected text", "notes": "optional"}
+    """
+    from models.shared_excerpt import SharedExcerpt
+    from datetime import datetime
+    
+    try:
+        # Check authentication
+        if 'user_id' not in session:
+            return jsonify({'success': False, 'error': 'Authentication required'}), 401
+        
+        user_id = session['user_id']
+        data = request.get_json()
+        
+        # Validate input
+        if not data or not data.get('citation_id') or not data.get('excerpt_text'):
+            return jsonify({'success': False, 'error': 'citation_id and excerpt_text are required'}), 400
+        
+        citation_id = data.get('citation_id')
+        excerpt_text = data.get('excerpt_text', '').strip()
+        notes = data.get('notes', '').strip() or None
+        
+        # Validate excerpt length (50-1200 characters)
+        if len(excerpt_text) < 50:
+            return jsonify({'success': False, 'error': 'Excerpt must be at least 50 characters'}), 400
+        if len(excerpt_text) > 1200:
+            return jsonify({'success': False, 'error': 'Excerpt must be less than 1200 characters'}), 400
+        
+        # Check if citation exists and user has access
+        citation = LegalCitation.query.get(citation_id)
+        if not citation:
+            return jsonify({'success': False, 'error': 'Citation not found'}), 404
+        
+        # Check daily quota (50 shares per user per day)
+        from datetime import timedelta
+        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        daily_count = SharedExcerpt.query.filter(
+            SharedExcerpt.created_by == user_id,
+            SharedExcerpt.created_at >= today_start
+        ).count()
+        
+        if daily_count >= 50:
+            return jsonify({'success': False, 'error': 'Daily share quota exceeded (50 per day)'}), 429
+        
+        # Create excerpt (with deduplication)
+        excerpt = SharedExcerpt.create_excerpt(
+            citation_id=citation_id,
+            excerpt_text=excerpt_text,
+            user_id=user_id,
+            notes=notes,
+            expiration_days=90
+        )
+        
+        # Generate share URL
+        share_url = url_for('api.get_shared_excerpt', share_code=excerpt.share_code, _external=True)
+        
+        # Update citation share count
+        citation.share_count = (citation.share_count or 0) + 1
+        citation.last_shared = datetime.utcnow()
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'share_code': excerpt.share_code,
+            'share_url': share_url,
+            'excerpt': excerpt.to_dict()
+        })
+    
+    except Exception as e:
+        logging.error(f"Error creating shared excerpt: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@api_bp.route('/shared/<string:share_code>', methods=['GET'])
+def get_shared_excerpt(share_code):
+    """
+    Retrieve a shared excerpt (JSON API)
+    GET /api/shared/<share_code>
+    """
+    from models.shared_excerpt import SharedExcerpt
+    from datetime import datetime
+    
+    try:
+        excerpt = SharedExcerpt.query.filter_by(share_code=share_code).first()
+        
+        if not excerpt:
+            return jsonify({'success': False, 'error': 'Excerpt not found'}), 404
+        
+        # Check if excerpt is valid
+        if not excerpt.is_valid():
+            return jsonify({'success': False, 'error': 'Excerpt has expired or been revoked'}), 410
+        
+        # Increment view count (atomically within request context)
+        excerpt.view_count += 1
+        excerpt.last_viewed = datetime.utcnow()
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'excerpt': excerpt.to_dict()
+        })
+    
+    except Exception as e:
+        logging.error(f"Error retrieving shared excerpt: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 # ==================== AI CASE ANALYZER API ====================
 
 @api_bp.route('/auto_counter_arguments', methods=['POST'])
