@@ -155,6 +155,198 @@ def search_keyword():
     })
 
 
+@api_bp.route('/search_citations', methods=['POST'])
+def search_citations():
+    """
+    Citation-specific search endpoint with metadata fields
+    POST /api/search_citations
+    Fields: journal, year, page_no, court, judge, lawyer, parties
+    """
+    try:
+        data = request.get_json() or {}
+        
+        # Build filter conditions based on provided fields
+        filter_conditions = []
+        
+        # Journal filter
+        if data.get('journal'):
+            filter_conditions.append(LegalCitation.journal.ilike(f"%{data['journal']}%"))
+        
+        # Year filter
+        if data.get('year'):
+            try:
+                filter_conditions.append(LegalCitation.year == int(data['year']))
+            except (ValueError, TypeError):
+                pass
+        
+        # Page number filter (search in citation field)
+        if data.get('page_no'):
+            filter_conditions.append(LegalCitation.citation.ilike(f"%{data['page_no']}%"))
+        
+        # Court filter
+        if data.get('court'):
+            filter_conditions.append(LegalCitation.court.ilike(f"%{data['court']}%"))
+        
+        # Judge filter (search in full text)
+        if data.get('judge'):
+            filter_conditions.append(LegalCitation.full_text.ilike(f"%{data['judge']}%"))
+        
+        # Lawyer filter (search in full text)
+        if data.get('lawyer'):
+            filter_conditions.append(LegalCitation.full_text.ilike(f"%{data['lawyer']}%"))
+        
+        # Parties filter (search in title and full text)
+        if data.get('parties'):
+            parties_filter = or_(
+                LegalCitation.title.ilike(f"%{data['parties']}%"),
+                LegalCitation.full_text.ilike(f"%{data['parties']}%")
+            )
+            filter_conditions.append(parties_filter)
+        
+        # Apply filters
+        if filter_conditions:
+            search_query = LegalCitation.query.filter(and_(*filter_conditions))
+        else:
+            search_query = LegalCitation.query
+        
+        # Get results
+        results = search_query.order_by(
+            LegalCitation.year.desc()
+        ).limit(50).all()
+        
+        # Format results with party extraction
+        output = []
+        for r in results:
+            party_line = extract_parties(r.full_text, r.journal)
+            output.append({
+                "id": r.id,
+                "citation": r.citation,
+                "title": r.title,
+                "court": r.court,
+                "journal": r.journal,
+                "year": r.year,
+                "summary": r.summary or "",
+                "party_line": party_line,
+                "legal_area": r.legal_area,
+                "document_type": r.document_type
+            })
+        
+        return jsonify({
+            'success': True,
+            'total': len(results),
+            'results': output
+        })
+    
+    except Exception as e:
+        logging.error(f"Citation search error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@api_bp.route('/advanced_search', methods=['POST'])
+def advanced_search():
+    """
+    Advanced multi-field search endpoint with instant results
+    POST /api/advanced_search
+    Fields: court, judge, lawyer, parties, keywords, rules, acts, section
+    """
+    try:
+        data = request.get_json() or {}
+        
+        # Build filter conditions
+        filter_conditions = []
+        
+        # Court filter
+        if data.get('court'):
+            filter_conditions.append(LegalCitation.court.ilike(f"%{data['court']}%"))
+        
+        # Judge filter (full text search)
+        if data.get('judge'):
+            filter_conditions.append(LegalCitation.full_text.ilike(f"%{data['judge']}%"))
+        
+        # Lawyer filter (full text search)
+        if data.get('lawyer'):
+            filter_conditions.append(LegalCitation.full_text.ilike(f"%{data['lawyer']}%"))
+        
+        # Parties filter (title and full text)
+        if data.get('parties'):
+            parties_filter = or_(
+                LegalCitation.title.ilike(f"%{data['parties']}%"),
+                LegalCitation.full_text.ilike(f"%{data['parties']}%")
+            )
+            filter_conditions.append(parties_filter)
+        
+        # Keywords filter (search across multiple fields)
+        if data.get('keywords'):
+            keywords = data['keywords']
+            keywords_filter = or_(
+                LegalCitation.full_text.ilike(f"%{keywords}%"),
+                LegalCitation.summary.ilike(f"%{keywords}%"),
+                LegalCitation.keywords.ilike(f"%{keywords}%"),
+                LegalCitation.title.ilike(f"%{keywords}%")
+            )
+            filter_conditions.append(keywords_filter)
+        
+        # Rules filter (full text search)
+        if data.get('rules'):
+            filter_conditions.append(LegalCitation.full_text.ilike(f"%{data['rules']}%"))
+        
+        # Acts filter (full text search)
+        if data.get('acts'):
+            filter_conditions.append(LegalCitation.full_text.ilike(f"%{data['acts']}%"))
+        
+        # Section filter (full text search)
+        if data.get('section'):
+            filter_conditions.append(LegalCitation.full_text.ilike(f"%{data['section']}%"))
+        
+        # Apply filters
+        if filter_conditions:
+            search_query = LegalCitation.query.filter(and_(*filter_conditions))
+        else:
+            # If no filters, return empty results (don't return all citations)
+            return jsonify({
+                'success': True,
+                'total': 0,
+                'results': []
+            })
+        
+        # Get results
+        results = search_query.order_by(
+            LegalCitation.year.desc(),
+            LegalCitation.created_at.desc()
+        ).limit(50).all()
+        
+        # Format results with party extraction
+        output = []
+        for r in results:
+            party_line = extract_parties(r.full_text, r.journal)
+            preview = extract_preview_paragraph(r.full_text) if r.full_text else ""
+            
+            output.append({
+                "id": r.id,
+                "citation": r.citation,
+                "title": r.title,
+                "court": r.court,
+                "journal": r.journal,
+                "year": r.year,
+                "summary": r.summary or "",
+                "preview": preview[:300] + "..." if len(preview) > 300 else preview,
+                "party_line": party_line,
+                "legal_area": r.legal_area,
+                "jurisdiction": r.jurisdiction,
+                "document_type": r.document_type
+            })
+        
+        return jsonify({
+            'success': True,
+            'total': len(results),
+            'results': output
+        })
+    
+    except Exception as e:
+        logging.error(f"Advanced search error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 # ==================== CASE API ====================
 
 @api_bp.route('/case/<int:case_id>', methods=['GET'])
