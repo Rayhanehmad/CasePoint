@@ -173,6 +173,104 @@
     color: var(--cp-accent) !important;
     font-family: 'Merriweather', serif;
 }
+
+/* Print Styles */
+@media print {
+    /* Hide QR code from screen view - only show when printing */
+    .qr-code-container {
+        display: block !important;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        page-break-inside: avoid;
+    }
+    
+    .qr-code-image {
+        width: 100px;
+        height: 100px;
+        border: 2px solid #1E3A8A;
+        padding: 5px;
+        background: white;
+    }
+    
+    /* Hide UI elements when printing */
+    .no-print {
+        display: none !important;
+    }
+    
+    /* Show print-only elements */
+    .print-citation-reference {
+        display: block !important;
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        page-break-after: avoid;
+    }
+    
+    /* Citation full text formatting for print */
+    .full-text-section {
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    
+    .full-text-content {
+        max-height: none !important;
+        overflow: visible !important;
+        border: none !important;
+        padding: 0 !important;
+        background: white !important;
+    }
+    
+    /* Format first 6 lines of citation text - bold and centered */
+    .full-text-pre {
+        white-space: pre-wrap;
+        font-family: 'Times New Roman', serif;
+        font-size: 12pt;
+        line-height: 1.5;
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* Citation header formatting */
+    .citation-header-lines {
+        font-weight: bold !important;
+        text-align: center !important;
+        display: block !important;
+        margin-bottom: 1rem !important;
+        page-break-after: avoid;
+    }
+    
+    /* Page breaks */
+    .watermark-container {
+        display: block !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: none !important;
+    }
+    
+    /* Ensure good page breaks */
+    h4, h5, h6 {
+        page-break-after: avoid;
+    }
+    
+    pre {
+        page-break-inside: auto;
+    }
+}
+
+/* Screen styles - hide QR code and print-only elements */
+@media screen {
+    .qr-code-container {
+        display: none !important;
+    }
+    
+    .print-citation-reference {
+        display: none !important;
+    }
+}
 </style>
 
 <div class="container-fluid py-4 citation-detail-light cp-font-body">
@@ -976,8 +1074,57 @@ function shareToWhatsApp(url) {
     window.open(whatsappUrl, '_blank');
 }
 
-// Initialize text selection on page load
-document.addEventListener('DOMContentLoaded', initTextSelection);
+// Format first 6 lines of citation for print (safe DOM manipulation)
+function formatCitationForPrint() {
+    const fullTextElement = document.getElementById('fullTextContent');
+    if (!fullTextElement) return;
+    
+    const fullText = fullTextElement.textContent;
+    const lines = fullText.split('\n');
+    
+    // Take first 6 non-empty lines for header formatting
+    const headerLines = [];
+    const bodyLines = [];
+    let lineCount = 0;
+    
+    for (let i = 0; i < lines.length; i++) {
+        if (lineCount < 6) {
+            headerLines.push(lines[i]);
+            if (lines[i].trim() !== '') {
+                lineCount++;
+            }
+        } else {
+            bodyLines.push(lines[i]);
+        }
+    }
+    
+    // Clear existing content
+    fullTextElement.textContent = '';
+    
+    // Create header section (bold and centered for print)
+    const headerSpan = document.createElement('span');
+    headerSpan.className = 'citation-header-lines';
+    headerSpan.textContent = headerLines.join('\n');
+    
+    // Create separator newline
+    const separator = document.createTextNode('\n');
+    
+    // Create body section
+    const bodySpan = document.createElement('span');
+    bodySpan.className = 'citation-body-lines';
+    bodySpan.textContent = bodyLines.join('\n');
+    
+    // Append safely using DOM methods (no innerHTML, auto-escapes)
+    fullTextElement.appendChild(headerSpan);
+    fullTextElement.appendChild(separator);
+    fullTextElement.appendChild(bodySpan);
+}
+
+// Initialize text selection and citation formatting on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initTextSelection();
+    formatCitationForPrint();
+});
 </script>
 </div>
 <!-- End light theme wrapper -->
