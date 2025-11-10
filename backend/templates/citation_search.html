@@ -3,152 +3,94 @@
 {% block title %}Citation Search - CasePointAI{% endblock %}
 
 {% block content %}
-<div class="container mt-5 mb-5">
-    <!-- Header -->
-    <div class="text-center mb-5">
-        <h1 class="font-merriweather font-bold text-4xl text-primary mb-3">
-            <i class="fas fa-gavel me-2"></i>Citation Search
-        </h1>
-        <p class="text-gray-600">Search for legal citations using metadata fields</p>
-    </div>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/casepoint-brand.css') }}">
 
-    <!-- Search Form -->
-    <div class="glass-card p-4 p-md-5 mb-5">
-        <form action="{{ url_for('cases.search_cases') }}" method="GET">
-            <div class="row g-4">
-                <!-- Journal -->
-                <div class="col-md-6">
-                    <label for="journal" class="form-label font-weight-bold">
-                        <i class="fas fa-book me-2 text-primary"></i>Journal
-                    </label>
-                    <input 
-                        type="text" 
-                        class="form-control" 
-                        id="journal" 
-                        name="journal" 
-                        placeholder="e.g., PLD, SCMR, MLD, YLR"
-                        value="{{ request.args.get('journal', '') }}"
-                    >
-                    <small class="form-text text-muted">Legal journal abbreviation</small>
-                </div>
-
-                <!-- Year -->
-                <div class="col-md-6">
-                    <label for="year" class="form-label font-weight-bold">
-                        <i class="fas fa-calendar me-2 text-accent"></i>Year
-                    </label>
-                    <input 
-                        type="text" 
-                        class="form-control" 
-                        id="year" 
-                        name="year" 
-                        placeholder="e.g., 2023"
-                        value="{{ request.args.get('year', '') }}"
-                    >
-                    <small class="form-text text-muted">Publication year</small>
-                </div>
-
-                <!-- Court -->
-                <div class="col-md-6">
-                    <label for="court" class="form-label font-weight-bold">
-                        <i class="fas fa-landmark me-2 text-primary"></i>Court
-                    </label>
-                    <input 
-                        type="text" 
-                        class="form-control" 
-                        id="court" 
-                        name="court" 
-                        placeholder="e.g., Supreme Court, High Court"
-                        value="{{ request.args.get('court', '') }}"
-                    >
-                    <small class="form-text text-muted">Court name</small>
-                </div>
-
-                <!-- Search Query (Title/Citation) -->
-                <div class="col-md-6">
-                    <label for="q" class="form-label font-weight-bold">
-                        <i class="fas fa-search me-2 text-accent"></i>Keywords
-                    </label>
-                    <input 
-                        type="text" 
-                        class="form-control" 
-                        id="q" 
-                        name="q" 
-                        placeholder="Case title, citation, or keywords"
-                        value="{{ request.args.get('q', '') }}"
-                    >
-                    <small class="form-text text-muted">Search in title and citation</small>
-                </div>
-
-                <!-- Legal Area -->
-                <div class="col-md-6">
-                    <label for="legal_area" class="form-label font-weight-bold">
-                        <i class="fas fa-balance-scale me-2 text-primary"></i>Legal Area
-                    </label>
-                    <input 
-                        type="text" 
-                        class="form-control" 
-                        id="legal_area" 
-                        name="legal_area" 
-                        placeholder="e.g., Constitutional Law, Criminal Law"
-                        value="{{ request.args.get('legal_area', '') }}"
-                    >
-                </div>
-
-                <!-- Jurisdiction -->
-                <div class="col-md-6">
-                    <label for="jurisdiction" class="form-label font-weight-bold">
-                        <i class="fas fa-map-marker-alt me-2 text-accent"></i>Jurisdiction
-                    </label>
-                    <input 
-                        type="text" 
-                        class="form-control" 
-                        id="jurisdiction" 
-                        name="jurisdiction" 
-                        placeholder="e.g., Federal, Punjab, Sindh"
-                        value="{{ request.args.get('jurisdiction', '') }}"
-                    >
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="col-12">
-                    <div class="d-flex gap-3">
-                        <button type="submit" class="btn btn-primary-custom btn-lg flex-grow-1">
-                            <i class="fas fa-search me-2"></i>Search Citations
-                        </button>
-                        <a href="{{ url_for('cases.search_cases') }}?advanced=true" class="btn btn-accent-custom btn-lg">
-                            <i class="fas fa-filter me-2"></i>Advanced Search
-                        </a>
+<div class="cp-bg-light" style="min-height: 80vh;">
+    <div class="container py-5">
+        
+        <!-- Index Search Section -->
+        <div class="cp-glass-card p-4 mb-4">
+            <h5 class="cp-font-display mb-4" style="color: var(--cp-text-dark); font-weight: 600;">
+                <i class="fas fa-list me-2" style="color: var(--cp-primary);"></i>Index Search
+            </h5>
+            <form action="{{ url_for('cases.search_cases') }}" method="GET">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <select class="form-select" name="journal" id="index-journal">
+                            <option value="">Select Journal</option>
+                            <option value="PLD" {% if request.args.get('journal') == 'PLD' %}selected{% endif %}>PLD</option>
+                            <option value="SCMR" {% if request.args.get('journal') == 'SCMR' %}selected{% endif %}>SCMR</option>
+                            <option value="MLD" {% if request.args.get('journal') == 'MLD' %}selected{% endif %}>MLD</option>
+                            <option value="YLR" {% if request.args.get('journal') == 'YLR' %}selected{% endif %}>YLR</option>
+                            <option value="CLC" {% if request.args.get('journal') == 'CLC' %}selected{% endif %}>CLC</option>
+                            <option value="CLD" {% if request.args.get('journal') == 'CLD' %}selected{% endif %}>CLD</option>
+                            <option value="PCrLJ" {% if request.args.get('journal') == 'PCrLJ' %}selected{% endif %}>PCrLJ</option>
+                            <option value="PTD" {% if request.args.get('journal') == 'PTD' %}selected{% endif %}>PTD</option>
+                            <option value="PLC" {% if request.args.get('journal') == 'PLC' %}selected{% endif %}>PLC</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control" name="year" placeholder="2025" value="{{ request.args.get('year', '') }}" min="1947" max="2030">
+                    </div>
+                    <div class="col-md-5">
+                        <input type="text" class="form-control" name="court" placeholder="Enter Court" value="{{ request.args.get('court', '') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn cp-btn-primary w-100">Search</button>
                     </div>
                 </div>
-            </div>
-        </form>
-    </div>
+            </form>
+        </div>
 
-    <!-- Quick Tips -->
-    <div class="row g-3 mb-5">
-        <div class="col-md-4">
-            <div class="glass-card p-4 text-center">
-                <i class="fas fa-lightbulb fa-2x text-warning mb-3"></i>
-                <h6 class="font-merriweather mb-2">Search Tips</h6>
-                <p class="text-muted small mb-0">Use journal codes like PLD, SCMR for specific publications</p>
-            </div>
+        <!-- Citation Search Section -->
+        <div class="cp-glass-card p-4 mb-5">
+            <h5 class="cp-font-display mb-4" style="color: var(--cp-text-dark); font-weight: 600;">
+                <i class="fas fa-gavel me-2" style="color: var(--cp-primary);"></i>Citation Search
+            </h5>
+            <form action="{{ url_for('cases.search_cases') }}" method="GET">
+                <div class="row g-3">
+                    <!-- First Row -->
+                    <div class="col-md-2">
+                        <select class="form-select" name="journal" id="citation-journal">
+                            <option value="">Journal</option>
+                            <option value="PLD">PLD</option>
+                            <option value="SCMR">SCMR</option>
+                            <option value="MLD">MLD</option>
+                            <option value="YLR">YLR</option>
+                            <option value="CLC">CLC</option>
+                            <option value="CLD">CLD</option>
+                            <option value="PCrLJ">PCrLJ</option>
+                            <option value="PTD">PTD</option>
+                            <option value="PLC">PLC</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control" name="year" placeholder="2025" min="1947" max="2030">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="court" placeholder="Enter Court">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="page" placeholder="Enter Code or Page#">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn cp-btn-primary w-100">Search</button>
+                    </div>
+                </div>
+                <!-- Second Row -->
+                <div class="row g-3 mt-2">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="judges" placeholder="Enter judge name">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="lawyer" placeholder="Enter lawyer name">
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" name="parties" placeholder="Enter Appellant/Opponent name">
+                    </div>
+                </div>
+            </form>
         </div>
-        <div class="col-md-4">
-            <div class="glass-card p-4 text-center">
-                <i class="fas fa-info-circle fa-2x text-info mb-3"></i>
-                <h6 class="font-merriweather mb-2">Flexible Search</h6>
-                <p class="text-muted small mb-0">Fill any combination of fields to narrow your results</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="glass-card p-4 text-center">
-                <i class="fas fa-star fa-2x text-accent mb-3"></i>
-                <h6 class="font-merriweather mb-2">Advanced Options</h6>
-                <p class="text-muted small mb-0">Need more filters? Try our advanced search</p>
-            </div>
-        </div>
-    </div>
 
     {% if has_results %}
     <!-- Results Section -->
@@ -210,7 +152,7 @@
                     {% endif %}
 
                     <div class="text-end">
-                        <a href="{{ url_for('cases.citation_detail', citation_id=result.id) }}" class="btn btn-primary-custom">
+                        <a href="{{ url_for('cases.case_detail', case_id=result.id) }}" class="btn btn-primary-custom">
                             <i class="fas fa-eye me-2"></i>View Full Text
                         </a>
                     </div>
