@@ -139,47 +139,73 @@
             height: 1.5em;
         }
         
-        /* Mobile Navbar Collapse Styles */
+        /* Mobile Navbar Collapse Styles - CRITICAL OVERRIDES */
         @media (max-width: 991.98px) {
             .navbar-collapse {
-                background: white;
-                padding: 1rem;
+                background: white !important;
+                padding: 1rem !important;
                 border-radius: 8px;
                 margin-top: 1rem;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             }
             
+            .navbar-collapse.show,
+            .navbar-collapse.collapsing {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
             .navbar-custom .nav-link {
-                color: var(--text-dark) !important;
-                padding: 0.75rem 1rem;
-                display: block;
-                font-size: 1rem;
+                color: #1E293B !important;
+                padding: 0.75rem 1rem !important;
+                display: block !important;
+                font-size: 1rem !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                background: transparent !important;
             }
             
             .navbar-custom .nav-link:hover {
-                background: rgba(30, 58, 138, 0.05);
+                background: rgba(30, 58, 138, 0.05) !important;
                 border-radius: 6px;
+                color: #1E3A8A !important;
             }
             
             .navbar-nav {
                 margin-bottom: 0.5rem;
+                display: block !important;
+                visibility: visible !important;
             }
             
             .navbar-nav .nav-item {
                 margin-bottom: 0.25rem;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
             }
             
             /* Make dropdowns work in mobile */
             .navbar-nav .dropdown-menu {
-                border: none;
-                box-shadow: none;
+                border: none !important;
+                box-shadow: none !important;
                 padding-left: 1rem;
-                background: rgba(30, 58, 138, 0.02);
+                background: rgba(30, 58, 138, 0.02) !important;
+                position: static !important;
+                display: block !important;
             }
             
             .navbar-nav .dropdown-item {
-                color: var(--text-dark) !important;
-                padding: 0.5rem 1rem;
+                color: #1E293B !important;
+                padding: 0.5rem 1rem !important;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            .navbar-nav .dropdown-item:hover {
+                background: rgba(30, 58, 138, 0.08) !important;
+                color: #1E3A8A !important;
             }
             
             /* Button styles in mobile menu */
@@ -187,6 +213,20 @@
                 width: 100%;
                 margin-top: 0.5rem;
                 margin-left: 0 !important;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            /* Force all text to be visible */
+            #navbarNav a,
+            #navbarNav button,
+            #navbarNav .nav-link,
+            #navbarNav .dropdown-item {
+                color: #1E293B !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                display: block !important;
             }
         }
         
@@ -520,24 +560,56 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Dropdown Fix Script -->
+    <!-- Navbar Visibility Fix Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing navbar...');
+            
+            // Get navbar elements
+            var navbarToggler = document.querySelector('.navbar-toggler');
+            var navbarCollapse = document.getElementById('navbarNav');
+            
+            // Add click event to navbar toggler
+            if (navbarToggler && navbarCollapse) {
+                navbarToggler.addEventListener('click', function() {
+                    console.log('Navbar toggler clicked');
+                    console.log('Navbar collapse state:', navbarCollapse.classList.contains('show'));
+                    
+                    // Force visibility styles after a short delay to ensure Bootstrap has toggled
+                    setTimeout(function() {
+                        if (navbarCollapse.classList.contains('show')) {
+                            console.log('Navbar is now showing - forcing link visibility');
+                            var navLinks = navbarCollapse.querySelectorAll('.nav-link, .dropdown-item, .btn');
+                            navLinks.forEach(function(link) {
+                                link.style.visibility = 'visible';
+                                link.style.opacity = '1';
+                                link.style.display = 'block';
+                            });
+                        }
+                    }, 100);
+                });
+            }
+            
             // Initialize all dropdowns
             var dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
             var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
                 return new bootstrap.Dropdown(dropdownToggleEl);
             });
             
-            // Debug: Log when dropdown is clicked
+            // Ensure dropdown menu items are visible
             var userDropdown = document.getElementById('navbarDropdown');
             if (userDropdown) {
-                userDropdown.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    console.log('Dropdown clicked');
-                    var dropdown = bootstrap.Dropdown.getInstance(userDropdown);
-                    if (dropdown) {
-                        dropdown.toggle();
+                userDropdown.addEventListener('show.bs.dropdown', function() {
+                    console.log('User dropdown showing');
+                    var dropdownMenu = this.nextElementSibling;
+                    if (dropdownMenu) {
+                        dropdownMenu.style.display = 'block';
+                        var items = dropdownMenu.querySelectorAll('.dropdown-item');
+                        items.forEach(function(item) {
+                            item.style.visibility = 'visible';
+                            item.style.opacity = '1';
+                            item.style.color = '#1E293B';
+                        });
                     }
                 });
             }
