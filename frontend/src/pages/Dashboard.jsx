@@ -48,11 +48,18 @@ const Dashboard = () => {
 
   const quickActions = [
     {
-      name: 'New Search',
-      description: 'Start a new legal research query',
-      href: '/search',
+      name: 'Citation Search',
+      description: 'Search by journal, court, year, parties',
+      href: '/citation-search',
       icon: Search,
       color: 'bg-blue-500 hover:bg-blue-600'
+    },
+    {
+      name: 'Advanced Search',
+      description: 'Multi-field legal research search',
+      href: '/advanced-search',
+      icon: Search,
+      color: 'bg-emerald-500 hover:bg-emerald-600'
     },
     {
       name: 'Upload Documents',
