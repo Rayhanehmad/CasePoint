@@ -123,6 +123,37 @@
             font-weight: 600;
         }
         
+        /* Mobile Navbar Collapse Styles */
+        .navbar-collapse {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+            
+            .navbar-custom .nav-link {
+                color: var(--text-dark) !important;
+                padding: 0.75rem 1rem;
+                display: block;
+            }
+            
+            .navbar-custom .nav-link:hover {
+                background: rgba(30, 58, 138, 0.05);
+                border-radius: 6px;
+            }
+            
+            .navbar-nav .dropdown-menu {
+                border: none;
+                box-shadow: none;
+                padding-left: 1rem;
+            }
+        }
+        
         /* Dropdown Styles */
         .dropdown-menu-custom {
             background: white;
