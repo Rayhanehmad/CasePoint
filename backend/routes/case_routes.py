@@ -49,8 +49,10 @@ def get_filter_options():
 
 @case_bp.route('/search')
 def search_cases():
-    """Search cases page"""
+    """Citation search page - show form or results"""
     from services.utils_extract_parties import extract_parties
+    
+    # Get all possible search parameters
     query = request.args.get('q', '')
     year = request.args.get('year', '')
     court = request.args.get('court', '')
@@ -58,50 +60,66 @@ def search_cases():
     jurisdiction = request.args.get('jurisdiction', '')
     doc_type = request.args.get('type', '')
     journal = request.args.get('journal', '')
+    advanced = request.args.get('advanced', '')
     
-    # Build query - start with all legal citations
-    cases_query = LegalCitation.query
+    # Check if this is advanced search
+    if advanced == 'true':
+        return redirect(url_for('cases.advanced_search_cases'))
     
-    # Filter by document type if specified, otherwise default to cases
-    if doc_type:
-        cases_query = cases_query.filter_by(document_type=doc_type)
-    else:
-        cases_query = cases_query.filter_by(document_type='case')
+    # Check if any search criteria provided
+    has_criteria = any([query, year, court, legal_area, jurisdiction, journal])
     
-    if query:
-        cases_query = cases_query.filter(
-            (LegalCitation.title.ilike(f'%{query}%')) |
-            (LegalCitation.citation.ilike(f'%{query}%')) |
-            (LegalCitation.summary.ilike(f'%{query}%'))
-        )
+    results = []
+    if has_criteria:
+        # Build query - start with all legal citations
+        cases_query = LegalCitation.query
+        
+        # Filter by document type if specified, otherwise default to cases
+        if doc_type:
+            cases_query = cases_query.filter_by(document_type=doc_type)
+        else:
+            cases_query = cases_query.filter_by(document_type='case')
+        
+        if query:
+            cases_query = cases_query.filter(
+                (LegalCitation.title.ilike(f'%{query}%')) |
+                (LegalCitation.citation.ilike(f'%{query}%')) |
+                (LegalCitation.summary.ilike(f'%{query}%'))
+            )
+        
+        if year:
+            try:
+                cases_query = cases_query.filter_by(year=int(year))
+            except ValueError:
+                pass
+        
+        if court:
+            cases_query = cases_query.filter(LegalCitation.court.ilike(f'%{court}%'))
+        
+        if legal_area:
+            cases_query = cases_query.filter(LegalCitation.legal_area.ilike(f'%{legal_area}%'))
+        
+        if jurisdiction:
+            cases_query = cases_query.filter(LegalCitation.jurisdiction.ilike(f'%{jurisdiction}%'))
+        
+        if journal:
+            cases_query = cases_query.filter(LegalCitation.journal.ilike(f'%{journal}%'))
+        
+        results = cases_query.order_by(LegalCitation.year.desc()).limit(100).all()
+        
+        # Extract party names for each result
+        for result in results:
+            result.party_line = extract_parties(result.full_text, result.journal)
     
-    if year:
-        cases_query = cases_query.filter_by(year=int(year))
-    
-    if court:
-        cases_query = cases_query.filter_by(court=court)
-    
-    if legal_area:
-        cases_query = cases_query.filter_by(legal_area=legal_area)
-    
-    if jurisdiction:
-        cases_query = cases_query.filter_by(jurisdiction=jurisdiction)
-    
-    if journal:
-        cases_query = cases_query.filter_by(journal=journal.upper())
-    
-    results = cases_query.order_by(LegalCitation.year.desc()).all()
-    
-    # Extract party names for each result
-    for result in results:
-        result.party_line = extract_parties(result.full_text, result.journal)
-    
-    breadcrumbs = [{'text': 'Cases', 'url': url_for('cases.search_cases')}]
-    return render_template('search_results.html', 
+    return render_template('citation_search.html', 
                          results=results, 
-                         query=query, 
-                         category='cases',
-                         breadcrumbs=breadcrumbs)
+                         has_results=has_criteria)
+
+
+@case_bp.route('/search/advanced')
+def advanced_search_cases():
+    """Advanced search page - placeholder redirect to citation search for now"""
+    return redirect(url_for('cases.search_cases'))
 
 
 @case_bp.route('/journal/<journal_code>')
