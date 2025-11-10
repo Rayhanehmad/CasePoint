@@ -781,6 +781,203 @@ async function regenerateHeadnotes(citationId) {
     // Force regenerate by clearing cache first
     await generateHeadnotes(citationId);
 }
+
+// ==================== TEXT SELECTION SHARING ====================
+
+let shareButton = null;
+
+function initTextSelection() {
+    const fullTextElement = document.getElementById('full-text-content');
+    if (!fullTextElement) return;
+    
+    // Create share button (hidden by default)
+    shareButton = document.createElement('button');
+    shareButton.id = 'share-selection-btn';
+    shareButton.className = 'btn btn-sm btn-primary';
+    shareButton.style.cssText = 'position: absolute; display: none; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+    shareButton.innerHTML = '<i class="fas fa-share-alt me-1"></i>Share Selection';
+    shareButton.onclick = handleShareSelection;
+    document.body.appendChild(shareButton);
+    
+    // Listen for text selection
+    fullTextElement.addEventListener('mouseup', handleTextSelection);
+    fullTextElement.addEventListener('touchend', handleTextSelection);
+    
+    // Hide button when clicking elsewhere
+    document.addEventListener('click', (e) => {
+        if (e.target !== shareButton && !shareButton.contains(e.target)) {
+            shareButton.style.display = 'none';
+        }
+    });
+}
+
+function handleTextSelection(e) {
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+    
+    if (selectedText.length >= 50 && selectedText.length <= 1200) {
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        
+        // Position button near selection
+        shareButton.style.display = 'block';
+        shareButton.style.left = (rect.left + window.scrollX) + 'px';
+        shareButton.style.top = (rect.bottom + window.scrollY + 5) + 'px';
+    } else {
+        shareButton.style.display = 'none';
+    }
+}
+
+async function handleShareSelection() {
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+    
+    if (selectedText.length < 50) {
+        showToast('Please select at least 50 characters to share', 'warning');
+        return;
+    }
+    
+    if (selectedText.length > 1200) {
+        showToast('Please select less than 1200 characters to share', 'warning');
+        return;
+    }
+    
+    // Show loading state
+    const originalHTML = shareButton.innerHTML;
+    shareButton.disabled = true;
+    shareButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Creating...';
+    
+    try {
+        const citationId = {{ citation.id }};
+        const response = await fetch('/api/share_excerpt', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                citation_id: citationId,
+                excerpt_text: selectedText
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showShareModal(data.share_url, data.share_code);
+            shareButton.style.display = 'none';
+            window.getSelection().removeAllRanges();
+        } else {
+            throw new Error(data.error || 'Failed to create share link');
+        }
+    } catch (error) {
+        showToast(error.message, 'danger');
+    } finally {
+        shareButton.disabled = false;
+        shareButton.innerHTML = originalHTML;
+    }
+}
+
+function showShareModal(shareUrl, shareCode) {
+    // Create modal HTML
+    const modalHTML = `
+        <div class="modal fade" id="shareModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+                    <div class="modal-header" style="border-bottom: 2px solid rgba(30, 58, 138, 0.1);">
+                        <h5 class="modal-title" style="color: var(--cp-primary); font-weight: 700;">
+                            <i class="fas fa-share-alt me-2"></i>Share Excerpt
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p style="color: #6B7280; margin-bottom: 1rem;">Your shareable link is ready! Share this excerpt with anyone:</p>
+                        
+                        <div style="background: #F9FAFB; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <input type="text" id="shareUrlInput" class="form-control" value="${shareUrl}" readonly 
+                                    style="border: 1px solid #D1D5DB; font-size: 0.875rem;">
+                                <button onclick="copyShareLink()" class="btn btn-primary" style="white-space: nowrap;">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #FEF3C7; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.875rem;">
+                            <i class="fas fa-info-circle" style="color: #F59E0B;"></i>
+                            <span style="color: #78350F;">This link will expire in 90 days</span>
+                        </div>
+                        
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button onclick="shareToTwitter('${shareUrl}')" class="btn btn-outline-primary btn-sm">
+                                <i class="fab fa-twitter me-1"></i>Twitter
+                            </button>
+                            <button onclick="shareToFacebook('${shareUrl}')" class="btn btn-outline-primary btn-sm">
+                                <i class="fab fa-facebook me-1"></i>Facebook
+                            </button>
+                            <button onclick="shareToLinkedIn('${shareUrl}')" class="btn btn-outline-primary btn-sm">
+                                <i class="fab fa-linkedin me-1"></i>LinkedIn
+                            </button>
+                            <button onclick="shareToWhatsApp('${shareUrl}')" class="btn btn-outline-primary btn-sm">
+                                <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('shareModal');
+    if (existingModal) existingModal.remove();
+    
+    // Add modal to DOM
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('shareModal'));
+    modal.show();
+    
+    // Show success toast
+    showToast('Share link created successfully!', 'success');
+}
+
+function copyShareLink() {
+    const input = document.getElementById('shareUrlInput');
+    input.select();
+    navigator.clipboard.writeText(input.value).then(() => {
+        showToast('Link copied to clipboard!', 'success');
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        showToast('Failed to copy link', 'danger');
+    });
+}
+
+function shareToTwitter(url) {
+    const text = "{{ citation.title[:100] }} - CasePoint Legal Research";
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    window.open(twitterUrl, '_blank', 'width=600,height=400');
+}
+
+function shareToFacebook(url) {
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(facebookUrl, '_blank', 'width=600,height=400');
+}
+
+function shareToLinkedIn(url) {
+    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+    window.open(linkedInUrl, '_blank', 'width=600,height=400');
+}
+
+function shareToWhatsApp(url) {
+    const text = "{{ citation.title[:100] }} - CasePoint Legal Research";
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
+    window.open(whatsappUrl, '_blank');
+}
+
+// Initialize text selection on page load
+document.addEventListener('DOMContentLoaded', initTextSelection);
 </script>
 </div>
 <!-- End light theme wrapper -->
