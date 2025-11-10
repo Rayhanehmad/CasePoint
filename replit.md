@@ -61,6 +61,14 @@ Preferred communication style: Simple, everyday language.
   - `/api/analyze_case` - Automatic citation and statute detection with database matching
   - `/api/which_laws_apply` - Smart detection of applicable laws/sections using regex patterns
   - React frontend at `/case-analyzer` with 3-column results layout and modal-based law display
+- **One-Click Excerpt Sharing** (November 2025):
+  - Text selection sharing on citation detail pages
+  - UUID-based shareable links with 90-day expiration
+  - Public excerpt viewing with Open Graph meta tags for social media
+  - Deduplication and rate limiting (50 shares per user per day)
+  - View tracking and analytics
+  - Social media sharing buttons (Twitter, Facebook, LinkedIn, WhatsApp)
+  - API endpoints: `POST /api/share_excerpt`, `GET /api/shared/<code>`, `GET /shared/<code>` (HTML)
 - **Usage Analytics**: Built-in tracking for share counts, embed views, and last activity timestamps
 - **Services Available**: Vector search (ChromaDB) and classification services implemented but not yet integrated into main API
 
@@ -70,6 +78,12 @@ Preferred communication style: Simple, everyday language.
 - **Legal Citations**: Cases, acts, statutes with metadata and full-text
   - Auto-extracted journal field (indexed for fast filtering)
   - Usage tracking fields: share_count, embed_views, last_shared, last_embedded
+- **Shared Excerpts**: One-click sharing system for legal document excerpts (November 2025)
+  - UUID share codes for unique public links
+  - Automatic deduplication via SHA256 hashing
+  - Configurable expiration (default 90 days) and revocation support
+  - View count tracking without PII collection
+  - Indexed fields for performance: excerpt_hash, citation_id, created_at, expires_at
 - **Vector Storage**: ChromaDB for document embeddings and semantic search
 
 ### Document Management System
