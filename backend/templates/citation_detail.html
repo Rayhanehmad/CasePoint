@@ -30,6 +30,23 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 }
 
+/* Screen styles for citation header (first 6 lines) */
+.citation-header-lines {
+    font-weight: 700 !important;
+    color: #1F2937 !important;
+    text-align: center !important;
+    display: block !important;
+    margin-bottom: 1.5rem !important;
+    line-height: 1.8 !important;
+}
+
+/* Body text with paragraph spacing */
+.citation-body-lines {
+    display: block !important;
+    white-space: pre-wrap !important;
+    line-height: 1.8 !important;
+}
+
 .citation-detail-light .card-body {
     color: var(--cp-text-dark) !important;
 }
@@ -1101,18 +1118,43 @@ function formatCitationForPrint() {
     // Clear existing content
     fullTextElement.textContent = '';
     
-    // Create header section (bold and centered for print)
+    // Create header section (bold and centered)
     const headerSpan = document.createElement('span');
     headerSpan.className = 'citation-header-lines';
     headerSpan.textContent = headerLines.join('\n');
     
-    // Create separator newline
-    const separator = document.createTextNode('\n');
+    // Create separator with extra spacing
+    const separator = document.createTextNode('\n\n');
     
-    // Create body section
+    // Create body section with paragraph spacing
     const bodySpan = document.createElement('span');
     bodySpan.className = 'citation-body-lines';
-    bodySpan.textContent = bodyLines.join('\n');
+    
+    // Add spacing between paragraphs in body text
+    // Detect paragraphs (groups of non-empty lines separated by empty lines)
+    let formattedBody = '';
+    let currentParagraph = [];
+    
+    for (let i = 0; i < bodyLines.length; i++) {
+        const line = bodyLines[i];
+        
+        if (line.trim() === '') {
+            // Empty line - end current paragraph
+            if (currentParagraph.length > 0) {
+                formattedBody += currentParagraph.join('\n') + '\n\n';
+                currentParagraph = [];
+            }
+        } else {
+            currentParagraph.push(line);
+        }
+    }
+    
+    // Add final paragraph if exists
+    if (currentParagraph.length > 0) {
+        formattedBody += currentParagraph.join('\n');
+    }
+    
+    bodySpan.textContent = formattedBody;
     
     // Append safely using DOM methods (no innerHTML, auto-escapes)
     fullTextElement.appendChild(headerSpan);
