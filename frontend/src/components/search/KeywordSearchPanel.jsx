@@ -194,13 +194,12 @@ const KeywordSearchPanel = () => {
       
       {/* CSS for Keyword Highlighting */}
       <style>{`
-        .keyword-highlight mark,
-        .keyword-highlight .highlight {
+        .keyword-highlight {
           background-color: #fef3c7;
           color: #b91c1c;
-          font-weight: 600;
+          font-weight: 700;
           padding: 2px 4px;
-          border-radius: 2px;
+          border-radius: 3px;
         }
       `}</style>
 
