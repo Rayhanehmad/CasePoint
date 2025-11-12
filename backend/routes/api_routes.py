@@ -131,13 +131,18 @@ def search_keyword():
     # Build filter conditions
     filter_conditions = []
     
-    # Keyword filter for multiple fields
+    # Keyword filter for multiple fields - search full phrase across all fields
     if q:
-        keywords = q.split()
         keyword_filter = or_(
+            LegalCitation.title.ilike(f"%{q}%"),
+            LegalCitation.citation.ilike(f"%{q}%"),
+            LegalCitation.summary.ilike(f"%{q}%"),
             LegalCitation.full_text.ilike(f"%{q}%"),
-            LegalCitation.summary.ilike(f"%{keywords[0]}%"),
-            LegalCitation.citation.ilike(f"%{keywords[0]}%"),
+            LegalCitation.headnotes.ilike(f"%{q}%"),
+            LegalCitation.keywords.ilike(f"%{q}%"),
+            LegalCitation.legal_area.ilike(f"%{q}%"),
+            LegalCitation.ai_summary.ilike(f"%{q}%"),
+            LegalCitation.ai_headnotes.ilike(f"%{q}%")
         )
         filter_conditions.append(keyword_filter)
     
