@@ -102,6 +102,107 @@ def api_status():
         })
 
 
+@ai_bp.route('/api/generate_citation', methods=['POST'])
+def api_generate_citation():
+    """API endpoint for AI-powered citation generation"""
+    import openai
+    import os
+    
+    try:
+        data = request.get_json()
+        
+        if not data or not data.get('case_details'):
+            return jsonify({'error': 'Case details are required'}), 400
+        
+        case_details = data.get('case_details', '')
+        citation_type = data.get('citation_type', 'case')
+        jurisdiction = data.get('jurisdiction', 'Pakistan')
+        
+        # Check if OpenAI API key is available
+        if not os.getenv("OPENAI_API_KEY"):
+            return jsonify({'error': 'AI service not configured'}), 503
+        
+        # Build prompt for citation generation
+        prompt = f"""You are a legal citation expert specializing in Pakistan law. Generate a properly formatted legal citation based on the following details.
+
+Citation Type: {citation_type}
+Jurisdiction: {jurisdiction}
+Case Details:
+{case_details}
+
+Please provide:
+1. A properly formatted citation following Pakistan legal citation standards
+2. Break down the citation into its components (parties, year, court, journal, page number, etc.)
+3. Any notes or clarifications about the citation format
+
+Format your response as JSON with the following structure:
+{{
+    "formatted_citation": "The complete formatted citation string",
+    "components": {{
+        "parties": "Party names",
+        "year": "Year",
+        "court": "Court name",
+        "journal": "Journal abbreviation (if applicable)",
+        "page": "Page number (if applicable)",
+        "citation_number": "Citation number (if applicable)"
+    }},
+    "notes": "Any important notes about the citation format or missing information"
+}}
+
+If information is missing or unclear, make reasonable assumptions based on Pakistan legal standards and note them."""
+
+        # Call OpenAI API (legacy format)
+        openai.api_key = os.getenv("OPENAI_API_KEY")
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are an expert in Pakistan legal citation formats and standards."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=1000
+        )
+        
+        # Parse the AI response
+        ai_response = response['choices'][0]['message']['content'].strip()
+        
+        # Try to extract JSON from the response
+        import json
+        import re
+        
+        # Look for JSON in the response
+        json_match = re.search(r'\{.*\}', ai_response, re.DOTALL)
+        if json_match:
+            citation_data = json.loads(json_match.group())
+        else:
+            # Fallback if no JSON found
+            citation_data = {
+                "formatted_citation": ai_response,
+                "components": {},
+                "notes": "Generated citation may need manual verification"
+            }
+        
+        return jsonify({
+            'success': True,
+            'citation': citation_data
+        })
+        
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON parsing error: {e}")
+        return jsonify({
+            'success': True,
+            'citation': {
+                "formatted_citation": ai_response if 'ai_response' in locals() else "Error generating citation",
+                "components": {},
+                "notes": "Could not parse structured citation data. Please verify the format."
+            }
+        })
+    except Exception as e:
+        logger.error(f"Citation generation error: {e}")
+        return jsonify({'error': f'Citation generation failed: {str(e)}'}), 500
+
+
 @ai_bp.route('/case-analyzer', methods=['GET'])
 def case_analyzer():
     """AI Case Analyzer page"""

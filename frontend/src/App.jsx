@@ -11,6 +11,7 @@ import ActsPage from './pages/ActsPage'
 import CompareCasesPage from './pages/CompareCasesPage'
 import AIAnalysisPage from './pages/AIAnalysisPage'
 import CaseAnalyzerPage from './pages/CaseAnalyzerPage'
+import CitationGenerator from './pages/CitationGenerator'
 import AdminPage from './pages/AdminPage'
 import EmbedView from './pages/EmbedView'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -55,6 +56,7 @@ function App() {
               <Route path="/compare" element={<CompareCasesPage />} />
               <Route path="/ai-analysis" element={<AIAnalysisPage />} />
               <Route path="/case-analyzer" element={<CaseAnalyzerPage />} />
+              <Route path="/citation-generator" element={<CitationGenerator />} />
               
               {/* Protected admin route */}
               <Route 
