@@ -258,9 +258,43 @@
         page-break-after: avoid;
     }
     
-    /* Page breaks */
-    .watermark-container {
-        display: block !important;
+    /* Print watermark using pseudo-element (appears on every page) */
+    body {
+        position: relative;
+    }
+    
+    body::before {
+        content: "CasePoint\A\A CasePoint\A\A CasePoint\A\A CasePoint\A\A CasePoint\A\A CasePoint\A\A CasePoint\A\A CasePoint";
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        font-size: 88pt;
+        font-weight: bold;
+        color: rgba(30, 58, 138, 0.08);
+        white-space: pre;
+        line-height: 2.8;
+        width: 140%;
+        text-align: center;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 1;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+    
+    /* Ensure content appears above watermark with transparent backgrounds */
+    .container-fluid,
+    .card {
+        position: relative;
+        z-index: 1;
+        background: transparent !important;
+    }
+    
+    .card-body,
+    .full-text-section,
+    .full-text-content {
+        background: transparent !important;
     }
     
     .card {
@@ -276,6 +310,11 @@
     pre {
         page-break-inside: auto;
     }
+}
+
+/* Hide old DOM watermark elements (using pseudo-element instead) */
+.watermark-container {
+    display: none !important;
 }
 
 /* Screen styles - hide QR code and print-only elements */
