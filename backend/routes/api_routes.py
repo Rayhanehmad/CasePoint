@@ -11,6 +11,7 @@ from models.user import User
 from models.case import LegalCitation
 from routes.auth_routes import login_required
 from services.utils_extract_parties import highlight_keywords, extract_preview_paragraph, extract_parties
+from services.ai_service import generate_summary, generate_headnotes
 import os
 import logging
 import re
@@ -1017,3 +1018,105 @@ def which_laws_apply():
     except Exception as e:
         logging.error(f"Error detecting laws: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ==================== AI GENERATION API ====================
+
+@api_bp.route('/generate_summary/<int:citation_id>', methods=['POST'])
+def api_generate_summary(citation_id):
+    """Generate AI summary for a citation (requires authentication)"""
+    # Check authentication
+    if not session.get('user_id'):
+        logging.warning(f"Unauthorized access attempt to generate summary. Session: {dict(session)}")
+        return jsonify({'error': 'Authentication required. Please log in to use AI features.'}), 401
+    
+    try:
+        # Get citation from database
+        citation = LegalCitation.query.get_or_404(citation_id)
+        
+        # Check if summary already exists
+        if citation.ai_summary:
+            logging.info(f"Returning cached AI summary for citation {citation_id}")
+            return jsonify({
+                'success': True,
+                'summary': citation.ai_summary,
+                'cached': True
+            })
+        
+        # Check if full_text exists
+        if not citation.full_text:
+            return jsonify({'error': 'No full text available for this citation'}), 400
+        
+        # Generate summary
+        logging.info(f"Generating AI summary for citation {citation_id}: {citation.citation}")
+        summary = generate_summary(citation.full_text, citation.citation)
+        
+        if not summary:
+            return jsonify({'error': 'Failed to generate summary. Please try again.'}), 500
+        
+        # Save summary to database
+        citation.ai_summary = summary
+        db.session.commit()
+        
+        logging.info(f"Successfully generated and saved AI summary for citation {citation_id}")
+        
+        return jsonify({
+            'success': True,
+            'summary': summary,
+            'cached': False
+        })
+        
+    except Exception as e:
+        logging.error(f"Error generating summary for citation {citation_id}: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
+
+@api_bp.route('/generate_headnotes/<int:citation_id>', methods=['POST'])
+def api_generate_headnotes(citation_id):
+    """Generate AI headnotes for a citation (requires authentication)"""
+    # Check authentication
+    if not session.get('user_id'):
+        logging.warning(f"Unauthorized access attempt to generate headnotes. Session: {dict(session)}")
+        return jsonify({'error': 'Authentication required. Please log in to use AI features.'}), 401
+    
+    try:
+        # Get citation from database
+        citation = LegalCitation.query.get_or_404(citation_id)
+        
+        # Check if headnotes already exist
+        if citation.ai_headnotes:
+            logging.info(f"Returning cached AI headnotes for citation {citation_id}")
+            return jsonify({
+                'success': True,
+                'headnotes': citation.ai_headnotes,
+                'cached': True
+            })
+        
+        # Check if full_text exists
+        if not citation.full_text:
+            return jsonify({'error': 'No full text available for this citation'}), 400
+        
+        # Generate headnotes
+        logging.info(f"Generating AI headnotes for citation {citation_id}: {citation.citation}")
+        headnotes = generate_headnotes(citation.full_text, citation.citation)
+        
+        if not headnotes:
+            return jsonify({'error': 'Failed to generate headnotes. Please try again.'}), 500
+        
+        # Save headnotes to database
+        citation.ai_headnotes = headnotes
+        db.session.commit()
+        
+        logging.info(f"Successfully generated and saved AI headnotes for citation {citation_id}")
+        
+        return jsonify({
+            'success': True,
+            'headnotes': headnotes,
+            'cached': False
+        })
+        
+    except Exception as e:
+        logging.error(f"Error generating headnotes for citation {citation_id}: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': f'An error occurred: {str(e)}'}), 500
