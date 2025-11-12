@@ -454,7 +454,6 @@ class CitationParser:
         if method == 'pattern':
             if not text:
                 # Read text from file
-                from docx import Document
                 doc = Document(filepath)
                 text = '\n'.join([para.text for para in doc.paragraphs])
             citations = self.split_document_by_citations(text)
