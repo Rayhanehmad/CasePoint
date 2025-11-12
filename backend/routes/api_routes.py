@@ -114,28 +114,67 @@ def api_search():
 def search_keyword():
     """
     Full keyword search in citation, summary, and full_text with highlighting and party extraction.
-    GET /api/search/keyword?q=keywords
+    GET /api/search/keyword?q=keywords&location=court&years=5
     Returns results with highlighted keywords, preview paragraphs, and party names.
+    Time filters: 5, 10, 15, 20 years or 'all'
     """
+    from datetime import datetime
+    
     q = request.args.get("q", "").strip()
-    if not q:
+    location = request.args.get("location", "").strip()
+    years_filter = request.args.get("years", "all").strip()
+    
+    # At least one search parameter is required
+    if not q and not location:
         return jsonify({"total": 0, "results": []})
 
-    keywords = q.split()
+    # Build filter conditions
+    filter_conditions = []
+    
+    # Keyword filter for multiple fields
+    if q:
+        keywords = q.split()
+        keyword_filter = or_(
+            LegalCitation.full_text.ilike(f"%{q}%"),
+            LegalCitation.summary.ilike(f"%{keywords[0]}%"),
+            LegalCitation.citation.ilike(f"%{keywords[0]}%"),
+        )
+        filter_conditions.append(keyword_filter)
+    
+    # Location/Court filter
+    if location:
+        location_filter = or_(
+            LegalCitation.court.ilike(f"%{location}%"),
+            LegalCitation.jurisdiction.ilike(f"%{location}%")
+        )
+        filter_conditions.append(location_filter)
+    
+    # Time filter based on years
+    if years_filter != 'all':
+        try:
+            years_int = int(years_filter)
+            current_year = datetime.now().year
+            cutoff_year = current_year - years_int
+            filter_conditions.append(LegalCitation.year >= cutoff_year)
+        except ValueError:
+            pass  # If years is not a valid number, skip time filter
 
-    # Build keyword filter for multiple fields
-    keyword_filter = or_(
-        LegalCitation.full_text.ilike(f"%{q}%"),
-        LegalCitation.summary.ilike(f"%{keywords[0]}%"),
-        LegalCitation.citation.ilike(f"%{keywords[0]}%"),
-    )
-
-    results = LegalCitation.query.filter(keyword_filter).limit(50).all()
+    # Apply all filters
+    if filter_conditions:
+        query = LegalCitation.query.filter(and_(*filter_conditions))
+    else:
+        query = LegalCitation.query
+    
+    results = query.order_by(LegalCitation.year.desc()).limit(50).all()
 
     output = []
     for r in results:
-        preview = extract_preview_paragraph(r.full_text)
-        preview = highlight_keywords(preview, keywords)
+        if q:
+            keywords = q.split()
+            preview = extract_preview_paragraph(r.full_text)
+            preview = highlight_keywords(preview, keywords)
+        else:
+            preview = extract_preview_paragraph(r.full_text)
 
         party_line = extract_parties(r.full_text, r.journal)
 
@@ -297,6 +336,14 @@ def advanced_search():
         # Section filter (full text search)
         if data.get('section'):
             filter_conditions.append(LegalCitation.full_text.ilike(f"%{data['section']}%"))
+        
+        # Additional Acts filter (full text search)
+        if data.get('acts2'):
+            filter_conditions.append(LegalCitation.full_text.ilike(f"%{data['acts2']}%"))
+        
+        # Additional Section filter (full text search)
+        if data.get('section2'):
+            filter_conditions.append(LegalCitation.full_text.ilike(f"%{data['section2']}%"))
         
         # Apply filters
         if filter_conditions:
