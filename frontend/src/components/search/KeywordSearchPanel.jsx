@@ -129,57 +129,80 @@ const KeywordSearchPanel = () => {
         </div>
       )}
 
-      {/* Search Results - Table Format */}
+      {/* Search Results - Card Format with Highlighting */}
       {results.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Citation
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Court
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {results.map((result) => (
-                <tr key={result.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <FileText className="w-4 h-4 text-gray-400 mr-2" />
-                      <span className="text-sm font-medium text-gray-900">
-                        {result.citation}
+        <div className="space-y-4">
+          {results.map((result) => (
+            <div key={result.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+              {/* Citation and Metadata */}
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText className="w-5 h-5 text-blue-600" />
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {result.citation}
+                    </h3>
+                  </div>
+                  
+                  {/* Party Line */}
+                  {result.party_line && (
+                    <p className="text-sm text-gray-600 mb-2">{result.party_line}</p>
+                  )}
+                  
+                  {/* Court and Year */}
+                  <div className="flex items-center gap-3 text-sm text-gray-500">
+                    {result.court && (
+                      <span className="flex items-center gap-1">
+                        <Scale className="w-4 h-4" />
+                        {result.court}
                       </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center">
-                      <Scale className="w-4 h-4 text-gray-400 mr-2" />
-                      <span className="text-sm text-gray-900">
-                        {result.court || 'N/A'}
+                    )}
+                    {result.year && (
+                      <span className="bg-gray-100 px-2 py-1 rounded">
+                        {result.year}
                       </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <Link
-                      to={`/cases/${result.id}`}
-                      className="inline-flex items-center text-green-600 hover:text-green-700 font-medium gap-1"
-                    >
-                      <Eye className="w-4 h-4" />
-                      View Full Citation
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    )}
+                    {result.journal && (
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                        {result.journal}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                
+                <Link
+                  to={`/cases/${result.id}`}
+                  className="ml-4 inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium gap-2 transition-colors"
+                >
+                  <Eye className="w-4 h-4" />
+                  View
+                </Link>
+              </div>
+
+              {/* Preview with Highlighted Keywords */}
+              {result.summary_preview && (
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm text-gray-700 leading-relaxed keyword-highlight"
+                     dangerouslySetInnerHTML={{ __html: result.summary_preview }}
+                  />
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
+      
+      {/* CSS for Keyword Highlighting */}
+      <style>{`
+        .keyword-highlight mark,
+        .keyword-highlight .highlight {
+          background-color: #fef3c7;
+          color: #b91c1c;
+          font-weight: 600;
+          padding: 2px 4px;
+          border-radius: 2px;
+        }
+      `}</style>
 
       {/* Empty State */}
       {!loading && results.length === 0 && (
