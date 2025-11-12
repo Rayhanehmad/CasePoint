@@ -5,10 +5,7 @@ import Navbar from './components/Navbar'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-import SearchPage from './pages/SearchPage'
-import KeywordSearchPage from './pages/KeywordSearchPage'
-import CitationSearch from './pages/CitationSearch'
-import AdvancedSearch from './pages/AdvancedSearch'
+import UnifiedSearch from './pages/UnifiedSearch'
 import CaseDetailPage from './pages/CaseDetailPage'
 import ActsPage from './pages/ActsPage'
 import CompareCasesPage from './pages/CompareCasesPage'
@@ -46,10 +43,13 @@ function App() {
               <Route path="/register" element={<RegisterPage />} />
               
               {/* Legal research routes */}
-              <Route path="/search" element={<SearchPage />} />
-              <Route path="/keyword-search" element={<KeywordSearchPage />} />
-              <Route path="/citation-search" element={<CitationSearch />} />
-              <Route path="/advanced-search" element={<AdvancedSearch />} />
+              <Route path="/search" element={<UnifiedSearch />} />
+              
+              {/* Legacy search route redirects */}
+              <Route path="/keyword-search" element={<Navigate to="/search?tab=keyword" replace />} />
+              <Route path="/citation-search" element={<Navigate to="/search?tab=citation" replace />} />
+              <Route path="/advanced-search" element={<Navigate to="/search?tab=advanced" replace />} />
+              
               <Route path="/cases/:id" element={<CaseDetailPage />} />
               <Route path="/acts" element={<ActsPage />} />
               <Route path="/compare" element={<CompareCasesPage />} />
