@@ -14,6 +14,11 @@ import CaseAnalyzerPage from './pages/CaseAnalyzerPage'
 import CitationGenerator from './pages/CitationGenerator'
 import AdminPage from './pages/AdminPage'
 import EmbedView from './pages/EmbedView'
+import UploadCitationPage from './pages/UploadCitationPage'
+import UploadMultiPDFPage from './pages/UploadMultiPDFPage'
+import ProfilePage from './pages/ProfilePage'
+import SharedExcerptPage from './pages/SharedExcerptPage'
+import HowToUsePage from './pages/HowToUsePage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -29,8 +34,9 @@ function App() {
 
   return (
     <Routes>
-      {/* Embed route without navbar (for iframe) */}
+      {/* Special routes without navbar */}
       <Route path="/embed/:id" element={<EmbedView />} />
+      <Route path="/shared/:code" element={<SharedExcerptPage />} />
       
       {/* Main app with navbar */}
       <Route path="*" element={
@@ -42,6 +48,7 @@ function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/how-to-use" element={<HowToUsePage />} />
               
               {/* Legal research routes */}
               <Route path="/search" element={<UnifiedSearch />} />
@@ -57,6 +64,34 @@ function App() {
               <Route path="/ai-analysis" element={<AIAnalysisPage />} />
               <Route path="/case-analyzer" element={<CaseAnalyzerPage />} />
               <Route path="/citation-generator" element={<CitationGenerator />} />
+              
+              {/* Upload routes */}
+              <Route 
+                path="/upload-citation" 
+                element={
+                  <ProtectedRoute>
+                    <UploadCitationPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/upload-multi-pdf" 
+                element={
+                  <ProtectedRoute>
+                    <UploadMultiPDFPage />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* User profile route */}
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <ProfilePage />
+                  </ProtectedRoute>
+                } 
+              />
               
               {/* Protected admin route */}
               <Route 
