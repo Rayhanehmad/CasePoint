@@ -10,11 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### Application Architecture
-- **Modular Backend**: Flask application organized into blueprints for clean separation of concerns
-- **REST API**: Complete JSON API layer for React frontend integration
-- **Blueprint Structure**: Separate blueprints for auth, cases, acts, AI, admin, and API routes
-- **CORS Enabled**: Configured for seamless React frontend communication
+### Application Architecture (Fully Migrated to React SPA - November 2025)
+- **Pure API Backend**: Flask configured as a pure REST API with no template rendering
+- **React SPA Frontend**: Complete migration from Flask Jinja2 templates to React Single Page Application
+- **SPA Routing**: Flask serves React build from `frontend/dist` with catch-all route for client-side routing
+- **API-Only Blueprints**: Flask only registers `api_bp` and `auth_bp` - all UI handled by React
+- **CORS Enabled**: Configured for seamless React frontend communication during development
 
 ### Authentication & Authorization System
 - **Session Authentication**: Secure session-based authentication with Flask sessions
@@ -22,33 +23,48 @@ Preferred communication style: Simple, everyday language.
 - **Multi-User Support**: Multiple user accounts with personal dashboards
 - **Session Management**: Secure cookie-based session handling
 
-### Frontend Architecture
+### Frontend Architecture (Complete React Migration - November 2025)
 - **Modern UI**: React 18 + Vite + TailwindCSS for responsive design
-- **Dark Theme Design**: Production-ready dark glassmorphism UI across all major pages (November 2025)
+- **Dark Theme Design**: Production-ready dark glassmorphism UI across all pages
   - Consistent dark gradient backgrounds (slate-900 via blue-950 to slate-800)
   - Glassmorphism effects with backdrop-blur and translucent rgba backgrounds
   - Professional typography using Orbitron (headings), Exo 2 (subheadings), and Inter (body text)
   - Glowing text animations for AI-powered sections
-  - Tailwind CSS CDN integration with custom animations and utilities
+  - Tailwind CSS v4 with @tailwindcss/vite plugin
 - **Component-Based**: Reusable components with clean separation
 - **Service Layer**: Dedicated API service files (authService, caseService)
 - **State Management**: Zustand for lightweight state management
-- **Routing**: React Router DOM for client-side navigation
+- **Routing**: React Router DOM for complete client-side navigation
+- **All Pages in React**: Complete set of React pages including:
+  - Public: LandingPage, LoginPage, RegisterPage, HowToUsePage
+  - Search: UnifiedSearch (with keyword, citation, advanced tabs), CaseDetailPage, ActsPage
+  - AI Features: AIAnalysisPage, CaseAnalyzerPage, CitationGenerator
+  - Upload: UploadCitationPage, UploadMultiPDFPage (protected)
+  - User: ProfilePage (protected), SharedExcerptPage
+  - Admin: AdminPage (admin-only)
+  - Special: EmbedView (iframe embedding)
+- **Protected Routes**: Authentication guards using ProtectedRoute component
 - **Proxy Configuration**: Vite proxy for seamless API communication during development
-- **User Dashboard**: Modern dashboard with search stats, document counts, recent searches, and subscription info
 
-### Backend Architecture
-- **Blueprint Organization**: 
-  - `auth_routes.py` - User authentication (login, register, logout)
-  - `case_routes.py` - Case search and details
-  - `act_routes.py` - Acts and statutes
-  - `ai_routes.py` - AI-powered legal analysis
-  - `admin_routes.py` - Admin management endpoints
-  - `api_routes.py` - Consolidated REST API for React frontend
-- **RESTful APIs**: Complete JSON API endpoints for all platform functionality
-- **Flask-Admin**: Integrated admin dashboard at `/admin` route
-- **Error Handling**: Comprehensive error handling with proper HTTP status codes
-- **CORS Configuration**: Properly configured for React frontend at localhost:3000 and localhost:5173
+### Backend Architecture (API-Only - November 2025)
+- **Pure REST API**: Flask configured as backend API only, no template rendering
+- **API Endpoints** (`api_routes.py`):
+  - Search: `/api/search`, `/api/keyword_search`, `/api/search_citations`
+  - Citations: `/api/citations/<id>`, `/api/related_cases/<id>`
+  - Acts: `/api/acts`
+  - Uploads: `/api/upload_citation`, `/api/upload_multi_pdf`
+  - AI Generation: `/api/generate_summary/<id>`, `/api/generate_headnotes/<id>`
+  - AI Analysis: `/api/auto_counter_arguments`, `/api/analyze_case`, `/api/which_laws_apply`, `/api/generate_citation`
+  - User: `/api/profile` (GET/PUT)
+  - Sharing: `/api/shared/<code>`, `/api/share_excerpt`
+- **Authentication API** (`auth_routes.py`):
+  - `/auth/register` (JSON API)
+  - `/auth/login` (JSON API)
+  - `/auth/logout` (JSON API)
+  - `/auth/session` (check session status)
+- **SPA Serving**: Catch-all route serves React build from `frontend/dist`
+- **Error Handling**: JSON error responses with proper HTTP status codes
+- **CORS Configuration**: Configured for React frontend during development
 
 ### Legal Research Features
 - **Pakistan Law Filters**: Jurisdiction, legal area, document type, court level, journal filtering via SQL
@@ -142,7 +158,10 @@ Preferred communication style: Simple, everyday language.
   - AI Analysis: Futuristic dark theme matching dashboard
   - Case Analyzer: Three-column results layout with dark glassmorphic cards
 
-### Development and Deployment
-- **Python Environment**: Flask development server with debug mode
-- **Static Assets**: CSS and JavaScript files for frontend functionality
-- **Template Engine**: Jinja2 templating for dynamic HTML generation
+### Development and Deployment (November 2025)
+- **Backend**: Flask as pure REST API backend (no templates)
+- **Frontend**: React + Vite SPA served from Flask
+- **Build Process**: `npm run build` creates production build in `frontend/dist`
+- **Development**: Vite dev server (port 5173) with proxy to Flask (port 5000)
+- **Production**: Flask serves React build directly from `frontend/dist`
+- **Migration Complete**: All Flask templates migrated to React components

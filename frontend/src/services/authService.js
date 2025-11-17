@@ -14,64 +14,13 @@ const authAPI = axios.create({
 
 const authService = {
   /**
-   * User login
-   * @param {string} username - Username or email
-   * @param {string} password - Password
-   * @param {boolean} remember - Remember me
-   * @returns {Promise} - Login response
-   */
-  login: async (username, password, remember = false) => {
-    const formData = new FormData()
-    formData.append('username', username)
-    formData.append('password', password)
-    if (remember) {
-      formData.append('remember', 'on')
-    }
-
-    const response = await authAPI.post('/login', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-    return response.data
-  },
-
-  /**
-   * User registration
-   * @param {Object} userData - User data (username, email, password)
-   * @returns {Promise} - Registration response
-   */
-  register: async (userData) => {
-    const formData = new FormData()
-    formData.append('username', userData.username)
-    formData.append('email', userData.email)
-    formData.append('password', userData.password)
-
-    const response = await authAPI.post('/register', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-    return response.data
-  },
-
-  /**
-   * User logout
-   * @returns {Promise} - Logout response
-   */
-  logout: async () => {
-    const response = await authAPI.get('/logout')
-    return response.data
-  },
-
-  /**
-   * API-based login (JSON)
+   * User login (JSON API)
    * @param {string} username - Username or email
    * @param {string} password - Password
    * @returns {Promise} - Login response
    */
-  apiLogin: async (username, password) => {
-    const response = await authAPI.post('/api/login', {
+  login: async (username, password) => {
+    const response = await authAPI.post('/login', {
       username,
       password,
     })
@@ -79,21 +28,30 @@ const authService = {
   },
 
   /**
-   * API-based registration (JSON)
-   * @param {Object} userData - User data
+   * User registration (JSON API)
+   * @param {Object} userData - User data (username, email, password)
    * @returns {Promise} - Registration response
    */
-  apiRegister: async (userData) => {
-    const response = await authAPI.post('/api/register', userData)
+  register: async (userData) => {
+    const response = await authAPI.post('/register', userData)
     return response.data
   },
 
   /**
-   * Get current user profile
-   * @returns {Promise} - User profile
+   * User logout (JSON API)
+   * @returns {Promise} - Logout response
    */
-  getProfile: async () => {
-    const response = await authAPI.get('/profile')
+  logout: async () => {
+    const response = await authAPI.post('/logout')
+    return response.data
+  },
+
+  /**
+   * Check session status
+   * @returns {Promise} - Session status
+   */
+  checkSession: async () => {
+    const response = await authAPI.get('/session')
     return response.data
   },
 }
