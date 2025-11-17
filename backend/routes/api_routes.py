@@ -1120,3 +1120,243 @@ def api_generate_headnotes(citation_id):
         logging.error(f"Error generating headnotes for citation {citation_id}: {str(e)}")
         db.session.rollback()
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
+
+# ==================== USER PROFILE API ====================
+
+@api_bp.route('/profile', methods=['GET', 'PUT'])
+@login_required
+def api_profile():
+    """Get or update user profile"""
+    user_id = session.get('user_id')
+    user = User.query.get_or_404(user_id)
+    
+    if request.method == 'GET':
+        return jsonify({
+            'success': True,
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'is_admin': user.is_admin,
+                'created_at': user.created_at.isoformat() if hasattr(user, 'created_at') and user.created_at else None
+            }
+        })
+    
+    elif request.method == 'PUT':
+        data = request.get_json()
+        
+        try:
+            if 'username' in data and data['username']:
+                user.username = data['username']
+            if 'email' in data and data['email']:
+                user.email = data['email']
+            
+            db.session.commit()
+            
+            return jsonify({
+                'success': True,
+                'message': 'Profile updated successfully',
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'is_admin': user.is_admin
+                }
+            })
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@api_bp.route('/upload_citation', methods=['POST'])
+@login_required
+def api_upload_citation():
+    """
+    Upload a legal citation with metadata and optional file
+    POST /api/upload_citation
+    """
+    try:
+        from services.ocr_service import extract_text_from_file
+        from services.utils import extract_journal_from_citation
+        
+        citation_text = request.form.get('citation', '').strip()
+        if not citation_text:
+            return jsonify({'success': False, 'error': 'Citation is required'}), 400
+        
+        # Extract journal automatically
+        journal = request.form.get('journal') or extract_journal_from_citation(citation_text)
+        
+        # Get file if provided
+        full_text = request.form.get('summary', '')
+        file_path = None
+        
+        if 'file' in request.files:
+            file = request.files['file']
+            if file.filename:
+                filename = secure_filename(file.filename)
+                upload_folder = os.path.join(os.getcwd(), 'uploads')
+                os.makedirs(upload_folder, exist_ok=True)
+                file_path = os.path.join(upload_folder, filename)
+                file.save(file_path)
+                
+                # Extract text from file
+                extracted_text = extract_text_from_file(file_path)
+                if extracted_text:
+                    full_text = extracted_text
+        
+        # Create citation
+        citation = LegalCitation(
+            citation=citation_text,
+            court=request.form.get('court', ''),
+            year=int(request.form.get('year')) if request.form.get('year') else None,
+            journal=journal,
+            page_no=request.form.get('page_no', ''),
+            party_line=request.form.get('party_line', ''),
+            legal_area=request.form.get('legal_area', ''),
+            summary=request.form.get('summary', ''),
+            headnotes=request.form.get('headnotes', ''),
+            keywords=request.form.get('keywords', ''),
+            full_text=full_text,
+            file_path=file_path,
+            uploaded_by=session.get('user_id'),
+            document_type='case'
+        )
+        
+        db.session.add(citation)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Citation uploaded successfully',
+            'citation_id': citation.id
+        })
+        
+    except Exception as e:
+        logging.error(f"Citation upload error: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@api_bp.route('/upload_multi_pdf', methods=['POST'])
+@login_required
+def api_upload_multi_pdf():
+    """
+    Bulk upload multiple PDF files
+    POST /api/upload_multi_pdf
+    """
+    try:
+        from services.ocr_service import extract_text_from_file
+        from services.utils import extract_journal_from_citation
+        
+        files = request.files.getlist('files')
+        
+        if not files:
+            return jsonify({'success': False, 'error': 'No files provided'}), 400
+        
+        successful = []
+        failed = []
+        upload_folder = os.path.join(os.getcwd(), 'uploads')
+        os.makedirs(upload_folder, exist_ok=True)
+        
+        for file in files:
+            if not file.filename:
+                continue
+                
+            try:
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(upload_folder, filename)
+                file.save(file_path)
+                
+                # Extract text
+                text_content = extract_text_from_file(file_path)
+                
+                if not text_content:
+                    failed.append(f"{filename}: Could not extract text")
+                    continue
+                
+                # Use filename as citation
+                citation_text = filename.replace('.pdf', '').replace('_', ' ')
+                journal = extract_journal_from_citation(citation_text)
+                
+                citation = LegalCitation(
+                    citation=citation_text,
+                    journal=journal,
+                    full_text=text_content,
+                    summary=text_content[:500],
+                    file_path=file_path,
+                    file_type='pdf',
+                    uploaded_by=session.get('user_id'),
+                    document_type='case'
+                )
+                
+                db.session.add(citation)
+                successful.append(filename)
+                
+            except Exception as e:
+                failed.append(f"{filename}: {str(e)}")
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'results': {
+                'successful': successful,
+                'failed': failed,
+                'summary': f"Uploaded {len(successful)} of {len(files)} files successfully"
+            }
+        })
+        
+    except Exception as e:
+        logging.error(f"Multi-PDF upload error: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@api_bp.route('/shared/<code>', methods=['GET'])
+def api_get_shared_excerpt(code):
+    """
+    Get shared excerpt by code
+    GET /api/shared/<code>
+    """
+    try:
+        from models.shared_excerpt import SharedExcerpt
+        from datetime import datetime
+        
+        excerpt = SharedExcerpt.query.filter_by(share_code=code).first()
+        
+        if not excerpt:
+            return jsonify({'success': False, 'error': 'Excerpt not found'}), 404
+        
+        # Check if expired
+        if excerpt.expires_at and excerpt.expires_at < datetime.utcnow():
+            return jsonify({'success': False, 'error': 'This excerpt has expired'}), 410
+        
+        if excerpt.is_revoked:
+            return jsonify({'success': False, 'error': 'This excerpt has been revoked'}), 403
+        
+        # Increment view count
+        excerpt.view_count = (excerpt.view_count or 0) + 1
+        db.session.commit()
+        
+        # Get citation details
+        citation = LegalCitation.query.get(excerpt.citation_id)
+        
+        return jsonify({
+            'success': True,
+            'excerpt': {
+                'excerpt_text': excerpt.excerpt_text,
+                'citation': citation.citation if citation else '',
+                'citation_id': excerpt.citation_id,
+                'party_line': citation.party_line if citation else '',
+                'court': citation.court if citation else '',
+                'year': citation.year if citation else None,
+                'journal': citation.journal if citation else '',
+                'created_at': excerpt.created_at.isoformat() if excerpt.created_at else None,
+                'view_count': excerpt.view_count
+            }
+        })
+        
+    except Exception as e:
+        logging.error(f"Error retrieving shared excerpt: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
