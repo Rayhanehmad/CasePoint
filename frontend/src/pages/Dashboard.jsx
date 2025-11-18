@@ -7,7 +7,10 @@ import {
   Users, 
   TrendingUp,
   Clock,
-  Database
+  Database,
+  Sparkles,
+  Brain,
+  Wand2
 } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 import api from '../services/api'
@@ -46,32 +49,49 @@ const Dashboard = () => {
     }
   }
 
+  const aiTools = [
+    {
+      name: 'AI Legal Analysis',
+      description: 'Get AI-powered insights on Pakistan law',
+      href: '/ai-analysis',
+      icon: Sparkles,
+      color: 'bg-gradient-to-br from-purple-500 to-pink-500'
+    },
+    {
+      name: 'Case Analyzer',
+      description: 'AI counter-arguments & applicable laws',
+      href: '/case-analyzer',
+      icon: Brain,
+      color: 'bg-gradient-to-br from-blue-500 to-cyan-500'
+    },
+    {
+      name: 'Citation Generator',
+      description: 'Generate properly formatted citations',
+      href: '/citation-generator',
+      icon: Wand2,
+      color: 'bg-gradient-to-br from-green-500 to-emerald-500'
+    }
+  ]
+
   const quickActions = [
     {
       name: 'Citation Search',
       description: 'Search by journal, court, year, parties',
-      href: '/citation-search',
+      href: '/search',
       icon: Search,
       color: 'bg-blue-500 hover:bg-blue-600'
     },
     {
-      name: 'Advanced Search',
-      description: 'Multi-field legal research search',
-      href: '/advanced-search',
-      icon: Search,
-      color: 'bg-emerald-500 hover:bg-emerald-600'
-    },
-    {
       name: 'Upload Documents',
       description: 'Add new legal documents',
-      href: '/documents',
+      href: '/upload-citation',
       icon: FileText,
       color: 'bg-green-500 hover:bg-green-600'
     },
     {
-      name: 'View Analytics',
-      description: 'Check usage statistics',
-      href: '/analytics',
+      name: 'Compare Cases',
+      description: 'Side-by-side case comparison',
+      href: '/compare',
       icon: BarChart3,
       color: 'bg-purple-500 hover:bg-purple-600'
     }
@@ -133,6 +153,36 @@ const Dashboard = () => {
               </p>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* AI Tools Section */}
+      <div className="card">
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="h-5 w-5 text-purple-600" />
+          <h2 className="text-lg font-semibold text-gray-900">AI-Powered Tools</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {aiTools.map((tool) => {
+            const Icon = tool.icon
+            return (
+              <Link
+                key={tool.name}
+                to={tool.href}
+                className="group relative overflow-hidden rounded-xl border border-gray-200 hover:border-transparent hover:shadow-lg transition-all duration-300"
+              >
+                <div className="p-6">
+                  <div className={`inline-flex p-3 ${tool.color} rounded-xl text-white mb-4`}>
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-base font-semibold text-gray-900 mb-1 group-hover:text-purple-600 transition-colors">
+                    {tool.name}
+                  </h3>
+                  <p className="text-sm text-gray-600">{tool.description}</p>
+                </div>
+              </Link>
+            )
+          })}
         </div>
       </div>
 
