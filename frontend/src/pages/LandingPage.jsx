@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, UploadCloud, Sparkles, Menu } from "lucide-react";
+import { Search, UploadCloud, Sparkles, Menu, Brain, Wand2 } from "lucide-react";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -19,6 +19,30 @@ export default function LandingPage() {
       navigate(`/ai-analysis?q=${encodeURIComponent(aiQuery)}`);
     }
   };
+
+  const aiTools = [
+    {
+      name: "AI Legal Analysis",
+      description: "Get AI-powered insights and analysis on Pakistan law with relevant citations",
+      icon: Sparkles,
+      href: "/ai-analysis",
+      gradient: "from-purple-500 to-pink-500"
+    },
+    {
+      name: "Case Analyzer",
+      description: "Generate AI counter-arguments and detect applicable laws from legal narratives",
+      icon: Brain,
+      href: "/case-analyzer",
+      gradient: "from-blue-500 to-cyan-500"
+    },
+    {
+      name: "Citation Generator",
+      description: "Create properly formatted legal citations using AI for Pakistan legal standards",
+      icon: Wand2,
+      href: "/citation-generator",
+      gradient: "from-green-500 to-emerald-500"
+    }
+  ];
 
   const journals = [
     { code: "PLD", name: "Pakistan Legal Decisions" },
@@ -91,6 +115,38 @@ export default function LandingPage() {
           >
             Search
           </button>
+        </div>
+      </div>
+
+      {/* AI-Powered Tools */}
+      <div className="w-full max-w-4xl mt-10 px-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="w-6 h-6 text-purple-600" />
+          <h3 className="text-xl font-semibold text-gray-800">AI-Powered Legal Tools</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {aiTools.map((tool, i) => {
+            const Icon = tool.icon;
+            return (
+              <button
+                key={i}
+                onClick={() => navigate(tool.href)}
+                className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 text-left group overflow-hidden"
+              >
+                <div className="p-6">
+                  <div className={`inline-flex p-3 bg-gradient-to-br ${tool.gradient} rounded-xl text-white mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
+                    {tool.name}
+                  </h4>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {tool.description}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
