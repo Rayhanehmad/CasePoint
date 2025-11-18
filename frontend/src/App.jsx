@@ -5,6 +5,7 @@ import Navbar from './components/Navbar'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import Dashboard from './pages/Dashboard'
 import UnifiedSearch from './pages/UnifiedSearch'
 import CaseDetailPage from './pages/CaseDetailPage'
 import ActsPage from './pages/ActsPage'
@@ -20,6 +21,8 @@ import ProfilePage from './pages/ProfilePage'
 import SharedExcerptPage from './pages/SharedExcerptPage'
 import HowToUsePage from './pages/HowToUsePage'
 import ProtectedRoute from './components/ProtectedRoute'
+import DocumentsPage from './pages/DocumentsPage'
+import SubscriptionPage from './pages/SubscriptionPage'
 
 function App() {
   const { user, isLoading } = useAuthStore()
@@ -50,6 +53,16 @@ function App() {
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/how-to-use" element={<HowToUsePage />} />
               
+              {/* Dashboard */}
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              
               {/* Legal research routes */}
               <Route path="/search" element={<UnifiedSearch />} />
               
@@ -64,6 +77,24 @@ function App() {
               <Route path="/ai-analysis" element={<AIAnalysisPage />} />
               <Route path="/case-analyzer" element={<CaseAnalyzerPage />} />
               <Route path="/citation-generator" element={<CitationGenerator />} />
+              
+              {/* Documents and Subscription */}
+              <Route 
+                path="/documents" 
+                element={
+                  <ProtectedRoute>
+                    <DocumentsPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/subscription" 
+                element={
+                  <ProtectedRoute>
+                    <SubscriptionPage />
+                  </ProtectedRoute>
+                } 
+              />
               
               {/* Upload routes */}
               <Route 
