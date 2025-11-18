@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>KanoonPK - Legal AI Research</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; background: #f4f6f9; }
+    h1 { color: #2c3e50; }
+    .box { background: white; padding: 20px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    input, textarea, button { width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #ccc; border-radius: 5px; }
+    button { background: #2c3e50; color: white; font-weight: bold; cursor: pointer; }
+    button:hover { background: #1a242f; }
+    .tabs { display: flex; margin-top: 10px; }
+    .tab { padding: 10px; flex: 1; text-align: center; cursor: pointer; background: #eee; border: 1px solid #ccc; }
+    .tab.active { background: #2c3e50; color: white; }
+    .tab-content { display: none; margin-top: 15px; }
+    .tab-content.active { display: block; }
+  </style>
+</head>
+<body>
+  <h1>KanoonPK ⚖️</h1>
+
+  <!-- Upload Judgment -->
+  <div class="box">
+    <h2>Upload Judgment</h2>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="text" name="title" placeholder="Case Title" required><br>
+      <input type="text" name="court" placeholder="Court" required><br>
+      <input type="date" name="date" required><br>
+      <input type="file" name="file" accept=".pdf,.txt" required><br>
+      <button type="submit">Upload</button>
+    </form>
+    <p id="uploadMsg"></p>
+  </div>
+
+  <!-- Results -->
+  <div class="box" id="results" style="display:none;">
+    <h2>Judgment Details</h2>
+    <div><strong>Case Title:</strong> <span id="resTitle"></span></div>
+    <div><strong>Court:</strong> <span id="resCourt"></span></div>
+    <div><strong>Date:</strong> <span id="resDate"></span></div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('headnote')">Headnote</div>
+      <div class="tab" onclick="showTab('summary')">Summary</div>
+      <div class="tab" onclick="showTab('fulltext')">Full Judgment</div>
+      <div class="tab" onclick="showTab('chat')">Chat</div>
+    </div>
+
+    <div id="headnote" class="tab-content active"><p id="resHeadnote"></p></div>
+    <div id="summary" class="tab-content"><p id="resSummary"></p></div>
+    <div id="fulltext" class="tab-content"><pre id="resText" style="white-space:pre-wrap;"></pre></div>
+    <div id="chat" class="tab-content">
+      <textarea id="query" placeholder="Ask a question about this judgment"></textarea><br>
+      <button onclick="chatJudgment()">Ask</button>
+      <p><strong>Answer:</strong> <span id="answer"></span></p>
+    </div>
+  </div>
+
+  <script>
+    let currentId = null;
+
+    function showTab(tabId) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // Upload judgment
+    document.getElementById("uploadForm").onsubmit = async (e) => {
+      e.preventDefault();
+      let formData = new FormData(e.target);
+      let res = await fetch("/upload-judgment/", { method: "POST", body: formData });
+      let data = await res.json();
+      currentId = data.judgment_id;
+      document.getElementById("uploadMsg").innerText = "Uploaded! Judgment ID: " + data.judgment_id;
+
+      // Show details
+      document.getElementById("results").style.display = "block";
+      document.getElementById("resTitle").innerText = formData.get("title");
+      document.getElementById("resCourt").innerText = formData.get("court");
+      document.getElementById("resDate").innerText = formData.get("date");
+      document.getElementById("resHeadnote").innerText = "Headnote for " + formData.get("title");
+      document.getElementById("resSummary").innerText = "Summary for " + formData.get("title");
+      document.getElementById("resText").innerText = "Judgment text extracted...";
+    };
+
+    // Chat with judgment
+    async function chatJudgment() {
+      let query = document.getElementById("query").value;
+      let res = await fetch("/chat-judgment/", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({judgment_id: currentId, query: query})
+      });
+      let data = await res.json();
+      document.getElementById("answer").innerText = data.answer;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container-fluid">
+    <h1 class="h2 mb-4">CasePoint Admin Dashboard</h1>
+    
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Cases</h5>
+                    <h2 class="card-text">{{ total_cases }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Acts</h5>
+                    <h2 class="card-text">{{ total_acts }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Rules</h5>
+                    <h2 class="card-text">{{ total_rules }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <h2 class="card-text">{{ total_users }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{{ url_for('admin_api.upload_citation') }}" class="btn btn-primary">
+                        <i class="fa fa-upload"></i> Upload Single Citation
+                    </a>
+                    <a href="{{ url_for('all_citations.index_view') }}" class="btn btn-secondary">
+                        <i class="fa fa-database"></i> Manage All Citations
+                    </a>
+                    <a href="{{ url_for('user.index_view') }}" class="btn btn-info">
+                        <i class="fa fa-users"></i> Manage Users
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

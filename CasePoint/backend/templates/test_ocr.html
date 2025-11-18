@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Test OCR - CasePoint{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/casepoint-brand.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="cp-bg-light" style="min-height: 100vh;">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="cp-glass-card">
+                    <div class="card-header cp-gradient-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-file-upload me-2"></i>OCR Document Upload Test
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="cp-alert" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--cp-accent); padding: 1rem;">
+                            <i class="fas fa-info-circle me-2" style="color: var(--cp-accent);"></i>
+                            <strong style="color: var(--cp-text-dark);">Tesseract OCR Enabled!</strong> 
+                            <span style="color: var(--cp-text-dark);">Upload scanned documents, images, or PDFs to extract text automatically.</span>
+                        </div>
+                        
+                        <p class="mb-4" style="color: var(--cp-text-dark);">
+                            Supported formats: PDF, PNG, JPG, JPEG, TIFF, BMP, DOCX, DOC, TXT
+                        </p>
+                        
+                        <form id="uploadForm" enctype="multipart/form-data">
+                            <div class="mb-4">
+                                <label for="fileInput" class="form-label fw-bold" style="color: var(--cp-text-dark);">Select Document</label>
+                                <input type="file" 
+                                       class="form-control cp-input" 
+                                       id="fileInput" 
+                                       name="file"
+                                       accept=".pdf,.png,.jpg,.jpeg,.tiff,.tif,.bmp,.docx,.doc,.txt"
+                                       required>
+                                <div class="form-text" style="color: var(--cp-text-dark); opacity: 0.6;">
+                                    Maximum file size: 16MB
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="cp-btn-primary btn-lg" id="uploadBtn">
+                                    <i class="fas fa-upload me-2"></i>Upload & Extract Text
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div id="loadingDiv" class="text-center mt-4" style="display: none;">
+                            <div class="spinner-border mb-2" style="color: var(--cp-primary);" role="status">
+                                <span class="visually-hidden">Processing...</span>
+                            </div>
+                            <p class="mt-2" style="color: var(--cp-text-dark);">Processing document with OCR...</p>
+                        </div>
+                        
+                        <div id="resultDiv" class="mt-4" style="display: none;">
+                            <div class="cp-alert" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--cp-accent); padding: 1rem;">
+                                <h5 style="color: var(--cp-accent);"><i class="fas fa-check-circle me-2"></i>Text Extracted Successfully!</h5>
+                                <p class="mb-0" style="color: var(--cp-text-dark);">
+                                    <strong>File:</strong> <span id="resultFilename"></span><br>
+                                    <strong>Type:</strong> <span id="resultType"></span><br>
+                                    <strong>Confidence:</strong> <span id="resultConfidence"></span>%
+                                </p>
+                            </div>
+                            
+                            <div class="cp-glass-card">
+                                <div class="card-header" style="background: var(--cp-background); border-bottom: 1px solid rgba(30, 58, 138, 0.1);">
+                                    <h6 class="mb-0" style="color: var(--cp-primary);">Extracted Text</h6>
+                                </div>
+                                <div class="card-body">
+                                    <pre id="extractedText" style="white-space: pre-wrap; max-height: 400px; overflow-y: auto; color: var(--cp-text-dark);"></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="errorDiv" class="alert alert-danger mt-4" style="display: none;">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span id="errorMessage"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="cp-glass-card mt-4">
+                    <div class="card-header" style="background: var(--cp-background); border-bottom: 1px solid rgba(30, 58, 138, 0.1);">
+                        <h5 class="mb-0" style="color: var(--cp-primary);">
+                            <i class="fas fa-question-circle me-2"></i>How it Works
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ol style="color: var(--cp-text-dark);">
+                            <li><strong>Text-based PDFs:</strong> Text is extracted directly (100% accuracy)</li>
+                            <li><strong>Scanned PDFs:</strong> Pages are converted to images and processed with Tesseract OCR</li>
+                            <li><strong>Images:</strong> Tesseract OCR extracts text from JPG, PNG, TIFF, BMP files</li>
+                            <li><strong>DOCX Files:</strong> Text is extracted from Word documents</li>
+                            <li><strong>Confidence Score:</strong> Shows reliability of OCR extraction (higher is better)</li>
+                        </ol>
+                        
+                        <div class="cp-alert mb-0" style="background: rgba(30, 58, 138, 0.05); border-left: 4px solid var(--cp-primary); padding: 1rem;">
+                            <strong style="color: var(--cp-primary);">Technology:</strong> 
+                            <span style="color: var(--cp-text-dark);">Tesseract OCR (Open Source) + PyMuPDF for PDFs</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        alert('Please select a file');
+        return;
+    }
+    
+    document.getElementById('loadingDiv').style.display = 'block';
+    document.getElementById('resultDiv').style.display = 'none';
+    document.getElementById('errorDiv').style.display = 'none';
+    document.getElementById('uploadBtn').disabled = true;
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+        const response = await fetch('/upload-document', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        document.getElementById('loadingDiv').style.display = 'none';
+        document.getElementById('uploadBtn').disabled = false;
+        
+        if (data.success) {
+            document.getElementById('resultFilename').textContent = data.filename;
+            document.getElementById('resultType').textContent = data.file_type.toUpperCase();
+            document.getElementById('resultConfidence').textContent = data.confidence.toFixed(1);
+            document.getElementById('extractedText').textContent = data.text;
+            document.getElementById('resultDiv').style.display = 'block';
+        } else {
+            document.getElementById('errorMessage').textContent = data.error || 'Unknown error occurred';
+            document.getElementById('errorDiv').style.display = 'block';
+        }
+    } catch (error) {
+        document.getElementById('loadingDiv').style.display = 'none';
+        document.getElementById('uploadBtn').disabled = false;
+        document.getElementById('errorMessage').textContent = 'Upload failed: ' + error.message;
+        document.getElementById('errorDiv').style.display = 'block';
+    }
+});
+</script>
+{% endblock %}

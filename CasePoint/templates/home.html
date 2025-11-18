@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}KanoonPK - Legal Intelligence, Simplified by AI{% endblock %}
+
+{% block content %}
+<!-- Main Container -->
+<div class="min-vh-100" style="background-color: #F5F5F5;">
+    <div class="container py-5">
+        <!-- Hero Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold mb-3" style="color: #1E40AF;">Welcome to KanoonPK</h1>
+            <p class="lead text-muted">Legal Intelligence, Simplified by AI</p>
+        </div>
+
+        <!-- Main Search Section -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 rounded-3 p-4">
+                    <h3 class="mb-3">Search Legal Database</h3>
+                    <form action="{{ url_for('search') }}" method="GET">
+                        <div class="input-group input-group-lg">
+                            <input type="text" 
+                                   class="form-control" 
+                                   name="q"
+                                   placeholder="Search by citation, title, or keywords..."
+                                   required>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search me-2"></i>Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="row g-4 mb-5">
+            <!-- AI Analysis Card -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 rounded-3">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-robot fa-3x" style="color: #2563EB;"></i>
+                        </div>
+                        <h4 class="card-title mb-3">AI Legal Analysis</h4>
+                        <p class="card-text text-muted mb-4">
+                            Get intelligent answers to your legal questions powered by AI
+                        </p>
+                        <a href="{{ url_for('ai.ai_analysis') }}" class="btn btn-outline-primary">
+                            Try AI Analysis
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Search Card -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 rounded-3">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-gavel fa-3x" style="color: #2563EB;"></i>
+                        </div>
+                        <h4 class="card-title mb-3">Search Cases</h4>
+                        <p class="card-text text-muted mb-4">
+                            Explore Pakistan's comprehensive legal case database
+                        </p>
+                        <a href="{{ url_for('cases.search_cases') }}" class="btn btn-outline-primary">
+                            Browse Cases
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statutes & Acts Card -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 rounded-3">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-book fa-3x" style="color: #2563EB;"></i>
+                        </div>
+                        <h4 class="card-title mb-3">Statutes & Acts</h4>
+                        <p class="card-text text-muted mb-4">
+                            Access Pakistani legislation and legal statutes
+                        </p>
+                        <a href="{{ url_for('acts.search_statutes') }}" class="btn btn-outline-primary">
+                            View Statutes
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Section (only for admins) -->
+        {% if session.get('role') == 'admin' %}
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-success shadow-sm rounded-3">
+                    <div class="card-body text-center p-4">
+                        <h4 class="text-success mb-3">
+                            <i class="fas fa-shield-alt me-2"></i>Admin Access
+                        </h4>
+                        <p class="text-muted mb-4">
+                            Manage legal citations, upload documents, and view system statistics
+                        </p>
+                        <a href="/admin" class="btn btn-success">
+                            <i class="fas fa-cog me-2"></i>Go to Admin Panel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Statistics Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-body p-4">
+                        <h3 class="mb-4 text-center">Database Statistics</h3>
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <div class="p-3">
+                                    <i class="fas fa-file-alt fa-2x mb-2" style="color: #2563EB;"></i>
+                                    <h4 class="fw-bold">{{ stats.total_citations or 0 }}</h4>
+                                    <p class="text-muted mb-0">Total Citations</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3">
+                                    <i class="fas fa-gavel fa-2x mb-2" style="color: #2563EB;"></i>
+                                    <h4 class="fw-bold">{{ stats.total_cases or 0 }}</h4>
+                                    <p class="text-muted mb-0">Legal Cases</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3">
+                                    <i class="fas fa-book fa-2x mb-2" style="color: #2563EB;"></i>
+                                    <h4 class="fw-bold">{{ stats.total_acts or 0 }}</h4>
+                                    <p class="text-muted mb-0">Acts & Statutes</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.btn-outline-primary {
+    border-width: 2px;
+}
+
+.btn-outline-primary:hover {
+    transform: scale(1.05);
+}
+</style>
+{% endblock %}

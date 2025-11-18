@@ -1,0 +1,62 @@
+Add an “AI Headnotes” feature to CasePoint citation viewer.
+
+GOALS:
+1. For every citation (e.g., PLD 2025 SC 1), show a new section named:
+   “AI Headnotes”
+   placed above the AI Summary section or below the full text.
+
+2. Add a button:
+   “Generate AI Headnotes”
+   - On click, send citation.full_text to backend
+   - AI produces legal-style headnotes in short bullet points
+   - Headnotes must include:
+       • Issues involved
+       • Statutes applied
+       • Court observations
+       • Ratio decidendi
+       • Relief granted
+   - Save headnotes in database (LegalCitation.ai_headnotes)
+   - If headnotes already exist, display them without regenerating
+
+3. Backend Changes:
+   - Add field to LegalCitation model:
+       ai_headnotes = db.Column(db.Text)
+   - Create new endpoint:
+       POST /api/generate_headnotes/<citation_id>
+   - Load citation.full_text
+   - Use LLM with the following prompt:
+
+     “You are a senior Pakistani law expert. Based on the following judgment/citation text, generate professional headnotes similar to PLD/SCMR style. Each headnote must be precise, issue-based, and legally accurate. Include: Issues, Legal Questions, Statutory Provisions Applied, Court Reasoning, and Final Decision. Text: {full_text}”
+
+   - Save returned headnotes in DB
+   - Return JSON {headnotes: “…text…”}
+
+4. Frontend (React):
+   - Update CitationDetail.jsx (or equivalent)
+   - Add new UI block:
+       <h2>AI Headnotes</h2>
+       If headnotes exist → display formatted
+       Else → show “Generate AI Headnotes” button
+   - When clicked:
+       - Call POST /api/generate_headnotes/:id
+       - Show loader during generation
+       - Insert headnotes into the page dynamically
+       - Do not refresh page
+
+5. UI Requirements:
+   - Use Tailwind
+   - Headnotes must appear in a styled box with:
+       background: neutral-light
+       border: rounded-xl
+       padding: 1.5rem
+       text: dark, professional font
+   - Each headnote in bullet or numbered format
+   - Provide optional button “Regenerate Headnotes”
+
+6. Integration Notes:
+   - Work with the existing AI Summary feature
+   - Summary and Headnotes must be independent
+   - Headnotes stored in DB to reduce API cost
+   - Support large full_text inputs
+
+Implement this EXACTLY across backend + frontend + DB.

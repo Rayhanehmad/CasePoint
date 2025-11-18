@@ -1,0 +1,488 @@
+{% extends "base.html" %}
+
+{% block title %}AI Legal Analysis - CasePoint{% endblock %}
+
+{% block content %}
+<!-- Light theme wrapper -->
+<div class="cp-bg-light" style="margin: -1.5rem; padding: 1.5rem; min-height: 100vh;">
+
+<style>
+/* AI Analysis light theme using CasePoint brand */
+.ai-light .cp-analysis-hero {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(30, 58, 138, 0.1);
+    border-radius: var(--cp-radius-lg);
+    box-shadow: var(--cp-shadow-lg);
+    padding: 2rem;
+}
+
+.ai-light .cp-analysis-hero h2 {
+    font-family: 'Merriweather', serif;
+    color: var(--cp-primary);
+}
+
+.ai-light .cp-analysis-hero .lead {
+    color: var(--cp-text-dark);
+}
+
+.ai-light .cp-analysis-hero i {
+    color: var(--cp-accent);
+}
+
+.ai-light .cp-glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(30, 58, 138, 0.1);
+    border-radius: var(--cp-radius-lg);
+    box-shadow: var(--cp-shadow-lg);
+}
+
+.ai-light .cp-card-header {
+    background: linear-gradient(135deg, var(--cp-primary), var(--cp-accent));
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: var(--cp-radius-lg) var(--cp-radius-lg) 0 0;
+    border-bottom: none;
+}
+
+.ai-light .cp-card-header h5 {
+    font-family: 'Merriweather', serif;
+    margin: 0;
+}
+
+.ai-light .form-control {
+    border: 1px solid rgba(30, 58, 138, 0.2);
+    border-radius: var(--cp-radius-md);
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    color: var(--cp-text-dark);
+}
+
+.ai-light .form-control:focus {
+    border-color: var(--cp-primary);
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+    outline: none;
+}
+
+.ai-light .form-label {
+    color: var(--cp-text-dark);
+    font-weight: 600;
+}
+
+.ai-light .form-text {
+    color: #64748b;
+}
+
+.ai-light .cp-btn-primary {
+    background: var(--cp-primary);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--cp-radius-md);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.ai-light .cp-btn-primary:hover {
+    background: linear-gradient(90deg, #1E3A8A, #10B981);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(30, 58, 138, 0.3);
+    color: white;
+}
+
+.ai-light .btn-outline-secondary {
+    color: var(--cp-text-dark);
+    border-color: rgba(30, 58, 138, 0.3);
+    border-radius: var(--cp-radius-md);
+}
+
+.ai-light .btn-outline-secondary:hover {
+    background: rgba(30, 58, 138, 0.1);
+    color: var(--cp-primary);
+    border-color: var(--cp-primary);
+}
+
+.ai-light .cp-feature-card {
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: var(--cp-radius-md);
+    border: 1px solid rgba(30, 58, 138, 0.1);
+    transition: all 0.3s ease;
+}
+
+.ai-light .cp-feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--cp-shadow-xl);
+}
+
+.ai-light .cp-feature-card h6 {
+    font-family: 'Merriweather', serif;
+    color: var(--cp-primary);
+    margin-top: 1rem;
+}
+
+.ai-light .cp-feature-card p {
+    color: #64748b;
+}
+
+.ai-light .cp-feature-card i {
+    color: var(--cp-accent);
+}
+
+.ai-light .cp-question-display {
+    background: rgba(30, 58, 138, 0.05);
+    border-radius: var(--cp-radius-md);
+    padding: 1.5rem;
+    border-left: 4px solid var(--cp-primary);
+}
+
+.ai-light .cp-question-display h6 {
+    color: var(--cp-primary);
+    font-weight: 600;
+    font-family: 'Merriweather', serif;
+}
+
+.ai-light .cp-question-display p {
+    color: var(--cp-text-dark);
+}
+
+.ai-light .analysis-content {
+    color: var(--cp-text-dark);
+    line-height: 1.8;
+}
+
+.ai-light .cp-card-header-success {
+    background: linear-gradient(135deg, var(--cp-accent), var(--cp-secondary));
+}
+
+.ai-light .cp-alert-warning {
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid #fbbf24;
+    border-radius: var(--cp-radius-md);
+    padding: 1rem;
+    color: #92400e;
+}
+
+.ai-light .cp-alert-warning h6 {
+    color: #92400e;
+    font-weight: 600;
+}
+
+.ai-light .cp-example-section {
+    background: white;
+    padding: 3rem 0;
+}
+
+.ai-light .cp-example-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(30, 58, 138, 0.1);
+    border-radius: var(--cp-radius-lg);
+    box-shadow: var(--cp-shadow-md);
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.ai-light .cp-example-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--cp-shadow-xl);
+}
+
+.ai-light .cp-example-card h6 {
+    color: var(--cp-primary);
+    font-family: 'Merriweather', serif;
+    font-weight: 600;
+}
+
+.ai-light .cp-example-card p {
+    color: var(--cp-text-dark);
+}
+
+.ai-light .btn-outline-primary {
+    border-color: var(--cp-primary);
+    color: var(--cp-primary);
+}
+
+.ai-light .btn-outline-primary:hover {
+    background: var(--cp-primary);
+    color: white;
+}
+
+.ai-light .btn-sm.cp-btn-primary {
+    padding: 0.5rem 1rem;
+}
+
+.ai-light h3 {
+    font-family: 'Merriweather', serif;
+    color: var(--cp-primary);
+}
+</style>
+
+<div class="container py-5 ai-light">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- AI Analysis Hero -->
+            <div class="cp-analysis-hero text-center mb-5">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="fw-bold mb-3">
+                            <i class="fas fa-robot me-3"></i>AI-Powered Legal Analysis
+                        </h2>
+                        <p class="lead mb-0">
+                            Get intelligent legal research assistance specialized in Pakistan law. 
+                            Ask complex legal questions and receive comprehensive, well-cited analysis.
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <i class="fas fa-brain fa-4x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Analysis Form -->
+            {% if not analysis %}
+            <div class="cp-glass-card">
+                <div class="cp-card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-question-circle me-2"></i>Ask Your Legal Question
+                    </h5>
+                </div>
+                <div class="p-4">
+                    <form id="aiAnalysisForm" method="POST" action="{{ url_for('ai.ai_analysis') }}">
+                        <div class="mb-4">
+                            <label for="query" class="form-label fw-bold">Legal Question *</label>
+                            <textarea class="form-control" 
+                                      id="query" 
+                                      name="query" 
+                                      rows="4" 
+                                      placeholder="Enter your legal question or case details. For example: 'What are the grounds for divorce under Muslim Family Laws Ordinance 1961?' or 'Explain the procedure for filing a writ petition in High Court.'"
+                                      required>{{ query if query }}</textarea>
+                            <div class="form-text">
+                                <i class="fas fa-lightbulb me-1"></i>
+                                Be as specific as possible for more accurate analysis
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="context" class="form-label fw-bold">Additional Context (Optional)</label>
+                            <textarea class="form-control" 
+                                      id="context" 
+                                      name="context" 
+                                      rows="3" 
+                                      placeholder="Provide any relevant case law, statutes, previous judgments, or specific circumstances that might help in the analysis...">{{ context if context }}</textarea>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Additional context helps provide more targeted analysis
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('home') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Search
+                            </a>
+                            <button type="submit" class="btn cp-btn-primary btn-lg" id="aiSubmitBtn">
+                                <i class="fas fa-magic me-2"></i>Analyze with AI
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- AI Features -->
+            <div class="row g-4 mt-4">
+                <div class="col-md-4">
+                    <div class="cp-feature-card">
+                        <div class="mb-3">
+                            <i class="fas fa-balance-scale fa-2x"></i>
+                        </div>
+                        <h6>Pakistan Law Specialized</h6>
+                        <p class="small mb-0">Trained specifically on Pakistan's legal framework, statutes, and case law</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="cp-feature-card">
+                        <div class="mb-3">
+                            <i class="fas fa-quote-left fa-2x"></i>
+                        </div>
+                        <h6>Well-Cited Responses</h6>
+                        <p class="small mb-0">Provides references to relevant statutes, cases, and legal authorities</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="cp-feature-card">
+                        <div class="mb-3">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                        <h6>Instant Analysis</h6>
+                        <p class="small mb-0">Get comprehensive legal analysis in seconds, not hours</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- AI Analysis Result -->
+            {% if analysis %}
+            <div class="cp-glass-card">
+                <div class="cp-card-header cp-card-header-success">
+                    <h5 class="mb-0">
+                        <i class="fas fa-robot me-2"></i>AI Legal Analysis Results
+                    </h5>
+                </div>
+                <div class="p-4">
+                    <!-- Query Display -->
+                    <div class="mb-4 cp-question-display">
+                        <h6 class="mb-2">
+                            <i class="fas fa-question-circle me-2"></i>Your Question:
+                        </h6>
+                        <p class="mb-0 fst-italic">"{{ query }}"</p>
+                        {% if context %}
+                        <h6 class="mb-2 mt-3">
+                            <i class="fas fa-info-circle me-2"></i>Context Provided:
+                        </h6>
+                        <p class="mb-0">{{ context }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- AI Analysis Result -->
+                    <div class="ai-result">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-brain me-2"></i>AI Analysis:
+                        </h6>
+                        <div class="analysis-content">
+                            {{ analysis | replace('\n', '<br>') | safe }}
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn btn-outline-primary btn-sm" onclick="window.print()">
+                                <i class="fas fa-print me-1"></i>Print Analysis
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="copyAnalysis()">
+                                <i class="fas fa-copy me-1"></i>Copy to Clipboard
+                            </button>
+                            <a href="{{ url_for('ai.ai_analysis') }}" class="btn btn-sm cp-btn-primary">
+                                <i class="fas fa-plus me-1"></i>New Analysis
+                            </a>
+                            <a href="{{ url_for('home') }}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-home me-1"></i>Back to Home
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Disclaimer -->
+            <div class="cp-alert-warning mt-4">
+                <h6 class="alert-heading">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Important Disclaimer
+                </h6>
+                <p class="mb-0">
+                    This AI analysis is for informational purposes only and should not be considered as legal advice. 
+                    Always consult with a qualified legal professional for specific legal matters. 
+                    The analysis is based on available legal information and may not reflect the most recent legal developments.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if not analysis %}
+<!-- Example Questions Section -->
+<section class="py-5 cp-example-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h3 class="text-center mb-5">Example Legal Questions</h3>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card cp-example-card">
+                    <div class="card-body">
+                        <h6 class="card-title">Constitutional Law</h6>
+                        <p class="card-text">"What are the fundamental rights guaranteed under Articles 8-28 of the Constitution of Pakistan?"</p>
+                        <button class="btn btn-sm btn-outline-primary" onclick="fillExample(this)">Use This Example</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card cp-example-card">
+                    <div class="card-body">
+                        <h6 class="card-title">Family Law</h6>
+                        <p class="card-text">"Explain the procedure for Khula under the Muslim Family Laws Ordinance 1961."</p>
+                        <button class="btn btn-sm btn-outline-primary" onclick="fillExample(this)">Use This Example</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card cp-example-card">
+                    <div class="card-body">
+                        <h6 class="card-title">Criminal Law</h6>
+                        <p class="card-text">"What are the essential elements of theft under Section 378 of Pakistan Penal Code?"</p>
+                        <button class="btn btn-sm btn-outline-primary" onclick="fillExample(this)">Use This Example</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+</div>
+<!-- End light theme wrapper -->
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function fillExample(button) {
+    const cardText = button.parentElement.querySelector('.card-text').textContent;
+    const queryTextarea = document.getElementById('query');
+    if (queryTextarea) {
+        queryTextarea.value = cardText.replace(/"/g, '');
+        queryTextarea.focus();
+        // Scroll to form
+        document.getElementById('aiAnalysisForm').scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function copyAnalysis() {
+    const analysisContent = document.querySelector('.analysis-content');
+    if (analysisContent) {
+        const text = analysisContent.textContent || analysisContent.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            // Show success feedback
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+            button.classList.remove('btn-outline-secondary');
+            button.classList.add('btn-success');
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove('btn-success');
+                button.classList.add('btn-outline-secondary');
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+        });
+    }
+}
+
+// Form submission with loading state
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('aiAnalysisForm');
+    if (form) {
+        form.addEventListener('submit', function() {
+            const submitBtn = document.getElementById('aiSubmitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analyzing...';
+        });
+    }
+});
+</script>
+{% endblock %}
