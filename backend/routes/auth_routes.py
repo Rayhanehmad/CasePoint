@@ -85,15 +85,16 @@ def login():
     """API endpoint for user login"""
     data = request.get_json()
     
-    username = data.get('username', '').strip()
+    # Accept both 'email' and 'username' fields from frontend
+    username_or_email = data.get('email', data.get('username', '')).strip()
     password = data.get('password', '').strip()
     
-    if not username or not password:
-        return jsonify({'success': False, 'error': 'Username and password are required'}), 400
+    if not username_or_email or not password:
+        return jsonify({'success': False, 'error': 'Email/username and password are required'}), 400
     
     # Find user by username or email
     user = User.query.filter(
-        (User.username == username) | (User.email == username)
+        (User.username == username_or_email) | (User.email == username_or_email)
     ).first()
     
     if user and user.check_password(password):
