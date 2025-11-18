@@ -1,0 +1,55 @@
+/casepoint/
+├── backend/                    # Flask backend (Python)
+│   ├── models/                 # SQLAlchemy database models
+│   │   ├── user.py            # User authentication model
+│   │   └── case.py            # Legal citation/case model
+│   ├── routes/                 # Flask blueprints/routes
+│   │   ├── auth_routes.py     # Authentication (login, register)
+│   │   ├── case_routes.py     # Case search and details
+│   │   ├── act_routes.py      # Acts and statutes
+│   │   ├── ai_routes.py       # AI analysis endpoints
+│   │   ├── admin_routes.py    # Admin management
+│   │   └── api_routes.py      # REST API for React frontend
+│   ├── services/               # Business logic layer
+│   │   ├── ai_service.py      # OpenAI integration
+│   │   ├── ocr_service.py     # Document text extraction
+│   │   └── vector_search.py   # ChromaDB semantic search
+│   ├── templates/              # Jinja2 HTML templates
+│   ├── static/                 # CSS, JS, images
+│   ├── app.py                  # Flask application factory
+│   ├── config.py               # Configuration settings
+│   ├── admin.py                # Flask-Admin setup
+│   └── requirements.txt        # Python dependencies
+│
+├── frontend/                   # React frontend
+│   ├── src/
+│   │   ├── components/         # Reusable React components
+│   │   │   ├── Navbar.jsx
+│   │   │   └── ProtectedRoute.jsx
+│   │   ├── pages/              # Page components
+│   │   │   ├── LandingPage.jsx      # Homepage
+│   │   │   ├── SearchPage.jsx       # Search results
+│   │   │   ├── CaseDetailPage.jsx   # Case details
+│   │   │   ├── ActsPage.jsx         # Acts & Statutes
+│   │   │   ├── Dashboard.jsx        # User dashboard
+│   │   │   ├── LoginPage.jsx        # Authentication
+│   │   │   ├── RegisterPage.jsx
+│   │   │   ├── AdminPage.jsx        # Admin panel
+│   │   │   ├── AIAnalysisPage.jsx   # AI analysis
+│   │   │   └── CompareCasesPage.jsx
+│   │   ├── services/           # API service layer
+│   │   │   ├── api.js          # Axios configuration
+│   │   │   ├── authService.js  # Auth API calls
+│   │   │   └── caseService.js  # Case/Legal API calls
+│   │   ├── stores/             # Zustand state management
+│   │   │   └── authStore.js
+│   │   ├── App.jsx             # Main app component
+│   │   └── main.jsx            # Entry point
+│   ├── package.json
+│   ├── vite.config.js          # Vite configuration
+│   └── tailwind.config.js      # TailwindCSS config
+│
+├── uploads/                    # Document storage
+├── chroma_db/                  # ChromaDB vector database
+├── main.py                     # Application entry point
+└── README.md                   # This file

@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Citation - CasePoint{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/casepoint-brand.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="cp-bg-light" style="min-height: 100vh;">
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h2 class="cp-font-display" style="color: var(--cp-primary);"><i class="fas fa-upload me-2"></i>Upload Legal Citation</h2>
+            <p style="color: var(--cp-text-dark);">Add Pakistan law cases and judgments to the database</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="cp-glass-card">
+                <div class="card-header cp-gradient-primary text-white">
+                    <h5 class="mb-0 cp-font-display">Citation Information</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('admin_api.upload_citation') }}">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label for="title" class="form-label fw-bold" style="color: var(--cp-primary);">Case Title *</label>
+                                <input type="text" class="form-control cp-input" id="title" name="title" 
+                                       placeholder="e.g., Federation of Pakistan v. Gul Hassan Khan" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="citation" class="form-label fw-bold" style="color: var(--cp-primary);">Citation *</label>
+                                <input type="text" class="form-control cp-input" id="citation" name="citation" 
+                                       placeholder="e.g., PLD 1976 SC 57" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="court" class="form-label fw-bold" style="color: var(--cp-primary);">Court</label>
+                                <select class="form-select cp-input" id="court" name="court">
+                                    <option value="">Select Court</option>
+                                    <option value="Supreme Court">Supreme Court of Pakistan</option>
+                                    <option value="Sindh High Court">Sindh High Court</option>
+                                    <option value="Lahore High Court">Lahore High Court</option>
+                                    <option value="Peshawar High Court">Peshawar High Court</option>
+                                    <option value="Balochistan High Court">Balochistan High Court</option>
+                                    <option value="Islamabad High Court">Islamabad High Court</option>
+                                    <option value="Federal Shariat Court">Federal Shariat Court</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="jurisdiction" class="form-label fw-bold" style="color: var(--cp-primary);">Jurisdiction</label>
+                                <select class="form-select cp-input" id="jurisdiction" name="jurisdiction">
+                                    <option value="">Select Jurisdiction</option>
+                                    <option value="Federal">Federal</option>
+                                    <option value="Punjab">Punjab</option>
+                                    <option value="Sindh">Sindh</option>
+                                    <option value="KPK">Khyber Pakhtunkhwa</option>
+                                    <option value="Balochistan">Balochistan</option>
+                                    <option value="Islamabad">Islamabad</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="legal_area" class="form-label fw-bold" style="color: var(--cp-primary);">Legal Area</label>
+                                <select class="form-select cp-input" id="legal_area" name="legal_area">
+                                    <option value="">Select Legal Area</option>
+                                    <option value="Constitutional">Constitutional Law</option>
+                                    <option value="Criminal">Criminal Law</option>
+                                    <option value="Civil">Civil Law</option>
+                                    <option value="Family">Family Law</option>
+                                    <option value="Commercial">Commercial Law</option>
+                                    <option value="Tax">Tax Law</option>
+                                    <option value="Labor">Labor Law</option>
+                                    <option value="Administrative">Administrative Law</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="date_decided" class="form-label fw-bold" style="color: var(--cp-primary);">Date Decided</label>
+                                <input type="date" class="form-control cp-input" id="date_decided" name="date_decided">
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="year" class="form-label fw-bold" style="color: var(--cp-primary);">Year</label>
+                                <input type="number" class="form-control cp-input" id="year" name="year" 
+                                       placeholder="e.g., 1976" min="1947" max="2030">
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="case_type" class="form-label fw-bold" style="color: var(--cp-primary);">Case Type</label>
+                                <select class="form-select cp-input" id="case_type" name="case_type">
+                                    <option value="">Select Type</option>
+                                    <option value="Appeal">Appeal</option>
+                                    <option value="Writ">Writ Petition</option>
+                                    <option value="Review">Review</option>
+                                    <option value="Revision">Revision</option>
+                                    <option value="Suo Moto">Suo Moto</option>
+                                    <option value="Reference">Reference</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="judges" class="form-label fw-bold" style="color: var(--cp-primary);">Judges</label>
+                                <input type="text" class="form-control cp-input" id="judges" name="judges" 
+                                       placeholder="Comma-separated names">
+                            </div>
+                            
+                            <div class="col-md-12">
+                                <label for="keywords" class="form-label fw-bold" style="color: var(--cp-primary);">Keywords</label>
+                                <input type="text" class="form-control cp-input" id="keywords" name="keywords" 
+                                       placeholder="Comma-separated keywords">
+                            </div>
+                            
+                            <div class="col-md-12">
+                                <label for="summary" class="form-label fw-bold" style="color: var(--cp-primary);">Summary</label>
+                                <textarea class="form-control cp-input" id="summary" name="summary" rows="3" 
+                                          placeholder="Brief summary of the case..."></textarea>
+                            </div>
+                            
+                            <div class="col-md-12">
+                                <label for="headnotes" class="form-label fw-bold" style="color: var(--cp-primary);">Headnotes</label>
+                                <textarea class="form-control cp-input" id="headnotes" name="headnotes" rows="3" 
+                                          placeholder="Case headnotes..."></textarea>
+                            </div>
+                            
+                            <div class="col-md-12">
+                                <label for="full_text" class="form-label fw-bold" style="color: var(--cp-primary);">Full Text</label>
+                                <textarea class="form-control cp-input" id="full_text" name="full_text" rows="6" 
+                                          placeholder="Complete judgment text..."></textarea>
+                            </div>
+                            
+                            <div class="col-md-12">
+                                <label for="citations_referred" class="form-label fw-bold" style="color: var(--cp-primary);">Citations Referred</label>
+                                <textarea class="form-control cp-input" id="citations_referred" name="citations_referred" rows="2" 
+                                          placeholder="Citations mentioned in judgment (one per line or comma-separated)"></textarea>
+                            </div>
+                            
+                            <div class="col-md-12">
+                                <label for="statutes_referred" class="form-label fw-bold" style="color: var(--cp-primary);">Statutes Referred</label>
+                                <textarea class="form-control cp-input" id="statutes_referred" name="statutes_referred" rows="2" 
+                                          placeholder="Acts and statutes mentioned (one per line or comma-separated)"></textarea>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="cp-btn-primary btn-lg">
+                                        <i class="fas fa-save me-2"></i>Upload Citation
+                                    </button>
+                                    <a href="{{ url_for('search') }}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-list me-2"></i>View All Citations
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="cp-glass-card mb-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 cp-font-display" style="color: var(--cp-primary);"><i class="fas fa-info-circle me-2"></i>Citation Upload Methods</h6>
+                </div>
+                <div class="card-body">
+                    <h6 class="cp-font-display" style="color: var(--cp-primary);">1. Manual Entry (This Form)</h6>
+                    <p class="text-muted small">Fill in citation details manually using this form</p>
+                    
+                    <h6 class="mt-3 cp-font-display" style="color: var(--cp-primary);">2. Document Upload</h6>
+                    <p class="text-muted small">Upload PDF/DOCX files directly to database</p>
+                    <form method="POST" action="{{ url_for('admin_api.upload_file') }}" enctype="multipart/form-data" class="mt-2">
+                        <div class="mb-2">
+                            <input type="file" class="form-control form-control-sm cp-input" name="file" accept=".pdf,.doc,.docx" required>
+                        </div>
+                        <div class="mb-2">
+                            <input type="text" class="form-control form-control-sm cp-input" name="title" placeholder="Document Title (optional)">
+                        </div>
+                        <div class="mb-2">
+                            <input type="text" class="form-control form-control-sm cp-input" name="citation" placeholder="Citation (optional)">
+                        </div>
+                        <button type="submit" class="cp-btn-accent btn-sm w-100">
+                            <i class="fas fa-file-upload me-1"></i>Upload Document
+                        </button>
+                    </form>
+                    
+                    <h6 class="mt-3 cp-font-display" style="color: var(--cp-primary);">3. Bulk Import (Coming Soon)</h6>
+                    <p class="text-muted small mb-0">Upload CSV/Excel files with multiple citations</p>
+                </div>
+            </div>
+            
+            <div class="cp-glass-card">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 cp-font-display" style="color: var(--cp-primary);"><i class="fas fa-question-circle me-2"></i>Citation Format Examples</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2"><strong style="color: var(--cp-primary);">PLD:</strong> PLD 1976 SC 57</li>
+                        <li class="mb-2"><strong style="color: var(--cp-primary);">SCMR:</strong> 1998 SCMR 161</li>
+                        <li class="mb-2"><strong style="color: var(--cp-primary);">CLR:</strong> 2015 CLD 1075</li>
+                        <li class="mb-2"><strong style="color: var(--cp-primary);">MLD:</strong> 2003 MLD 1075</li>
+                        <li class="mb-0"><strong style="color: var(--cp-primary);">YLR:</strong> 2010 YLR 2505</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

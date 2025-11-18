@@ -1,0 +1,89 @@
+Flask Backend Features
+	1.	User Authentication (JWT) – login, register, and session management.
+	2.	Admin Control (Flask-Admin) – manage all:
+	•	Cases
+	•	Acts & Rules
+	•	Users
+	3.	Database Integration (SQLAlchemy ORM) – scalable database layer.
+	4.	API Routes for React frontend:
+	•	/api/search → search citations or keywords
+	•	/api/upload → upload text or docx files
+	•	/api/case/:id → get single citation detail
+	•	/api/acts → browse acts and rules
+	5.	CORS Enabled for frontend access (use Flask-CORS).
+	6.	Background Tasks (Celery + Redis) for large file processing.
+	7.	Logging + Error Handling for debugging and production stability.
+
+⸻
+
+🎨 React Frontend Features
+	1.	Landing Page – Hero section + search bar (law citation finder).
+	2.	Search Results Page – Display citation list fetched from Flask API.
+	3.	Case Details Page – Show full case text, summary, and related citations.
+	4.	Acts & Rules Page – List all acts with search/filter.
+	5.	User Dashboard – Bookmarks, uploads, and history.
+	6.	Admin Panel Page – (uses API calls to Flask-Admin endpoints).
+	7.	Authentication Pages – Login, Register, Logout.
+	8.	Responsive Design (React + TailwindCSS) for desktop & mobile.
+
+⸻
+
+🧩 Tech Stack
+	•	Backend: Python (Flask + SQLAlchemy + Flask-Admin + Celery + Redis)
+	•	Frontend: React + TailwindCSS + Axios (for API requests)
+	•	Auth: JWT (Flask-JWT-Extended)
+	•	Database: PostgreSQL or SQLite (easily replaceable with MongoDB)
+	•	AI Layer: Placeholder service file for OpenAI/LangChain integration later
+
+⸻
+
+🔐 Admin Panel Details
+	•	Use Flask-Admin with /admin route.
+	•	Features:
+	•	Add/Edit/Delete Users
+	•	Add/Edit/Delete Cases
+	•	Add/Edit/Delete Acts & Rules
+	•	Dashboard showing stats (Total Cases, Acts, Users).
+	•	Protect with admin authentication (JWT role check).
+
+⸻
+
+⚡ Future Node.js Migration Prep
+	•	Each route and model should be self-contained (easy to convert to Express later).
+	•	Keep all data returned as JSON REST APIs.
+	•	Separate AI citation logic (citation_extractor.py) into a standalone Python microservice for future Node.js integration.
+	•	Comment all endpoints clearly with docstrings for easy translation.
+
+⸻
+
+🚀 Deployment Setup
+	•	Run Flask backend with Gunicorn on port 5000.
+	•	Run React frontend on port 3000.
+	•	Configure proxy in React to http://localhost:5000/api.
+	•	Use environment variables for DB and secret keys (.env).
+	•	Optional: Add Dockerfile for both frontend and backend.
+
+⸻
+
+✅ Deliverables
+	•	Fully upgraded Flask backend with admin dashboard.
+	•	Connected React frontend (ready to fetch and post data).
+	•	Modular file structure for future scaling or migration to Node.js.
+	•	Working development environment on Replit.
+	•	Clear documentation in README.md on how to run frontend + backend.
+
+⸻
+
+💡 Bonus (Optional)
+	•	Add loading spinner for search results.
+	•	Include dark/light mode toggle.
+	•	Add placeholder AI section for “Explain Citation” feature.
+
+⸻
+
+🔚 Final Output:
+A clean, modern, full-stack legal research app (“CasePoint”) that runs on Flask + React now, and can later migrate to Node.js for enterprise scaling.
+
+⸻
+
+Would you like me to now generate the Replit file and folder setup (with code stubs) — so you can directly paste it into your workspace and run both backend and frontend instantly?

@@ -1,0 +1,1131 @@
+{% extends "base.html" %}
+
+{% block title %}{{ citation.citation }} - CasePoint{% endblock %}
+
+{% block content %}
+<!-- Watermark container for print -->
+<div class="watermark-container">
+    <div class="watermark">CasePoint</div>
+    <div class="watermark">CasePoint</div>
+    <div class="watermark">CasePoint</div>
+    <div class="watermark">CasePoint</div>
+    <div class="watermark">CasePoint</div>
+    <div class="watermark">CasePoint</div>
+    <div class="watermark">CasePoint</div>
+    <div class="watermark">CasePoint</div>
+    <div class="watermark">CasePoint</div>
+    <div class="watermark">CasePoint</div>
+</div>
+
+<!-- Light theme wrapper -->
+<div class="cp-bg-light" style="margin: -1.5rem; padding: 1.5rem; min-height: 100vh;">
+
+<style>
+/* Citation Detail Light Theme Styles */
+.citation-detail-light .card {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(30, 58, 138, 0.1) !important;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.citation-detail-light .card-body {
+    color: var(--cp-text-dark) !important;
+}
+
+.citation-detail-light .bg-light {
+    background: #F9FAFB !important;
+    color: var(--cp-text-dark) !important;
+    border-color: rgba(30, 58, 138, 0.1) !important;
+}
+
+.citation-detail-light .border {
+    border-color: rgba(30, 58, 138, 0.1) !important;
+}
+
+.citation-detail-light .btn {
+    border-radius: 8px !important;
+}
+
+.citation-detail-light .btn-outline-secondary {
+    color: #6B7280 !important;
+    border-color: #D1D5DB !important;
+    background: white;
+}
+
+.citation-detail-light .btn-outline-secondary:hover {
+    background: #F3F4F6 !important;
+    color: #374151 !important;
+}
+
+.citation-detail-light .btn-primary {
+    background: var(--cp-primary) !important;
+    border: none !important;
+    color: white !important;
+}
+
+.citation-detail-light .btn-primary:hover {
+    background: linear-gradient(90deg, #1E3A8A, #10B981) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(30, 58, 138, 0.3);
+}
+
+.citation-detail-light .btn-outline-primary {
+    color: var(--cp-primary) !important;
+    border-color: var(--cp-primary) !important;
+    background: white;
+}
+
+.citation-detail-light .btn-outline-primary:hover {
+    background: rgba(30, 58, 138, 0.05) !important;
+    color: var(--cp-primary) !important;
+}
+
+.citation-detail-light .badge {
+    background: var(--cp-accent) !important;
+    color: white !important;
+}
+
+.citation-detail-light .badge.bg-secondary {
+    background: #6B7280 !important;
+    color: white !important;
+}
+
+.citation-detail-light .alert {
+    border-radius: 8px;
+    border-color: rgba(30, 58, 138, 0.1) !important;
+}
+
+.citation-detail-light .alert-info {
+    background: rgba(59, 130, 246, 0.1) !important;
+    color: #1E40AF !important;
+    border-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+.citation-detail-light h4, 
+.citation-detail-light h5, 
+.citation-detail-light h6,
+.citation-detail-light strong {
+    color: var(--cp-text-dark) !important;
+    font-family: 'Merriweather', serif;
+}
+
+.citation-detail-light .text-dark {
+    color: var(--cp-text-dark) !important;
+}
+
+.citation-detail-light pre {
+    background: #F9FAFB !important;
+    color: var(--cp-text-dark) !important;
+    border: 1px solid rgba(30, 58, 138, 0.1);
+    border-radius: 8px;
+}
+
+.citation-detail-light .btn-success {
+    background: var(--cp-accent) !important;
+    border: none !important;
+}
+
+.citation-detail-light .btn-success:hover {
+    background: var(--cp-secondary) !important;
+}
+
+.citation-detail-light .btn-outline-warning {
+    color: #F59E0B !important;
+    border-color: #F59E0B !important;
+    background: white;
+}
+
+.citation-detail-light .btn-outline-warning:hover {
+    background: rgba(245, 158, 11, 0.1) !important;
+}
+
+.citation-detail-light .nav-tabs {
+    border-bottom: 2px solid rgba(30, 58, 138, 0.1);
+}
+
+.citation-detail-light .nav-tabs .nav-link {
+    color: #6B7280;
+    border: none;
+    border-bottom: 2px solid transparent;
+}
+
+.citation-detail-light .nav-tabs .nav-link.active {
+    color: var(--cp-primary);
+    border-bottom-color: var(--cp-primary);
+    background: transparent;
+}
+
+.citation-detail-light .nav-tabs .nav-link:hover {
+    color: var(--cp-primary);
+    border-bottom-color: rgba(30, 58, 138, 0.3);
+}
+
+.citation-detail-light .card-header {
+    background: var(--cp-primary) !important;
+    color: white !important;
+    border-top-left-radius: 12px !important;
+    border-top-right-radius: 12px !important;
+}
+
+.ai-section-header {
+    color: var(--cp-accent) !important;
+    font-family: 'Merriweather', serif;
+}
+
+/* Print Styles */
+@media print {
+    /* Hide QR code from screen view - only show when printing */
+    .qr-code-container {
+        display: block !important;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        page-break-inside: avoid;
+    }
+    
+    .qr-code-image {
+        width: 100px;
+        height: 100px;
+        border: 2px solid #1E3A8A;
+        padding: 5px;
+        background: white;
+    }
+    
+    /* Hide UI elements when printing */
+    .no-print {
+        display: none !important;
+    }
+    
+    /* Show print-only elements */
+    .print-citation-reference {
+        display: block !important;
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        page-break-after: avoid;
+    }
+    
+    /* Citation full text formatting for print */
+    .full-text-section {
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    
+    .full-text-content {
+        max-height: none !important;
+        overflow: visible !important;
+        border: none !important;
+        padding: 0 !important;
+        background: white !important;
+    }
+    
+    /* Format first 6 lines of citation text - bold and centered */
+    .full-text-pre {
+        white-space: pre-wrap;
+        font-family: 'Times New Roman', serif;
+        font-size: 12pt;
+        line-height: 1.5;
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* Citation header formatting */
+    .citation-header-lines {
+        font-weight: bold !important;
+        text-align: center !important;
+        display: block !important;
+        margin-bottom: 1rem !important;
+        page-break-after: avoid;
+    }
+    
+    /* Page breaks */
+    .watermark-container {
+        display: block !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: none !important;
+    }
+    
+    /* Ensure good page breaks */
+    h4, h5, h6 {
+        page-break-after: avoid;
+    }
+    
+    pre {
+        page-break-inside: auto;
+    }
+}
+
+/* Screen styles - hide QR code and print-only elements */
+@media screen {
+    .qr-code-container {
+        display: none !important;
+    }
+    
+    .print-citation-reference {
+        display: none !important;
+    }
+}
+</style>
+
+<div class="container-fluid py-4 citation-detail-light cp-font-body">
+    <div class="row no-print">
+        <div class="col-12 mb-3 d-flex justify-content-between align-items-center">
+            <button onclick="window.history.back()" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Citations
+            </button>
+            
+            {% if citation.pdf_path %}
+            <div class="btn-group" role="group" aria-label="View toggle">
+                <button type="button" class="btn btn-primary btn-sm" id="pdf-view-btn" onclick="toggleView('pdf')">
+                    <i class="fas fa-file-pdf me-1"></i>PDF View
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-sm" id="text-view-btn" onclick="toggleView('text')">
+                    <i class="fas fa-file-alt me-1"></i>Text View
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if citation.pdf_path %}
+    <!-- PDF Viewer Section -->
+    <div class="row no-print mb-4" id="pdf-viewer-section">
+        <div class="col-12">
+            <div class="card cp-glass-card">
+                <div class="card-body p-0">
+                    <iframe 
+                        src="/{{ citation.pdf_path }}" 
+                        class="w-100" 
+                        style="height: 85vh; min-height: 600px; border-radius: 12px;"
+                        type="application/pdf"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="row flex-column-reverse flex-lg-row" id="text-content-section">
+        <div class="col-lg-6" id="citation-details">
+            <div class="card cp-glass-card mb-4">
+                <!-- Citation Reference - For Print Only -->
+                <div class="print-citation-reference">
+                    <p><strong>Citation:</strong> {{ citation.citation }}</p>
+                </div>
+                
+                <!-- QR Code - Top Right for Print Only (First Page) -->
+                {% if qr_code %}
+                <div class="qr-code-container">
+                    <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" class="qr-code-image">
+                </div>
+                {% endif %}
+                
+                <div class="card-body no-print">
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <h4 class="fw-bold mb-0 cp-font-display">{{ citation.citation }}</h4>
+                            {% if citation.journal %}
+                            <span class="badge bg-secondary">{{ citation.journal }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('search') }}?q={{ citation.citation }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-search me-1"></i>Search Citations
+                            </a>
+                            <button class="btn btn-sm btn-outline-warning" onclick="toggleBookmark({{ citation.id }}, {{ citation.citation|tojson }})" id="bookmark-btn-{{ citation.id }}">
+                                <i class="far fa-bookmark me-1"></i>Bookmark
+                            </button>
+                        </div>
+                    </div>
+                    
+                    {% if citation.court %}
+                    <div class="mb-3">
+                        <p class="text-sm font-medium mb-2">
+                            <strong>Court:</strong> <span style="color: var(--cp-primary); font-weight: 600;">{{ citation.court }}</span>
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if citation.judges %}
+                    <div class="mb-3">
+                        <strong>Judges:</strong> {{ citation.judges }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if citation.keywords %}
+                    <div class="mb-3">
+                        <strong>Keywords:</strong>
+                        {% for keyword in citation.keywords.split(',') %}
+                        <span class="badge bg-secondary me-1">{{ keyword.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if citation.summary %}
+                    <div class="mb-3">
+                        <h6 class="cp-font-display">Summary</h6>
+                        <p>{{ citation.summary }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Share Buttons -->
+                    <div class="mb-4 border-top pt-3" style="border-color: rgba(30, 58, 138, 0.1) !important;">
+                        <h6 class="mb-3 cp-font-display">Share</h6>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="#" id="whatsapp-btn" class="btn btn-sm btn-success" target="_blank" rel="noopener noreferrer">
+                                <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                            </a>
+                            <a href="#" id="facebook-btn" class="btn btn-sm btn-primary" target="_blank" rel="noopener noreferrer">
+                                <i class="fab fa-facebook-f me-1"></i>Facebook
+                            </a>
+                            <button onclick="copyLink()" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-link me-1"></i>Copy Link
+                            </button>
+                            <button onclick="copyEmbed()" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-code me-1"></i>Embed
+                            </button>
+                        </div>
+                    </div>
+                    
+                    {% if citation.headnotes %}
+                    <div class="mb-3">
+                        <h6 class="cp-font-display">Headnotes</h6>
+                        <p>{{ citation.headnotes }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- AI Headnotes Section -->
+                    <div class="mb-4 border-top pt-3" style="border-color: rgba(16, 185, 129, 0.2) !important;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0 ai-section-header" style="font-size: 1.1rem; font-weight: 600;">
+                                <i class="fas fa-robot me-2"></i>AI Headnotes
+                            </h6>
+                        </div>
+                        <div id="ai-headnotes-content">
+                            {% if citation.ai_headnotes %}
+                            <div class="bg-light p-3 border" style="white-space: pre-wrap; border-radius: 8px;">{{ citation.ai_headnotes }}</div>
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-primary" onclick="regenerateHeadnotes({{ citation.id }})">
+                                    <i class="fas fa-sync me-1"></i>Regenerate Headnotes
+                                </button>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info mb-2">
+                                <i class="fas fa-info-circle me-2"></i>AI-generated headnotes not yet created.
+                            </div>
+                            <button class="btn btn-primary" onclick="generateHeadnotes({{ citation.id }})" id="generate-headnotes-btn">
+                                <i class="fas fa-magic me-1"></i>Generate AI Headnotes
+                            </button>
+                            {% endif %}
+                        </div>
+                        <div id="ai-headnotes-loading" class="d-none">
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                            <span>Generating AI headnotes... This may take 20-30 seconds.</span>
+                        </div>
+                        <div id="ai-headnotes-error" class="alert alert-danger mt-2 d-none" role="alert"></div>
+                    </div>
+                    
+                    <!-- AI Summary Section -->
+                    <div class="mb-4 border-top pt-3" style="border-color: rgba(16, 185, 129, 0.2) !important;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0 ai-section-header" style="font-size: 1.1rem; font-weight: 600;">
+                                <i class="fas fa-robot me-2"></i>AI Summary
+                            </h6>
+                        </div>
+                        <div id="ai-summary-content">
+                            {% if citation.ai_summary %}
+                            <div class="bg-light p-3 border" style="border-radius: 8px;">{{ citation.ai_summary }}</div>
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-primary" onclick="regenerateSummary({{ citation.id }})">
+                                    <i class="fas fa-sync me-1"></i>Regenerate Summary
+                                </button>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info mb-2">
+                                <i class="fas fa-info-circle me-2"></i>AI-generated summary not yet created.
+                            </div>
+                            <button class="btn btn-primary" onclick="generateSummary({{ citation.id }})" id="generate-summary-btn">
+                                <i class="fas fa-magic me-1"></i>Generate AI Summary
+                            </button>
+                            {% endif %}
+                        </div>
+                        <div id="ai-summary-loading" class="d-none">
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                            <span>Generating AI summary... This may take 10-20 seconds.</span>
+                        </div>
+                        <div id="ai-summary-error" class="alert alert-danger mt-2 d-none" role="alert"></div>
+                    </div>
+                </div>
+                
+                <!-- Full Text Section - For Print -->
+                {% if citation.full_text %}
+                <div class="full-text-section">
+                    <div class="border p-3 bg-light full-text-content" style="max-height: 400px; overflow-y: auto; border-radius: 8px;">
+                        <pre id="fullTextContent" class="full-text-pre" style="white-space: pre-wrap; font-family: inherit;">{{ citation.full_text }}</pre>
+                    </div>
+                    
+                    <!-- Actions Panel Below Full Text -->
+                    <div class="no-print px-3 mt-3 mb-3">
+                        <div class="d-flex justify-content-center gap-2 flex-wrap">
+                            <a href="{{ url_for('ai.ai_analysis') }}?context={{ citation.full_text[:500] }}" class="btn btn-sm btn-success" title="Analyze with AI">
+                                <i class="fas fa-brain me-1"></i>AI Analysis
+                            </a>
+                            <a href="{{ url_for('cases.compare_cases') }}?ids={{ citation.id }}" class="btn btn-sm btn-primary" title="Compare with other cases">
+                                <i class="fas fa-balance-scale me-1"></i>Compare
+                            </a>
+                            <button class="btn btn-sm btn-outline-primary" onclick="window.print()">
+                                <i class="fas fa-print me-1"></i>Print
+                            </button>
+                            <a href="{{ url_for('search') }}?q={{ citation.citation }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-search me-1"></i>Search Citation
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="card-body no-print">
+                    {% if not citation.full_text %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No full text available for this citation.
+                    </div>
+                    {% endif %}
+                    
+                    {% if citation.citations_referred %}
+                    <div class="mb-3">
+                        <h6 class="cp-font-display">Citations Referred</h6>
+                        <p>{{ citation.citations_referred }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if citation.statutes_referred %}
+                    <div class="mb-3">
+                        <h6 class="cp-font-display">Statutes Referred</h6>
+                        <p>{{ citation.statutes_referred }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4 mb-lg-0 no-print">
+            {% if citation.file_path %}
+            <!-- Show/Hide Preview Button -->
+            <div class="mb-3 text-center">
+                <button class="btn cp-btn-primary" onclick="togglePreview()">
+                    <i class="fas fa-eye me-2"></i><span id="preview-btn-text">Show Document Preview</span>
+                </button>
+            </div>
+            
+            {% endif %}
+            
+            {% if citation.file_path %}
+            <!-- Document Preview Section -->
+            <div id="document-preview" class="card cp-glass-card" style="display: none;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Document Viewer</h6>
+                    <button class="btn btn-sm btn-light" onclick="togglePreview()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <!-- Tab Navigation -->
+                    <ul class="nav nav-tabs" id="previewTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="document-tab" data-bs-toggle="tab" data-bs-target="#document-pane" type="button" role="tab">
+                                <i class="fas fa-file-pdf me-1"></i>Document
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-pane" type="button" role="tab">
+                                <i class="fas fa-align-left me-1"></i>Extracted Text
+                                {% if citation.ocr_confidence %}
+                                <span class="badge bg-light text-dark ms-1">{{ "%.0f"|format(citation.ocr_confidence) }}%</span>
+                                {% endif %}
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="previewTabContent">
+                        <!-- Document Tab -->
+                        <div class="tab-pane fade show active" id="document-pane" role="tabpanel">
+                            <div id="pdf-container" style="width: 100%; height: 600px; background: #F3F4F6;">
+                                <object id="preview-object" data="" type="application/pdf" style="width: 100%; height: 100%;">
+                                    <iframe id="preview-frame" src="" style="width: 100%; height: 100%; border: none;">
+                                        <div class="alert alert-warning m-3">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            Your browser cannot display PDFs inline.
+                                            <a id="pdf-download-link" href="" class="alert-link" target="_blank">Click here to open PDF in new tab</a>
+                                        </div>
+                                    </iframe>
+                                </object>
+                            </div>
+                        </div>
+                        
+                        <!-- Text Tab -->
+                        <div class="tab-pane fade" id="text-pane" role="tabpanel">
+                            <div class="p-3" style="height: 600px; overflow-y: auto;">
+                                {% if citation.full_text %}
+                                <div class="bg-light p-3 rounded">
+                                    <pre style="white-space: pre-wrap; font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 14px; line-height: 1.6; margin: 0;">{{ citation.full_text }}</pre>
+                                </div>
+                                {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    No text has been extracted from this document yet.
+                                    {% if session.get('role') == 'admin' %}
+                                    <form method="POST" action="#" class="mt-3">
+                                        <button type="submit" class="btn btn-sm btn-primary" disabled>
+                                            <i class="fas fa-sync me-1"></i>Extract Text Now (Coming Soon)
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Share functionality
+const citationLink = window.location.href;
+const citation = {{ citation.citation|tojson }};
+const summary = {{ (citation.summary[:200] if citation.summary else '')|tojson }};
+
+// Set up share button URLs
+document.addEventListener('DOMContentLoaded', function() {
+    const message = `CasePoint Citation: ${citation}\n\n${summary}...\nRead more: ${citationLink}`;
+    const encodedMessage = encodeURIComponent(message);
+    
+    // WhatsApp share
+    document.getElementById('whatsapp-btn').href = `https://wa.me/?text=${encodedMessage}`;
+    document.getElementById('whatsapp-btn').addEventListener('click', () => trackShare());
+    
+    // Facebook share
+    document.getElementById('facebook-btn').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(citationLink)}`;
+    document.getElementById('facebook-btn').addEventListener('click', () => trackShare());
+});
+
+// Copy link to clipboard
+async function copyLink() {
+    try {
+        await navigator.clipboard.writeText(citationLink);
+        await trackShare();
+        showToast('🔗 Link copied to clipboard!', 'success');
+    } catch (error) {
+        showToast('Failed to copy link', 'danger');
+    }
+}
+
+// Copy embed code to clipboard
+async function copyEmbed() {
+    const embedHTML = `<iframe src="${citationLink}/embed" width="100%" height="450" style="border:none;border-radius:8px;" title="CasePoint - ${citation}"></iframe>`;
+    try {
+        await navigator.clipboard.writeText(embedHTML);
+        await trackShare();
+        showToast('✅ Embed code copied to clipboard!', 'success');
+    } catch (error) {
+        showToast('Failed to copy embed code', 'danger');
+    }
+}
+
+// Track share event
+async function trackShare() {
+    try {
+        await fetch(`/api/track_share/${encodeURIComponent(citation)}`, {
+            method: 'GET'
+        });
+    } catch (error) {
+        console.error('Failed to track share:', error);
+    }
+}
+
+{% if citation.pdf_path %}
+// Toggle between PDF view and Text view
+function toggleView(view) {
+    const pdfSection = document.getElementById('pdf-viewer-section');
+    const textSection = document.getElementById('text-content-section');
+    const pdfBtn = document.getElementById('pdf-view-btn');
+    const textBtn = document.getElementById('text-view-btn');
+    
+    if (view === 'pdf') {
+        // Show PDF, hide text
+        pdfSection.style.display = '';
+        textSection.style.display = 'none';
+        pdfBtn.classList.remove('btn-outline-primary');
+        pdfBtn.classList.add('btn-primary');
+        textBtn.classList.remove('btn-primary');
+        textBtn.classList.add('btn-outline-primary');
+    } else {
+        // Show text, hide PDF
+        pdfSection.style.display = 'none';
+        textSection.style.display = '';
+        textBtn.classList.remove('btn-outline-primary');
+        textBtn.classList.add('btn-primary');
+        pdfBtn.classList.remove('btn-primary');
+        pdfBtn.classList.add('btn-outline-primary');
+    }
+}
+{% endif %}
+
+// Toggle document preview visibility
+function togglePreview() {
+    const preview = document.getElementById('document-preview');
+    const btnText = document.getElementById('preview-btn-text');
+    
+    if (preview.style.display === 'none') {
+        preview.style.display = 'block';
+        btnText.textContent = 'Hide Document Preview';
+        loadDocumentPreview();
+    } else {
+        preview.style.display = 'none';
+        btnText.textContent = 'Show Document Preview';
+    }
+}
+
+// Load document preview in iframe/object
+function loadDocumentPreview() {
+    {% if citation.file_path %}
+    const fileUrl = "/{{ citation.file_path }}";
+    document.getElementById('preview-object').data = fileUrl;
+    document.getElementById('preview-frame').src = fileUrl;
+    document.getElementById('pdf-download-link').href = fileUrl;
+    {% endif %}
+}
+
+// Toast notification helper
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toast-container') || createToastContainer();
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} alert-dismissible fade show`;
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    toastContainer.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    document.body.appendChild(container);
+    return container;
+}
+
+// Bookmark toggle
+async function toggleBookmark(citationId, citationName) {
+    try {
+        const response = await fetch(`/api/bookmark/${citationId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            const btn = document.getElementById(`bookmark-btn-${citationId}`);
+            const icon = btn.querySelector('i');
+            
+            if (data.bookmarked) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                showToast(`📌 ${citationName} bookmarked!`, 'success');
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                showToast(`Bookmark removed`, 'info');
+            }
+        } else {
+            throw new Error(data.error || 'Failed to toggle bookmark');
+        }
+    } catch (error) {
+        showToast('Failed to toggle bookmark. Please try again.', 'danger');
+        console.error('Bookmark error:', error);
+    }
+}
+
+// AI Summary Generation
+async function generateSummary(citationId) {
+    const contentDiv = document.getElementById('ai-summary-content');
+    const loadingDiv = document.getElementById('ai-summary-loading');
+    const errorDiv = document.getElementById('ai-summary-error');
+    const generateBtn = document.getElementById('generate-summary-btn');
+    
+    // Hide content and error, show loading
+    contentDiv.classList.add('d-none');
+    errorDiv.classList.add('d-none');
+    loadingDiv.classList.remove('d-none');
+    if (generateBtn) generateBtn.disabled = true;
+    
+    try {
+        const response = await fetch(`/api/generate_summary/${citationId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Update UI with generated summary
+            contentDiv.innerHTML = `
+                <div class="bg-light p-3 border" style="border-radius: 8px;">${data.summary}</div>
+                <div class="mt-2">
+                    <button class="btn btn-sm btn-outline-primary" onclick="regenerateSummary(${citationId})">
+                        <i class="fas fa-sync me-1"></i>Regenerate Summary
+                    </button>
+                </div>
+            `;
+            showToast(data.cached ? 'Summary retrieved from cache' : 'AI Summary generated successfully!', 'success');
+        } else {
+            throw new Error(data.error || 'Failed to generate summary');
+        }
+    } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.classList.remove('d-none');
+        showToast('Failed to generate summary', 'danger');
+    } finally {
+        loadingDiv.classList.add('d-none');
+        contentDiv.classList.remove('d-none');
+        if (generateBtn) generateBtn.disabled = false;
+    }
+}
+
+async function regenerateSummary(citationId) {
+    if (!confirm('Are you sure you want to regenerate the AI summary? This will replace the existing summary.')) {
+        return;
+    }
+    
+    // Force regenerate by clearing cache first
+    await generateSummary(citationId);
+}
+
+// AI Headnotes Generation
+async function generateHeadnotes(citationId) {
+    const contentDiv = document.getElementById('ai-headnotes-content');
+    const loadingDiv = document.getElementById('ai-headnotes-loading');
+    const errorDiv = document.getElementById('ai-headnotes-error');
+    const generateBtn = document.getElementById('generate-headnotes-btn');
+    
+    // Hide content and error, show loading
+    contentDiv.classList.add('d-none');
+    errorDiv.classList.add('d-none');
+    loadingDiv.classList.remove('d-none');
+    if (generateBtn) generateBtn.disabled = true;
+    
+    try {
+        const response = await fetch(`/api/generate_headnotes/${citationId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Update UI with generated headnotes
+            contentDiv.innerHTML = `
+                <div class="bg-light p-3 border" style="white-space: pre-wrap; border-radius: 8px;">${data.headnotes}</div>
+                <div class="mt-2">
+                    <button class="btn btn-sm btn-outline-primary" onclick="regenerateHeadnotes(${citationId})">
+                        <i class="fas fa-sync me-1"></i>Regenerate Headnotes
+                    </button>
+                </div>
+            `;
+            showToast(data.cached ? 'Headnotes retrieved from cache' : 'AI Headnotes generated successfully!', 'success');
+        } else {
+            throw new Error(data.error || 'Failed to generate headnotes');
+        }
+    } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.classList.remove('d-none');
+        showToast('Failed to generate headnotes', 'danger');
+    } finally {
+        loadingDiv.classList.add('d-none');
+        contentDiv.classList.remove('d-none');
+        if (generateBtn) generateBtn.disabled = false;
+    }
+}
+
+async function regenerateHeadnotes(citationId) {
+    if (!confirm('Are you sure you want to regenerate the AI headnotes? This will replace the existing headnotes.')) {
+        return;
+    }
+    
+    // Force regenerate by clearing cache first
+    await generateHeadnotes(citationId);
+}
+
+// ==================== TEXT SELECTION SHARING ====================
+
+let shareButton = null;
+
+function initTextSelection() {
+    const fullTextElement = document.getElementById('full-text-content');
+    if (!fullTextElement) return;
+    
+    // Create share button (hidden by default)
+    shareButton = document.createElement('button');
+    shareButton.id = 'share-selection-btn';
+    shareButton.className = 'btn btn-sm btn-primary';
+    shareButton.style.cssText = 'position: absolute; display: none; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+    shareButton.innerHTML = '<i class="fas fa-share-alt me-1"></i>Share Selection';
+    shareButton.onclick = handleShareSelection;
+    document.body.appendChild(shareButton);
+    
+    // Listen for text selection
+    fullTextElement.addEventListener('mouseup', handleTextSelection);
+    fullTextElement.addEventListener('touchend', handleTextSelection);
+    
+    // Hide button when clicking elsewhere
+    document.addEventListener('click', (e) => {
+        if (e.target !== shareButton && !shareButton.contains(e.target)) {
+            shareButton.style.display = 'none';
+        }
+    });
+}
+
+function handleTextSelection(e) {
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+    
+    if (selectedText.length >= 50 && selectedText.length <= 1200) {
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        
+        // Position button near selection
+        shareButton.style.display = 'block';
+        shareButton.style.left = (rect.left + window.scrollX) + 'px';
+        shareButton.style.top = (rect.bottom + window.scrollY + 5) + 'px';
+    } else {
+        shareButton.style.display = 'none';
+    }
+}
+
+async function handleShareSelection() {
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+    
+    if (selectedText.length < 50) {
+        showToast('Please select at least 50 characters to share', 'warning');
+        return;
+    }
+    
+    if (selectedText.length > 1200) {
+        showToast('Please select less than 1200 characters to share', 'warning');
+        return;
+    }
+    
+    // Show loading state
+    const originalHTML = shareButton.innerHTML;
+    shareButton.disabled = true;
+    shareButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Creating...';
+    
+    try {
+        const citationId = {{ citation.id }};
+        const response = await fetch('/api/share_excerpt', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                citation_id: citationId,
+                excerpt_text: selectedText
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showShareModal(data.share_url, data.share_code);
+            shareButton.style.display = 'none';
+            window.getSelection().removeAllRanges();
+        } else {
+            throw new Error(data.error || 'Failed to create share link');
+        }
+    } catch (error) {
+        showToast(error.message, 'danger');
+    } finally {
+        shareButton.disabled = false;
+        shareButton.innerHTML = originalHTML;
+    }
+}
+
+function showShareModal(shareUrl, shareCode) {
+    // Create modal HTML
+    const modalHTML = `
+        <div class="modal fade" id="shareModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+                    <div class="modal-header" style="border-bottom: 2px solid rgba(30, 58, 138, 0.1);">
+                        <h5 class="modal-title" style="color: var(--cp-primary); font-weight: 700;">
+                            <i class="fas fa-share-alt me-2"></i>Share Excerpt
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p style="color: #6B7280; margin-bottom: 1rem;">Your shareable link is ready! Share this excerpt with anyone:</p>
+                        
+                        <div style="background: #F9FAFB; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <input type="text" id="shareUrlInput" class="form-control" value="${shareUrl}" readonly 
+                                    style="border: 1px solid #D1D5DB; font-size: 0.875rem;">
+                                <button onclick="copyShareLink()" class="btn btn-primary" style="white-space: nowrap;">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #FEF3C7; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.875rem;">
+                            <i class="fas fa-info-circle" style="color: #F59E0B;"></i>
+                            <span style="color: #78350F;">This link will expire in 90 days</span>
+                        </div>
+                        
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button onclick="shareToTwitter('${shareUrl}')" class="btn btn-outline-primary btn-sm">
+                                <i class="fab fa-twitter me-1"></i>Twitter
+                            </button>
+                            <button onclick="shareToFacebook('${shareUrl}')" class="btn btn-outline-primary btn-sm">
+                                <i class="fab fa-facebook me-1"></i>Facebook
+                            </button>
+                            <button onclick="shareToLinkedIn('${shareUrl}')" class="btn btn-outline-primary btn-sm">
+                                <i class="fab fa-linkedin me-1"></i>LinkedIn
+                            </button>
+                            <button onclick="shareToWhatsApp('${shareUrl}')" class="btn btn-outline-primary btn-sm">
+                                <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('shareModal');
+    if (existingModal) existingModal.remove();
+    
+    // Add modal to DOM
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('shareModal'));
+    modal.show();
+    
+    // Show success toast
+    showToast('Share link created successfully!', 'success');
+}
+
+function copyShareLink() {
+    const input = document.getElementById('shareUrlInput');
+    input.select();
+    navigator.clipboard.writeText(input.value).then(() => {
+        showToast('Link copied to clipboard!', 'success');
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        showToast('Failed to copy link', 'danger');
+    });
+}
+
+function shareToTwitter(url) {
+    const text = "{{ citation.title[:100] }} - CasePoint Legal Research";
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    window.open(twitterUrl, '_blank', 'width=600,height=400');
+}
+
+function shareToFacebook(url) {
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(facebookUrl, '_blank', 'width=600,height=400');
+}
+
+function shareToLinkedIn(url) {
+    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+    window.open(linkedInUrl, '_blank', 'width=600,height=400');
+}
+
+function shareToWhatsApp(url) {
+    const text = "{{ citation.title[:100] }} - CasePoint Legal Research";
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
+    window.open(whatsappUrl, '_blank');
+}
+
+// Format first 6 lines of citation for print (safe DOM manipulation)
+function formatCitationForPrint() {
+    const fullTextElement = document.getElementById('fullTextContent');
+    if (!fullTextElement) return;
+    
+    const fullText = fullTextElement.textContent;
+    const lines = fullText.split('\n');
+    
+    // Take first 6 non-empty lines for header formatting
+    const headerLines = [];
+    const bodyLines = [];
+    let lineCount = 0;
+    
+    for (let i = 0; i < lines.length; i++) {
+        if (lineCount < 6) {
+            headerLines.push(lines[i]);
+            if (lines[i].trim() !== '') {
+                lineCount++;
+            }
+        } else {
+            bodyLines.push(lines[i]);
+        }
+    }
+    
+    // Clear existing content
+    fullTextElement.textContent = '';
+    
+    // Create header section (bold and centered for print)
+    const headerSpan = document.createElement('span');
+    headerSpan.className = 'citation-header-lines';
+    headerSpan.textContent = headerLines.join('\n');
+    
+    // Create separator newline
+    const separator = document.createTextNode('\n');
+    
+    // Create body section
+    const bodySpan = document.createElement('span');
+    bodySpan.className = 'citation-body-lines';
+    bodySpan.textContent = bodyLines.join('\n');
+    
+    // Append safely using DOM methods (no innerHTML, auto-escapes)
+    fullTextElement.appendChild(headerSpan);
+    fullTextElement.appendChild(separator);
+    fullTextElement.appendChild(bodySpan);
+}
+
+// Initialize text selection and citation formatting on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initTextSelection();
+    formatCitationForPrint();
+});
+</script>
+</div>
+<!-- End light theme wrapper -->
+{% endblock %}

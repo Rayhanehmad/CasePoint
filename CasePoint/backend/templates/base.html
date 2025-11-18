@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CasePointAI - Legal Intelligence, Simplified by AI{% endblock %}</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E3A8A',
+                        accent: '#10B981',
+                        secondary: '#059669',
+                        background: '#F9FAFB',
+                        textDark: '#1E293B',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                        merriweather: ['Merriweather', 'serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    
+    <!-- CasePointAI Brand Styles -->
+    <style>
+        :root {
+            --primary: #1E3A8A;
+            --accent: #10B981;
+            --secondary: #059669;
+            --background: #F9FAFB;
+            --text-dark: #1E293B;
+            --white: #FFFFFF;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text-dark);
+        }
+        
+        .font-merriweather {
+            font-family: 'Merriweather', serif;
+        }
+        
+        /* Glass Card Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(30, 58, 138, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* Button Styles */
+        .btn-primary-custom {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary-custom:hover {
+            background: linear-gradient(90deg, #1E3A8A, #10B981);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(30, 58, 138, 0.3);
+        }
+        
+        .btn-accent-custom {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-accent-custom:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+        }
+        
+        /* Navbar Styles */
+        .navbar-custom {
+            background: white;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 1rem 0;
+        }
+        
+        .navbar-custom .nav-link {
+            color: var(--text-dark);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-custom .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .navbar-custom .nav-link.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        /* Navbar Toggler Icon - Make it visible */
+        .navbar-toggler {
+            border: 2px solid var(--primary);
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.25rem rgba(30, 58, 138, 0.25);
+        }
+        
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(30, 58, 138, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            width: 1.5em;
+            height: 1.5em;
+        }
+        
+        /* Mobile Navbar Collapse Styles - CRITICAL OVERRIDES */
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                background: white !important;
+                padding: 1rem !important;
+                border-radius: 8px;
+                margin-top: 1rem;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+            
+            .navbar-collapse.show,
+            .navbar-collapse.collapsing {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            .navbar-custom .nav-link {
+                color: #1E293B !important;
+                padding: 0.75rem 1rem !important;
+                display: block !important;
+                font-size: 1rem !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                background: transparent !important;
+            }
+            
+            .navbar-custom .nav-link:hover {
+                background: rgba(30, 58, 138, 0.05) !important;
+                border-radius: 6px;
+                color: #1E3A8A !important;
+            }
+            
+            .navbar-nav {
+                margin-bottom: 0.5rem;
+                display: block !important;
+                visibility: visible !important;
+            }
+            
+            .navbar-nav .nav-item {
+                margin-bottom: 0.25rem;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            /* Make dropdowns work in mobile */
+            .navbar-nav .dropdown-menu {
+                border: none !important;
+                box-shadow: none !important;
+                padding-left: 1rem;
+                background: rgba(30, 58, 138, 0.02) !important;
+                position: static !important;
+                display: block !important;
+            }
+            
+            .navbar-nav .dropdown-item {
+                color: #1E293B !important;
+                padding: 0.5rem 1rem !important;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            .navbar-nav .dropdown-item:hover {
+                background: rgba(30, 58, 138, 0.08) !important;
+                color: #1E3A8A !important;
+            }
+            
+            /* Button styles in mobile menu */
+            .navbar-nav .btn {
+                width: 100%;
+                margin-top: 0.5rem;
+                margin-left: 0 !important;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            /* Force all text to be visible */
+            #navbarNav a,
+            #navbarNav button,
+            #navbarNav .nav-link,
+            #navbarNav .dropdown-item {
+                color: #1E293B !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                display: block !important;
+            }
+        }
+        
+        /* Desktop - ensure no extra padding */
+        @media (min-width: 992px) {
+            .navbar-collapse {
+                background: transparent;
+                padding: 0;
+            }
+        }
+        
+        /* Dropdown Styles */
+        .dropdown-menu-custom {
+            background: white;
+            border: 1px solid rgba(30, 58, 138, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem;
+        }
+        
+        .dropdown-menu-custom .dropdown-item {
+            color: var(--text-dark);
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-menu-custom .dropdown-item:hover {
+            background: rgba(30, 58, 138, 0.05);
+            color: var(--primary);
+        }
+        
+        /* Footer Styles */
+        .footer-custom {
+            background: linear-gradient(135deg, #1E3A8A, #1E3A8A);
+            color: white;
+            padding: 3rem 0 1.5rem;
+            margin-top: 4rem;
+        }
+        
+        .footer-custom a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-custom a:hover {
+            color: var(--accent);
+        }
+        
+        /* Tagline */
+        .tagline {
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        /* Badge Styles */
+        .badge-primary-custom {
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-accent-custom {
+            background: var(--accent);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        /* Smooth animations */
+        * {
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-slideIn { animation: slideIn 0.6s ease-out; }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- CasePointAI Header -->
+    <header class="navbar navbar-expand-lg navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='images/casepoint-logo.jpg') }}" alt="CasePointAI" style="height: 50px; width: auto; margin-right: 1rem;">
+                <div>
+                    <h5 class="mb-0 font-merriweather" style="color: var(--primary); font-weight: 700;">CasePointAI</h5>
+                    <small class="tagline">Legal Intelligence, Simplified by AI</small>
+                </div>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border-color: var(--primary);">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto ms-lg-4">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('home') }}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('cases.search_cases') }}">
+                            <i class="fas fa-gavel me-1"></i>Cases
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('acts.search_statutes') }}">
+                            <i class="fas fa-book me-1"></i>Statutes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('acts.search_rules') }}">
+                            <i class="fas fa-list-ul me-1"></i>Rules
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('ai.ai_analysis') }}" style="color: var(--accent) !important;">
+                            <i class="fas fa-robot me-1"></i>AI Analysis
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('ai.case_analyzer') }}" style="color: var(--accent) !important;">
+                            <i class="fas fa-brain me-1"></i>AI Analyzer
+                        </a>
+                    </li>
+                    {% if session.get('role') == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_api.upload_citation') }}">
+                            <i class="fas fa-upload me-1"></i>Upload
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('upload_multi_pdf_page') }}">
+                            <i class="fas fa-file-pdf me-1"></i>PDF Splitter
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if session.get('role') == 'admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_api.admin_panel') }}" style="color: #dc3545 !important;">
+                                <i class="fas fa-shield-alt me-1"></i>Admin
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if session.get('user_id') %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-1"></i>{{ session.get('username') }}
+                                {% if session.get('subscription_tier') == 'pro' %}
+                                    <span class="badge-accent-custom ms-1">
+                                        <i class="fas fa-crown"></i> PRO
+                                    </span>
+                                {% endif %}
+                                {% if session.get('role') == 'admin' %}
+                                    <span class="badge-primary-custom ms-1">Admin</span>
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
+                                    <i class="fas fa-user me-2"></i>My Profile
+                                </a></li>
+                                {% if session.get('role') == 'admin' %}
+                                <li><a class="dropdown-item" href="{{ url_for('admin_api.admin_panel') }}">
+                                    <i class="fas fa-shield-alt me-2"></i>Admin Dashboard
+                                </a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider" style="border-color: rgba(30, 58, 138, 0.1);"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}" style="color: #dc3545;">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Login
+                            </a>
+                        </li>
+                        <li class="nav-item ms-2">
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-primary-custom btn-sm">
+                                <i class="fas fa-user-plus me-1"></i>Register
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item ms-2">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#subscribeModal" class="btn btn-accent-custom btn-sm">
+                            <i class="fas fa-crown me-1"></i>Subscribe
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container mt-3">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-custom">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <h5 class="font-merriweather mb-3">CasePointAI</h5>
+                    <p class="mb-2">Legal Intelligence, Simplified by AI</p>
+                    <p style="opacity: 0.8;">Pakistan's comprehensive online legal research platform</p>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h6 class="mb-3">Legal Resources</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ url_for('cases.search_cases') }}">Supreme Court Cases</a></li>
+                        <li class="mb-2"><a href="{{ url_for('cases.search_cases') }}">High Court Cases</a></li>
+                        <li class="mb-2"><a href="{{ url_for('acts.search_statutes') }}">Federal Statutes</a></li>
+                        <li class="mb-2"><a href="{{ url_for('acts.search_statutes') }}">Provincial Acts</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h6 class="mb-3">Support</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#">Help Center</a></li>
+                        <li class="mb-2"><a href="#">Terms of Service</a></li>
+                        <li class="mb-2"><a href="#">Privacy Policy</a></li>
+                        <li class="mb-2"><a href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr style="border-color: rgba(255, 255, 255, 0.2); margin: 2rem 0 1.5rem;">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2025 CasePointAI – Legal Intelligence, Simplified by AI</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0" style="opacity: 0.8;">Powered by CasePointAI</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Subscribe Modal -->
+    <div class="modal fade" id="subscribeModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="border: none; border-radius: 12px;">
+                <div class="modal-header" style="border-bottom: 1px solid rgba(30, 58, 138, 0.1);">
+                    <h5 class="modal-title font-merriweather">Choose Your Subscription Plan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="glass-card h-100 p-4">
+                                <div class="text-center mb-3">
+                                    <h5 class="font-merriweather">Annual Plan</h5>
+                                    <h2 style="color: var(--primary); font-weight: 700;">Rs. 36,000</h2>
+                                    <small style="color: var(--text-dark); opacity: 0.7;">+ Rs. 2,000 registration</small>
+                                </div>
+                                <ul class="list-unstyled mb-4">
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Full access to all cases</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Federal & Provincial statutes</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> AI-powered analysis</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Advanced search filters</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Citation tools</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Best value for professionals</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="glass-card h-100 p-4">
+                                <div class="text-center mb-3">
+                                    <h5 class="font-merriweather">Quarterly Plan</h5>
+                                    <h2 style="color: var(--primary); font-weight: 700;">Rs. 9,000</h2>
+                                    <small style="color: var(--text-dark); opacity: 0.7;">+ Rs. 2,000 registration</small>
+                                </div>
+                                <ul class="list-unstyled mb-4">
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Full access to all cases</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Federal & Provincial statutes</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> AI-powered analysis</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Advanced search filters</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Citation tools</li>
+                                    <li class="mb-2"><i class="fas fa-check" style="color: var(--accent);"></i> Perfect for short-term needs</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid rgba(30, 58, 138, 0.1);">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary-custom">Contact for Subscription</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating AI Assistant Chat Icon -->
+    <div id="ai-chat-float" style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
+        <button class="btn btn-accent-custom rounded-circle shadow-lg" style="width: 60px; height: 60px; font-size: 1.5rem;" title="AI Assistant Help">
+            <i class="fas fa-robot"></i>
+        </button>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Navbar Visibility Fix Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing navbar...');
+            
+            // Get navbar elements
+            var navbarToggler = document.querySelector('.navbar-toggler');
+            var navbarCollapse = document.getElementById('navbarNav');
+            
+            // Add click event to navbar toggler
+            if (navbarToggler && navbarCollapse) {
+                navbarToggler.addEventListener('click', function() {
+                    console.log('Navbar toggler clicked');
+                    console.log('Navbar collapse state:', navbarCollapse.classList.contains('show'));
+                    
+                    // Force visibility styles after a short delay to ensure Bootstrap has toggled
+                    setTimeout(function() {
+                        if (navbarCollapse.classList.contains('show')) {
+                            console.log('Navbar is now showing - forcing link visibility');
+                            var navLinks = navbarCollapse.querySelectorAll('.nav-link, .dropdown-item, .btn');
+                            navLinks.forEach(function(link) {
+                                link.style.visibility = 'visible';
+                                link.style.opacity = '1';
+                                link.style.display = 'block';
+                            });
+                        }
+                    }, 100);
+                });
+            }
+            
+            // Initialize all dropdowns
+            var dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+            var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+                return new bootstrap.Dropdown(dropdownToggleEl);
+            });
+            
+            // Ensure dropdown menu items are visible
+            var userDropdown = document.getElementById('navbarDropdown');
+            if (userDropdown) {
+                userDropdown.addEventListener('show.bs.dropdown', function() {
+                    console.log('User dropdown showing');
+                    var dropdownMenu = this.nextElementSibling;
+                    if (dropdownMenu) {
+                        dropdownMenu.style.display = 'block';
+                        var items = dropdownMenu.querySelectorAll('.dropdown-item');
+                        items.forEach(function(item) {
+                            item.style.visibility = 'visible';
+                            item.style.opacity = '1';
+                            item.style.color = '#1E293B';
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
