@@ -30,6 +30,10 @@ args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
 waitForPort = 5000
 
 [[ports]]
+localPort = 3000
+externalPort = 9000
+
+[[ports]]
 localPort = 5000
 externalPort = 80
 
@@ -48,10 +52,6 @@ externalPort = 6800
 [[ports]]
 localPort = 34825
 externalPort = 8099
-
-[[ports]]
-localPort = 37219
-externalPort = 9000
 
 [[ports]]
 localPort = 37565
