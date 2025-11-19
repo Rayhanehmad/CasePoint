@@ -1,5 +1,0 @@
-run = "bash start_both_servers.sh"
-
-[env]
-PORT = "3000"
-
