@@ -2,7 +2,7 @@ modules = ["python-3.11", "postgresql-16", "python3", "nodejs-20"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["cargo", "freetype", "glibcLocales", "gumbo", "harfbuzz", "jbig2dec", "lcms2", "libiconv", "libimagequant", "libjpeg", "libjpeg_turbo", "libtiff", "libwebp", "libxcrypt", "mupdf", "openjpeg", "openssl", "poppler_utils", "postgresql", "qpdf", "rustc", "swig", "tcl", "tesseract", "tk", "xcbuild", "zlib", "poppler"]
+packages = ["cargo", "freetype", "glibcLocales", "gumbo", "harfbuzz", "jbig2dec", "lcms2", "libiconv", "libimagequant", "libjpeg", "libjpeg_turbo", "libtiff", "libwebp", "libxcrypt", "mupdf", "openjpeg", "openssl", "poppler_utils", "postgresql", "rustc", "swig", "tcl", "tesseract", "tk", "xcbuild", "zlib"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -31,6 +31,7 @@ waitForPort = 5000
 
 [[ports]]
 localPort = 5000
+externalPort = 80
 
 [[ports]]
 localPort = 8000
@@ -47,10 +48,6 @@ externalPort = 6800
 [[ports]]
 localPort = 34825
 externalPort = 8099
-
-[[ports]]
-localPort = 35143
-externalPort = 9000
 
 [[ports]]
 localPort = 37565
