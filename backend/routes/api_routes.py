@@ -776,7 +776,8 @@ def auto_counter_arguments():
     POST /api/auto_counter_arguments
     Body: {"text": "narrative"}
     """
-    import openai
+    from openai import OpenAI
+    import httpx
     try:
         data = request.get_json()
         if not data or not data.get('text'):
@@ -791,11 +792,15 @@ def auto_counter_arguments():
         if not api_key:
             return jsonify({'success': False, 'error': 'OpenAI API key not configured'}), 500
         
-        # Set API key for openai module (v0.28.x syntax)
-        openai.api_key = api_key
+        # Initialize OpenAI client (v1.x format)
+        client = OpenAI(
+            api_key=api_key,
+            http_client=httpx.Client(),
+            timeout=60.0
+        )
         
-        # Generate counter arguments using OpenAI (v0.28.x syntax)
-        response = openai.ChatCompletion.create(
+        # Generate counter arguments using OpenAI (v1.x format)
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are an expert Pakistani legal defense attorney. Analyze the prosecution narrative and generate strong counter-arguments from a defense perspective. Be specific, cite legal principles, and suggest defenses under Pakistani law."},
@@ -805,7 +810,7 @@ def auto_counter_arguments():
             max_tokens=1500
         )
         
-        counter_arguments = response['choices'][0]['message']['content']
+        counter_arguments = response.choices[0].message.content
         
         return jsonify({
             'success': True,
