@@ -796,7 +796,7 @@ async function generateSummary(citationId) {
     if (generateBtn) generateBtn.disabled = true;
     
     try {
-        const response = await fetch(`/api/generate_summary/${citationId}`, {
+        const response = await fetch(`/ai/api/generate_summary/${citationId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -853,7 +853,7 @@ async function generateHeadnotes(citationId) {
     if (generateBtn) generateBtn.disabled = true;
     
     try {
-        const response = await fetch(`/api/generate_headnotes/${citationId}`, {
+        const response = await fetch(`/ai/api/generate_headnotes/${citationId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
