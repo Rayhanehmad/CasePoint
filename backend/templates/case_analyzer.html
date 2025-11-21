@@ -285,7 +285,7 @@ async function generateCounterArguments(narrative) {
         const response = await fetch('/api/auto_counter_arguments', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({prosecution_narrative: narrative})
+            body: JSON.stringify({text: narrative})
         });
         
         const data = await response.json();

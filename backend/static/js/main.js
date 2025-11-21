@@ -178,10 +178,19 @@ function initializeAIAnalysis() {
 async function handleAIAnalysis(e) {
     e.preventDefault();
     
-    const query = document.getElementById('aiQuery').value.trim();
-    const context = document.getElementById('aiContext').value.trim();
+    const queryEl = document.getElementById('aiQuery');
+    const contextEl = document.getElementById('aiContext');
     const submitBtn = document.getElementById('aiSubmitBtn');
     const resultDiv = document.getElementById('aiResult');
+    
+    // Check if elements exist (form might not be on current page)
+    if (!queryEl || !contextEl || !submitBtn || !resultDiv) {
+        console.warn('AI Analysis form elements not found on this page');
+        return;
+    }
+    
+    const query = queryEl.value.trim();
+    const context = contextEl.value.trim();
     
     if (!query) {
         showAlert('Please enter a legal question', 'warning');

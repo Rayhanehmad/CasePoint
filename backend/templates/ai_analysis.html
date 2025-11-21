@@ -252,9 +252,9 @@
                 <div class="p-4">
                     <form id="aiAnalysisForm" method="POST" action="{{ url_for('ai.ai_analysis') }}">
                         <div class="mb-4">
-                            <label for="query" class="form-label fw-bold">Legal Question *</label>
+                            <label for="aiQuery" class="form-label fw-bold">Legal Question *</label>
                             <textarea class="form-control" 
-                                      id="query" 
+                                      id="aiQuery" 
                                       name="query" 
                                       rows="4" 
                                       placeholder="Enter your legal question or case details. For example: 'What are the grounds for divorce under Muslim Family Laws Ordinance 1961?' or 'Explain the procedure for filing a writ petition in High Court.'"
@@ -266,9 +266,9 @@
                         </div>
                         
                         <div class="mb-4">
-                            <label for="context" class="form-label fw-bold">Additional Context (Optional)</label>
+                            <label for="aiContext" class="form-label fw-bold">Additional Context (Optional)</label>
                             <textarea class="form-control" 
-                                      id="context" 
+                                      id="aiContext" 
                                       name="context" 
                                       rows="3" 
                                       placeholder="Provide any relevant case law, statutes, previous judgments, or specific circumstances that might help in the analysis...">{{ context if context }}</textarea>
