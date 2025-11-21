@@ -10,8 +10,15 @@ import chromadb
 from chromadb.config import Settings
 from openai import OpenAI
 
-# Initialize OpenAI client with new API format
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# Initialize OpenAI client lazily to avoid errors when API key is not set
+_client = None
+
+def get_openai_client():
+    """Get or create OpenAI client"""
+    global _client
+    if _client is None and os.environ.get("OPENAI_API_KEY"):
+        _client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+    return _client
 
 # Initialize ChromaDB
 chroma_client = chromadb.PersistentClient(
@@ -37,6 +44,11 @@ except Exception as e:
 def generate_embedding(text: str) -> List[float]:
     """Generate embedding vector using OpenAI's embedding model"""
     try:
+        client = get_openai_client()
+        if not client:
+            logging.error("OpenAI client not initialized - API key missing")
+            return None
+        
         response = client.embeddings.create(
             model="text-embedding-ada-002",
             input=text

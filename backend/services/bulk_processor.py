@@ -18,7 +18,13 @@ logger = logging.getLogger(__name__)
 
 class BulkDocumentProcessor:
     def __init__(self):
-        self.client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+        self._client = None
+    
+    def get_client(self):
+        """Get or create OpenAI client"""
+        if self._client is None and os.environ.get('OPENAI_API_KEY'):
+            self._client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+        return self._client
     
     def extract_text_from_file(self, file_path, file_type):
         """Extract text from various file formats"""
@@ -95,7 +101,11 @@ Document text:
 ---
 """ + text[:8000]  # Limit to first 8000 chars to save tokens
 
-            response = self.client.chat.completions.create(
+            client = self.get_client()
+            if not client:
+                raise Exception("OpenAI API key not configured")
+            
+            response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You are a legal document metadata extractor. Always return valid JSON."},

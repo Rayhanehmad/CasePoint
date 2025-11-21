@@ -7,8 +7,15 @@ import os
 import logging
 from services import vector_search
 
-# Initialize OpenAI client with new API format
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Initialize OpenAI client lazily to avoid errors when API key is not set
+_client = None
+
+def get_openai_client():
+    """Get or create OpenAI client"""
+    global _client
+    if _client is None and os.getenv("OPENAI_API_KEY"):
+        _client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    return _client
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +75,10 @@ Please provide:
 Response should be professional and accurate."""
         
         # Use new OpenAI chat completions API
+        client = get_openai_client()
+        if not client:
+            return "AI analysis requires OpenAI API key configuration. Please set OPENAI_API_KEY environment variable."
+        
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -123,6 +134,11 @@ Text:
 Summary:"""
     
     try:
+        client = get_openai_client()
+        if not client:
+            logger.error("OpenAI client not initialized - API key missing")
+            return None
+        
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[
@@ -185,6 +201,11 @@ Judgment Text:
 Headnotes:"""
     
     try:
+        client = get_openai_client()
+        if not client:
+            logger.error("OpenAI client not initialized - API key missing")
+            return None
+        
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[

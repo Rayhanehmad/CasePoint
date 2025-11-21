@@ -16,9 +16,15 @@ class BatchSummarizer:
     
     def __init__(self):
         """Initialize batch summarizer"""
-        self.client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+        self._client = None
         self.max_summary_words = 150
         self.batch_size = 15  # Process 15 citations per API call for cost efficiency
+    
+    def get_client(self):
+        """Get or create OpenAI client"""
+        if self._client is None and os.environ.get('OPENAI_API_KEY'):
+            self._client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+        return self._client
     
     def generate_summaries_batch(self, citation_blocks: List[Dict]) -> List[Dict]:
         """
@@ -63,7 +69,11 @@ Summary (100 words max):"""
 
                 try:
                     # Call OpenAI API for single citation
-                    response = self.client.chat.completions.create(
+                    client = self.get_client()
+                    if not client:
+                        raise Exception("OpenAI API key not configured")
+                    
+                    response = client.chat.completions.create(
                         model="gpt-3.5-turbo",
                         messages=[
                             {"role": "system", "content": "You are a legal case summarizer."},
@@ -106,7 +116,11 @@ Text:
 
 Summary (150 words max):"""
 
-            response = self.client.chat.completions.create(
+            client = self.get_client()
+            if not client:
+                raise Exception("OpenAI API key not configured")
+            
+            response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You are a legal case summarizer for Pakistani law."},
