@@ -6,7 +6,6 @@ Cost-optimized using GPT-3.5-turbo with batch processing
 import os
 import logging
 from openai import OpenAI
-import httpx
 import json
 from typing import List, Dict
 
@@ -22,14 +21,10 @@ class BatchSummarizer:
         self.batch_size = 15  # Process 15 citations per API call for cost efficiency
     
     def get_client(self):
-        """Get or create OpenAI client"""
+        """Get or create OpenAI client with proper lifecycle management"""
         if self._client is None and os.environ.get('OPENAI_API_KEY'):
-            # Create httpx client without proxies to avoid compatibility issues
-            http_client = httpx.Client()
-            self._client = OpenAI(
-                api_key=os.environ.get('OPENAI_API_KEY'),
-                http_client=http_client
-            )
+            # Use default OpenAI client initialization (handles httpx lifecycle properly)
+            self._client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
         return self._client
     
     def generate_summaries_batch(self, citation_blocks: List[Dict]) -> List[Dict]:

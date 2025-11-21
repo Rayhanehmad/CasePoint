@@ -9,21 +9,16 @@ from typing import List, Dict, Optional, Tuple
 import chromadb
 from chromadb.config import Settings
 from openai import OpenAI
-import httpx
 
 # Initialize OpenAI client lazily to avoid errors when API key is not set
 _client = None
 
 def get_openai_client():
-    """Get or create OpenAI client"""
+    """Get or create OpenAI client with proper lifecycle management"""
     global _client
     if _client is None and os.environ.get("OPENAI_API_KEY"):
-        # Create httpx client without proxies to avoid compatibility issues
-        http_client = httpx.Client()
-        _client = OpenAI(
-            api_key=os.environ.get("OPENAI_API_KEY"),
-            http_client=http_client
-        )
+        # Use default OpenAI client initialization (handles httpx lifecycle properly)
+        _client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     return _client
 
 # Initialize ChromaDB
@@ -56,7 +51,7 @@ def generate_embedding(text: str) -> List[float]:
             return None
         
         response = client.embeddings.create(
-            model="text-embedding-ada-002",
+            model="text-embedding-3-small",  # Modern embedding model (replaces deprecated ada-002)
             input=text
         )
         return response.data[0].embedding
