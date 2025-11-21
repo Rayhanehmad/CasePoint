@@ -104,12 +104,24 @@ Preferred communication style: Simple, everyday language.
 ## External Dependencies
 
 ### AI Services
-- **OpenAI API v1.12.0**: Modern OpenAI SDK with GPT-4 for legal analysis and text-embedding-3-small for vectorization (upgraded November 2025)
+- **Hybrid AI Architecture** (Optimized November 2025):
+  - **Groq API** for text generation (llama-3.1-8b-instant):
+    - AI Headnotes generation
+    - Legal analysis and summaries
+    - Case counter arguments
+    - Bulk document processing
+    - Batch summarization
+    - Fast inference with cost-effective pricing
+  - **OpenAI API** for embeddings only (text-embedding-3-small):
+    - Vector search and semantic similarity
+    - Document embedding in ChromaDB
+    - High-quality embeddings for legal documents
   - Modern client format: `from openai import OpenAI` with `client.chat.completions.create()`
   - Custom httpx.Client() initialization for Replit environment compatibility
   - Lazy client initialization pattern for optimal resource management
-  - All AI services (legal analysis, embeddings, bulk processing, batch summarization) using unified client pattern
-- **API Key Management**: Environment variable-based secure authentication (OPENAI_API_KEY)
+- **API Key Management**: 
+  - GROQ_API_KEY for text generation (all LLM calls)
+  - OPENAI_API_KEY for embeddings only (vector search)
 
 ### Database and Storage
 - **ChromaDB**: Vector database for persistent storage of document embeddings and similarity search

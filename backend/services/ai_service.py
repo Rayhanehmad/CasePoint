@@ -1,5 +1,5 @@
 """
-AI Service for legal analysis using OpenAI
+AI Service for legal analysis using Groq (text generation) and OpenAI (embeddings)
 """
 
 from openai import OpenAI
@@ -7,29 +7,30 @@ import os
 import logging
 from services import vector_search
 
-# Initialize OpenAI client lazily to avoid errors when API key is not set
-_client = None
+# Initialize Groq client lazily for text generation
+_groq_client = None
 
-def get_openai_client():
-    """Get or create OpenAI client with proper lifecycle management"""
-    global _client
-    if _client is None and os.getenv("OPENAI_API_KEY"):
-        # Create simple httpx client for Replit environment compatibility
+def get_groq_client():
+    """Get or create Groq client for text generation (llama-3.1-8b-instant)"""
+    global _groq_client
+    if _groq_client is None and os.getenv("GROQ_API_KEY"):
+        # Create Groq client using OpenAI SDK with Groq endpoint
         import httpx
-        _client = OpenAI(
-            api_key=os.getenv("OPENAI_API_KEY"),
-            http_client=httpx.Client(),  # Use default httpx client
+        _groq_client = OpenAI(
+            api_key=os.getenv("GROQ_API_KEY"),
+            base_url="https://api.groq.com/openai/v1",  # Groq endpoint
+            http_client=httpx.Client(),
             timeout=60.0
         )
-    return _client
+    return _groq_client
 
 logger = logging.getLogger(__name__)
 
 
 def generate_legal_analysis(query, context="", use_semantic_search=True):
-    """Generate AI-powered legal analysis using OpenAI API with ChromaDB semantic search"""
-    if not os.getenv("OPENAI_API_KEY"):
-        return "AI analysis requires OpenAI API key configuration. Please set OPENAI_API_KEY environment variable."
+    """Generate AI-powered legal analysis using Groq API with ChromaDB semantic search"""
+    if not os.getenv("GROQ_API_KEY"):
+        return "AI analysis requires Groq API key configuration. Please set GROQ_API_KEY environment variable."
     
     try:
         # Search for relevant documents using ChromaDB if enabled
@@ -80,13 +81,13 @@ Please provide:
 
 Response should be professional and accurate."""
         
-        # Use new OpenAI chat completions API
-        client = get_openai_client()
+        # Use Groq client with llama-3.1-8b-instant
+        client = get_groq_client()
         if not client:
-            return "AI analysis requires OpenAI API key configuration. Please set OPENAI_API_KEY environment variable."
+            return "AI analysis requires Groq API key configuration. Please set GROQ_API_KEY environment variable."
         
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="llama-3.1-8b-instant",  # Groq's fast model
             messages=[
                 {"role": "system", "content": "You are an expert legal research assistant specializing in Pakistan law. Provide accurate, well-cited legal analysis based on the provided context."},
                 {"role": "user", "content": prompt}
@@ -98,13 +99,13 @@ Response should be professional and accurate."""
         return response.choices[0].message.content
         
     except Exception as e:
-        print(f"OpenAI API error: {e}")
+        print(f"Groq API error: {e}")
         return f"AI analysis temporarily unavailable. Error: {str(e)}"
 
 
 def generate_summary(citation_text, citation_title=""):
     """
-    Generate AI summary for a legal citation.
+    Generate AI summary for a legal citation using Groq.
     
     Args:
         citation_text: Full text of the citation
@@ -113,8 +114,8 @@ def generate_summary(citation_text, citation_title=""):
     Returns:
         str: Generated summary or None if failed
     """
-    if not os.getenv("OPENAI_API_KEY"):
-        logger.error("OpenAI API key not configured")
+    if not os.getenv("GROQ_API_KEY"):
+        logger.error("Groq API key not configured")
         return None
         
     if not citation_text or len(citation_text.strip()) < 50:
@@ -140,20 +141,19 @@ Text:
 Summary:"""
     
     try:
-        client = get_openai_client()
+        client = get_groq_client()
         if not client:
-            logger.error("OpenAI client not initialized - API key missing")
+            logger.error("Groq client not initialized - API key missing")
             return None
         
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="llama-3.1-8b-instant",  # Groq's fast model
             messages=[
                 {"role": "system", "content": "You are an expert Pakistani legal analyst specializing in case law summarization."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.3,
-            max_tokens=400,
-            timeout=30
+            max_tokens=400
         )
         
         summary = response.choices[0].message.content.strip()
@@ -167,7 +167,7 @@ Summary:"""
 
 def generate_headnotes(citation_text, citation_title=""):
     """
-    Generate AI headnotes for a legal citation in PLD/SCMR style.
+    Generate AI headnotes for a legal citation in PLD/SCMR style using Groq.
     
     Args:
         citation_text: Full text of the citation
@@ -176,8 +176,8 @@ def generate_headnotes(citation_text, citation_title=""):
     Returns:
         str: Generated headnotes or None if failed
     """
-    if not os.getenv("OPENAI_API_KEY"):
-        logger.error("OpenAI API key not configured")
+    if not os.getenv("GROQ_API_KEY"):
+        logger.error("Groq API key not configured")
         return None
         
     if not citation_text or len(citation_text.strip()) < 50:
@@ -207,20 +207,19 @@ Judgment Text:
 Headnotes:"""
     
     try:
-        client = get_openai_client()
+        client = get_groq_client()
         if not client:
-            logger.error("OpenAI client not initialized - API key missing")
+            logger.error("Groq client not initialized - API key missing")
             return None
         
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="llama-3.1-8b-instant",  # Groq's fast model
             messages=[
                 {"role": "system", "content": "You are an expert Pakistani legal analyst specializing in creating professional headnotes for case law."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.3,
-            max_tokens=600,
-            timeout=40
+            max_tokens=600
         )
         
         headnotes = response.choices[0].message.content.strip()

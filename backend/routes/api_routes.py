@@ -787,21 +787,22 @@ def auto_counter_arguments():
         if len(text) < 10:
             return jsonify({'success': False, 'error': 'Text too short'}), 400
         
-        # Check OpenAI API key
-        api_key = os.getenv('OPENAI_API_KEY')
+        # Check Groq API key
+        api_key = os.getenv('GROQ_API_KEY')
         if not api_key:
-            return jsonify({'success': False, 'error': 'OpenAI API key not configured'}), 500
+            return jsonify({'success': False, 'error': 'Groq API key not configured'}), 500
         
-        # Initialize OpenAI client (v1.x format)
+        # Initialize Groq client (v1.x format with Groq endpoint)
         client = OpenAI(
             api_key=api_key,
+            base_url="https://api.groq.com/openai/v1",  # Groq endpoint
             http_client=httpx.Client(),
             timeout=60.0
         )
         
-        # Generate counter arguments using OpenAI (v1.x format)
+        # Generate counter arguments using Groq (llama-3.1-8b-instant)
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="llama-3.1-8b-instant",  # Groq's fast model
             messages=[
                 {"role": "system", "content": "You are an expert Pakistani legal defense attorney. Analyze the prosecution narrative and generate strong counter-arguments from a defense perspective. Be specific, cite legal principles, and suggest defenses under Pakistani law."},
                 {"role": "user", "content": f"Prosecution narrative:\n\n{text}\n\nProvide detailed defense counter-arguments:"}

@@ -21,13 +21,14 @@ class BulkDocumentProcessor:
         self._client = None
     
     def get_client(self):
-        """Get or create OpenAI client with proper lifecycle management"""
-        if self._client is None and os.environ.get('OPENAI_API_KEY'):
-            # Create simple httpx client for Replit environment compatibility
+        """Get or create Groq client for text generation with proper lifecycle management"""
+        if self._client is None and os.environ.get('GROQ_API_KEY'):
+            # Create Groq client using OpenAI SDK with Groq endpoint
             import httpx
             self._client = OpenAI(
-                api_key=os.environ.get('OPENAI_API_KEY'),
-                http_client=httpx.Client(),  # Use default httpx client
+                api_key=os.environ.get('GROQ_API_KEY'),
+                base_url="https://api.groq.com/openai/v1",  # Groq endpoint
+                http_client=httpx.Client(),
                 timeout=60.0
             )
         return self._client
@@ -84,7 +85,7 @@ class BulkDocumentProcessor:
             raise
     
     def extract_legal_metadata(self, text):
-        """Use OpenAI to extract legal metadata from text"""
+        """Use Groq to extract legal metadata from text"""
         try:
             prompt = """You are a legal document analyzer for Pakistan law. Extract the following metadata from the provided legal document text:
 
@@ -109,10 +110,10 @@ Document text:
 
             client = self.get_client()
             if not client:
-                raise Exception("OpenAI API key not configured")
+                raise Exception("Groq API key not configured")
             
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="llama-3.1-8b-instant",  # Groq's fast model
                 messages=[
                     {"role": "system", "content": "You are a legal document metadata extractor. Always return valid JSON."},
                     {"role": "user", "content": prompt}

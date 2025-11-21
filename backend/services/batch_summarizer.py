@@ -21,13 +21,14 @@ class BatchSummarizer:
         self.batch_size = 15  # Process 15 citations per API call for cost efficiency
     
     def get_client(self):
-        """Get or create OpenAI client with proper lifecycle management"""
-        if self._client is None and os.environ.get('OPENAI_API_KEY'):
-            # Create simple httpx client for Replit environment compatibility
+        """Get or create Groq client for text generation with proper lifecycle management"""
+        if self._client is None and os.environ.get('GROQ_API_KEY'):
+            # Create Groq client using OpenAI SDK with Groq endpoint
             import httpx
             self._client = OpenAI(
-                api_key=os.environ.get('OPENAI_API_KEY'),
-                http_client=httpx.Client(),  # Use default httpx client
+                api_key=os.environ.get('GROQ_API_KEY'),
+                base_url="https://api.groq.com/openai/v1",  # Groq endpoint
+                http_client=httpx.Client(),
                 timeout=60.0
             )
         return self._client
@@ -74,20 +75,19 @@ Text: {text_sample}
 Summary (100 words max):"""
 
                 try:
-                    # Call OpenAI API for single citation
+                    # Call Groq API for single citation
                     client = self.get_client()
                     if not client:
-                        raise Exception("OpenAI API key not configured")
+                        raise Exception("Groq API key not configured")
                     
                     response = client.chat.completions.create(
-                        model="gpt-3.5-turbo",
+                        model="llama-3.1-8b-instant",  # Groq's fast model
                         messages=[
                             {"role": "system", "content": "You are a legal case summarizer."},
                             {"role": "user", "content": prompt}
                         ],
                         temperature=0.3,
-                        max_tokens=150,
-                        timeout=10  # 10 second timeout per citation
+                        max_tokens=150
                     )
                     
                     summary = response.choices[0].message.content.strip()
@@ -124,10 +124,10 @@ Summary (150 words max):"""
 
             client = self.get_client()
             if not client:
-                raise Exception("OpenAI API key not configured")
+                raise Exception("Groq API key not configured")
             
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="llama-3.1-8b-instant",  # Groq's fast model
                 messages=[
                     {"role": "system", "content": "You are a legal case summarizer for Pakistani law."},
                     {"role": "user", "content": prompt}
