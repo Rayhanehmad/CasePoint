@@ -9,6 +9,7 @@ from typing import List, Dict, Optional, Tuple
 import chromadb
 from chromadb.config import Settings
 from openai import OpenAI
+import httpx
 
 # Initialize OpenAI client lazily to avoid errors when API key is not set
 _client = None
@@ -17,7 +18,12 @@ def get_openai_client():
     """Get or create OpenAI client"""
     global _client
     if _client is None and os.environ.get("OPENAI_API_KEY"):
-        _client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+        # Create httpx client without proxies to avoid compatibility issues
+        http_client = httpx.Client()
+        _client = OpenAI(
+            api_key=os.environ.get("OPENAI_API_KEY"),
+            http_client=http_client
+        )
     return _client
 
 # Initialize ChromaDB

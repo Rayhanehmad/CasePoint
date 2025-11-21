@@ -6,6 +6,7 @@ from openai import OpenAI
 import os
 import logging
 from services import vector_search
+import httpx
 
 # Initialize OpenAI client lazily to avoid errors when API key is not set
 _client = None
@@ -14,7 +15,12 @@ def get_openai_client():
     """Get or create OpenAI client"""
     global _client
     if _client is None and os.getenv("OPENAI_API_KEY"):
-        _client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        # Create httpx client without proxies to avoid compatibility issues
+        http_client = httpx.Client()
+        _client = OpenAI(
+            api_key=os.getenv("OPENAI_API_KEY"),
+            http_client=http_client
+        )
     return _client
 
 logger = logging.getLogger(__name__)

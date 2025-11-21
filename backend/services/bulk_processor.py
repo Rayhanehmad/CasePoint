@@ -5,6 +5,7 @@ Bulk document processor with AI-powered metadata extraction
 import os
 import logging
 from openai import OpenAI
+import httpx
 import pdfplumber
 from docx import Document
 from PIL import Image
@@ -23,7 +24,12 @@ class BulkDocumentProcessor:
     def get_client(self):
         """Get or create OpenAI client"""
         if self._client is None and os.environ.get('OPENAI_API_KEY'):
-            self._client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+            # Create httpx client without proxies to avoid compatibility issues
+            http_client = httpx.Client()
+            self._client = OpenAI(
+                api_key=os.environ.get('OPENAI_API_KEY'),
+                http_client=http_client
+            )
         return self._client
     
     def extract_text_from_file(self, file_path, file_type):
