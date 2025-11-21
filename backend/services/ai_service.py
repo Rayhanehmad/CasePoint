@@ -2,20 +2,20 @@
 AI Service for legal analysis using OpenAI
 """
 
-import openai
+from openai import OpenAI
 import os
 import logging
 from services import vector_search
 
-# Configure OpenAI with legacy API
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Initialize OpenAI client with new API format
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 logger = logging.getLogger(__name__)
 
 
 def generate_legal_analysis(query, context="", use_semantic_search=True):
-    """Generate AI-powered legal analysis using legacy OpenAI API with ChromaDB semantic search"""
-    if not openai.api_key:
+    """Generate AI-powered legal analysis using OpenAI API with ChromaDB semantic search"""
+    if not os.getenv("OPENAI_API_KEY"):
         return "AI analysis requires OpenAI API key configuration. Please set OPENAI_API_KEY environment variable."
     
     try:
@@ -67,8 +67,8 @@ Please provide:
 
 Response should be professional and accurate."""
         
-        # Use legacy OpenAI ChatCompletion API
-        response = openai.ChatCompletion.create(
+        # Use new OpenAI chat completions API
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are an expert legal research assistant specializing in Pakistan law. Provide accurate, well-cited legal analysis based on the provided context."},
@@ -81,7 +81,7 @@ Response should be professional and accurate."""
         return response.choices[0].message.content
         
     except Exception as e:
-        print(f"Legacy OpenAI API error: {e}")
+        print(f"OpenAI API error: {e}")
         return f"AI analysis temporarily unavailable. Error: {str(e)}"
 
 
@@ -96,7 +96,7 @@ def generate_summary(citation_text, citation_title=""):
     Returns:
         str: Generated summary or None if failed
     """
-    if not openai.api_key:
+    if not os.getenv("OPENAI_API_KEY"):
         logger.error("OpenAI API key not configured")
         return None
         
@@ -123,7 +123,7 @@ Text:
 Summary:"""
     
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are an expert Pakistani legal analyst specializing in case law summarization."},
@@ -154,7 +154,7 @@ def generate_headnotes(citation_text, citation_title=""):
     Returns:
         str: Generated headnotes or None if failed
     """
-    if not openai.api_key:
+    if not os.getenv("OPENAI_API_KEY"):
         logger.error("OpenAI API key not configured")
         return None
         
@@ -185,7 +185,7 @@ Judgment Text:
 Headnotes:"""
     
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are an expert Pakistani legal analyst specializing in creating professional headnotes for case law."},

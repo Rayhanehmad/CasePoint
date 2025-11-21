@@ -8,10 +8,10 @@ import logging
 from typing import List, Dict, Optional, Tuple
 import chromadb
 from chromadb.config import Settings
-import openai
+from openai import OpenAI
 
-# Configure OpenAI with legacy API
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+# Initialize OpenAI client with new API format
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 # Initialize ChromaDB
 chroma_client = chromadb.PersistentClient(
@@ -37,11 +37,11 @@ except Exception as e:
 def generate_embedding(text: str) -> List[float]:
     """Generate embedding vector using OpenAI's embedding model"""
     try:
-        response = openai.Embedding.create(
+        response = client.embeddings.create(
             model="text-embedding-ada-002",
             input=text
         )
-        return response['data'][0]['embedding']
+        return response.data[0].embedding
     except Exception as e:
         logging.error(f"Error generating embedding: {e}")
         return None

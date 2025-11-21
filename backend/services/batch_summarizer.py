@@ -5,7 +5,7 @@ Cost-optimized using GPT-3.5-turbo with batch processing
 
 import os
 import logging
-import openai
+from openai import OpenAI
 import json
 from typing import List, Dict
 
@@ -16,7 +16,7 @@ class BatchSummarizer:
     
     def __init__(self):
         """Initialize batch summarizer"""
-        openai.api_key = os.environ.get('OPENAI_API_KEY')
+        self.client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
         self.max_summary_words = 150
         self.batch_size = 15  # Process 15 citations per API call for cost efficiency
     
@@ -63,7 +63,7 @@ Summary (100 words max):"""
 
                 try:
                     # Call OpenAI API for single citation
-                    response = openai.ChatCompletion.create(
+                    response = self.client.chat.completions.create(
                         model="gpt-3.5-turbo",
                         messages=[
                             {"role": "system", "content": "You are a legal case summarizer."},
@@ -74,7 +74,7 @@ Summary (100 words max):"""
                         timeout=10  # 10 second timeout per citation
                     )
                     
-                    summary = response.choices[0].message['content'].strip()
+                    summary = response.choices[0].message.content.strip()
                     batch[idx]['summary'] = summary
                     logger.debug(f"Generated summary for {block['citation']}")
                     
@@ -106,7 +106,7 @@ Text:
 
 Summary (150 words max):"""
 
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You are a legal case summarizer for Pakistani law."},
@@ -116,7 +116,7 @@ Summary (150 words max):"""
                 max_tokens=250
             )
             
-            return response.choices[0].message['content'].strip()
+            return response.choices[0].message.content.strip()
             
         except Exception as e:
             logger.error(f"Error generating summary: {str(e)}")

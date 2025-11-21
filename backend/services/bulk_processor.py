@@ -4,7 +4,7 @@ Bulk document processor with AI-powered metadata extraction
 
 import os
 import logging
-import openai
+from openai import OpenAI
 import pdfplumber
 from docx import Document
 from PIL import Image
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class BulkDocumentProcessor:
     def __init__(self):
-        openai.api_key = os.environ.get('OPENAI_API_KEY')
+        self.client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
     
     def extract_text_from_file(self, file_path, file_type):
         """Extract text from various file formats"""
@@ -95,7 +95,7 @@ Document text:
 ---
 """ + text[:8000]  # Limit to first 8000 chars to save tokens
 
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You are a legal document metadata extractor. Always return valid JSON."},
@@ -104,7 +104,7 @@ Document text:
                 temperature=0.1
             )
             
-            metadata_json = response.choices[0].message['content']
+            metadata_json = response.choices[0].message.content
             metadata = json.loads(metadata_json)
             
             # Clean and validate

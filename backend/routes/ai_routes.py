@@ -78,7 +78,6 @@ def api_analyze():
 def api_status():
     """Check AI service status"""
     import os
-    import openai
     
     try:
         if not os.getenv("OPENAI_API_KEY"):
