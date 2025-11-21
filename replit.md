@@ -104,7 +104,11 @@ Preferred communication style: Simple, everyday language.
 ## External Dependencies
 
 ### AI Services
-- **OpenAI API**: GPT-4 model for legal question answering and text-embedding-3-small for document vectorization
+- **OpenAI API v1.12.0**: Modern OpenAI SDK with GPT-4 for legal analysis and text-embedding-3-small for vectorization (upgraded November 2025)
+  - Modern client format: `from openai import OpenAI` with `client.chat.completions.create()`
+  - Custom httpx.Client() initialization for Replit environment compatibility
+  - Lazy client initialization pattern for optimal resource management
+  - All AI services (legal analysis, embeddings, bulk processing, batch summarization) using unified client pattern
 - **API Key Management**: Environment variable-based secure authentication (OPENAI_API_KEY)
 
 ### Database and Storage
