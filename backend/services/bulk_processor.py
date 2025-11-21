@@ -23,8 +23,13 @@ class BulkDocumentProcessor:
     def get_client(self):
         """Get or create OpenAI client with proper lifecycle management"""
         if self._client is None and os.environ.get('OPENAI_API_KEY'):
-            # Use default OpenAI client initialization (handles httpx lifecycle properly)
-            self._client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+            # Create simple httpx client for Replit environment compatibility
+            import httpx
+            self._client = OpenAI(
+                api_key=os.environ.get('OPENAI_API_KEY'),
+                http_client=httpx.Client(),  # Use default httpx client
+                timeout=60.0
+            )
         return self._client
     
     def extract_text_from_file(self, file_path, file_type):

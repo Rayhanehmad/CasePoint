@@ -17,8 +17,13 @@ def get_openai_client():
     """Get or create OpenAI client with proper lifecycle management"""
     global _client
     if _client is None and os.environ.get("OPENAI_API_KEY"):
-        # Use default OpenAI client initialization (handles httpx lifecycle properly)
-        _client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+        # Create simple httpx client for Replit environment compatibility
+        import httpx
+        _client = OpenAI(
+            api_key=os.environ.get("OPENAI_API_KEY"),
+            http_client=httpx.Client(),  # Use default httpx client
+            timeout=60.0
+        )
     return _client
 
 # Initialize ChromaDB
