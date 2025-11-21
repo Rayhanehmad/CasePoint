@@ -44,7 +44,7 @@ PyMuPDF
 pydantic-settings
 asyncpg
 asgiref
-openai==0.28.1
+openai==1.40.0
 flask-cors
 pdf2image
 Pillow
