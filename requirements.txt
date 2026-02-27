@@ -1,6 +1,6 @@
-# Frameworks
-fastapi
-uvicorn[standard]
+# --- Master List for CasePoint AI ---
+
+# Web Framework
 flask
 flask-cors
 flask-sqlalchemy
@@ -12,14 +12,14 @@ chromadb
 pydantic
 pydantic-settings
 
-# Document Handling (Vercel-Safe versions)
+# Document Processing
 PyMuPDF
 pdfplumber
 pypdf2
 python-docx
-Pillow
+reportlab
 
-# Infrastructure
+# Database & Helpers
 sqlalchemy
 psycopg2-binary
 redis
