@@ -1,1 +1,0 @@
-"""KanoonPK SaaS Backend Application"""
