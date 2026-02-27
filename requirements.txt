@@ -1,4 +1,3 @@
-# Web & API Core
 fastapi
 uvicorn[standard]
 flask
@@ -9,15 +8,11 @@ flask-jwt-extended
 flask-login
 flask-admin
 werkzeug
-
-# AI & Data
 openai==1.40.0
 chromadb
 pydantic
 pydantic-settings
 langchain
-
-# Document Processing (Note: Requires external OCR if running on Vercel)
 PyMuPDF
 pdfplumber
 pypdf2
@@ -25,8 +20,6 @@ python-docx
 reportlab
 Pillow
 pikepdf
-
-# Database & Infrastructure
 sqlalchemy
 asyncpg
 psycopg2-binary
