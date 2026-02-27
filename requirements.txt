@@ -1,35 +1,30 @@
+# Frameworks
 fastapi
 uvicorn[standard]
 flask
 flask-cors
 flask-sqlalchemy
-flask-migrate
 flask-jwt-extended
-flask-login
-flask-admin
-werkzeug
+
+# AI & Data
 openai==1.40.0
 chromadb
 pydantic
 pydantic-settings
-langchain
+
+# Document Handling (Vercel-Safe versions)
 PyMuPDF
 pdfplumber
 pypdf2
 python-docx
-reportlab
 Pillow
-pikepdf
+
+# Infrastructure
 sqlalchemy
-asyncpg
 psycopg2-binary
 redis
-celery
-boto3
 python-decouple
-python-jose[cryptography]
 python-multipart
 passlib[bcrypt]
 bcrypt
-stripe
 httpx
